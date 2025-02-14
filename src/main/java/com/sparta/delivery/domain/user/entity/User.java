@@ -3,11 +3,15 @@ package com.sparta.delivery.domain.user.entity;
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_user")
 public class User extends Timestamped {
