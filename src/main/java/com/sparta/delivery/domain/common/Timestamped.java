@@ -33,7 +33,7 @@ public abstract class Timestamped {
     private LocalDateTime updatedAt;
 
     // 레코드 수정자
-    @Column(nullable = false)
+    @Column
     private String updatedBy;
 
     // 레코드 삭제 일시
