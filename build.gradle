@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'

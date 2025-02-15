@@ -21,10 +21,13 @@ public class User extends Timestamped {
     private Long user_id;
 
     @Column(unique = true)
-    private String email;
+    private String username;
 
     @Column
     private String password;
+
+    @Column
+    private String email;
 
     @Column
     private String nickname;
@@ -37,8 +40,9 @@ public class User extends Timestamped {
         return new UserResDto(
                 this.user_id,
                 this.email,
+                this.username,
                 this.nickname,
-                this.role.getRole()
+                this.role.name()
         );
     }
 }

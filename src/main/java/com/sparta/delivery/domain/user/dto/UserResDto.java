@@ -11,6 +11,8 @@ public class UserResDto {
 
     private Long user_id;
 
+    private String username;
+
     private String email;
 
     private String nickname;
