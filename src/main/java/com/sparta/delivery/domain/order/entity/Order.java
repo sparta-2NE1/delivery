@@ -33,11 +33,7 @@ public class Order extends Timestamped {
     @Column(nullable = false)
     private OrderStatus order_status;
 
-    @Column(nullable = false)
-    private boolean delivery_type;
-
     @Column
-    @Enumerated(EnumType.STRING)
     private String requirements;
 
     @ManyToOne
