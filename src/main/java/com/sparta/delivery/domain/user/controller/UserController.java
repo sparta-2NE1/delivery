@@ -35,7 +35,7 @@ public class UserController {
                 .body(userService.signup(userReqDto));
     }
 
-    public static Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
+    private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
         List<Map<String, String>> errors = bindingResult.getFieldErrors().stream()
                 .map(fieldError -> Map.of(
                         "field", fieldError.getField(),
