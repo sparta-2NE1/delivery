@@ -1,6 +1,8 @@
 package com.sparta.delivery.domain.user.enums;
 
 
+import java.util.Arrays;
+
 public enum UserRoles {
     ROLE_CUSTOMER("ROLE_CUSTOMER"),  // 일반 사용자 (고객)
     ROLE_OWNER("ROLE_OWNER"),        // 자원을 소유한 사용자
@@ -12,5 +14,13 @@ public enum UserRoles {
     // 생성자
     UserRoles(String role) {
         this.role = role;
+    }
+
+    // String을 받아 Enum 값으로 변환하는 정적 메서드
+    public static UserRoles fromString(String role) {
+        return Arrays.stream(UserRoles.values())
+                .filter(userRole -> userRole.role.equals(role))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할: " + role));
     }
 }
