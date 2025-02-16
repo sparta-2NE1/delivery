@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.user.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
+import com.sparta.delivery.domain.delivery_address.DeliveryAddress;
 import com.sparta.delivery.domain.user.dto.UserResDto;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import jakarta.persistence.*;
@@ -8,6 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,20 +24,24 @@ public class User extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_id;
 
-    @Column(unique = true)
+    @Column(unique = true , nullable = false)
     private String username;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String nickname;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRoles role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DeliveryAddress> deliveryAddresses = new ArrayList<>();
 
     public UserResDto toResponseDto() {
 
