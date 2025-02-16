@@ -29,7 +29,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorizationHttpRequest->
                 authorizationHttpRequest
                         .requestMatchers("/api/user/signup").permitAll() // 회원 가입 및 로그인은 접근 허가
-                        .requestMatchers("/api/user/login").permitAll()
+                        .requestMatchers("/api/user/signin").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
                 );

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserReqDto {
+public class SignupReqDto {
 
     // 사용자 이름 검증 (4~10자의 소문자 + 숫자)
     @NotBlank(message = "Username is required")

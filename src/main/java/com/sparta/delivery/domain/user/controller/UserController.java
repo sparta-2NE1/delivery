@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.user.controller;
 
-import com.sparta.delivery.domain.user.dto.UserReqDto;
+import com.sparta.delivery.domain.user.dto.LoginRequestDto;
+import com.sparta.delivery.domain.user.dto.SignupReqDto;
 import com.sparta.delivery.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/user")
@@ -24,7 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody @Valid UserReqDto userReqDto, BindingResult bindingResult){
+    public ResponseEntity<?> signup(@RequestBody @Valid SignupReqDto signupReqDto, BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -32,7 +32,19 @@ public class UserController {
         }
 
         return  ResponseEntity.status(HttpStatus.OK)
-                .body(userService.signup(userReqDto));
+                .body(userService.signup(signupReqDto));
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser (@RequestBody @Valid LoginRequestDto loginRequestDto, BindingResult bindingResult){
+
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ValidationErrorResponse(bindingResult));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.authenticateUser(loginRequestDto));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class User extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long user_id;
 
     @Column(unique = true)
     private String username;
@@ -38,7 +38,7 @@ public class User extends Timestamped {
     public UserResDto toResponseDto() {
 
         return new UserResDto(
-                this.userId,
+                this.user_id,
                 this.email,
                 this.username,
                 this.nickname,
