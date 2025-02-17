@@ -24,7 +24,7 @@ public class Region {
     @Column(nullable = false)//(단위 : 동)
     private String locality;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "store_id")
     private Stores stores;
 }

@@ -16,7 +16,7 @@ public interface StoreRepository extends JpaRepository<Stores,Long> {
 
     List<Stores> findByStatusTrue(); //운영중인 가게 검색
 
-    List<Stores> findByCategory(Category category);
+    Optional<Stores> findByCategory(Category category);
 
     List<Stores> findByRegion(Region region);
 
