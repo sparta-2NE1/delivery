@@ -88,7 +88,7 @@ public class UserService {
         User user = userRepository.findByUserIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found By Id : " + id));
 
-        if (!user.getUsername().equals(principalDetails.getUsername())){
+        if (!user.getUsername().equals(principalDetails.getUsername()) || !principalDetails.getRole().name().equals("ROLE_MASTER")){
             throw new ForbiddenException("Access denied.");
         }
 
