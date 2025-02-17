@@ -19,10 +19,6 @@ public interface StoreRepository extends JpaRepository<Stores, UUID> {
 
     List<Stores> findByCategory(Category category);
 
-    List<Stores> findByCityContaining(String city);//시로검색
-
-    List<Stores> findByLocalityContaining(String locality);//동으로검색
-
 
 
 }
