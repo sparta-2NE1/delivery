@@ -8,4 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
+
+    List<Payment> findByUser_UsernameAndDeletedAtIsNull(String username);
+
+    Optional<Payment> findByPaymentIdAndDeletedAtIsNull(UUID paymentId);
 }

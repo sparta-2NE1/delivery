@@ -24,8 +24,6 @@ public class Payment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID paymentId;
 
-// FIXME User 타입 변경 시 변경
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -35,16 +33,14 @@ public class Payment extends Timestamped {
     private Card card;
 
     @OneToOne
-    @JoinColumn(name="order_id")
+    @JoinColumn(name = "order_id")
     private Order order;
 
     private Integer amount;
 
     private LocalDateTime paymentTime;
 
-    @PrePersist
-    public void prePersist(){
+    public void prePersist() {
         this.paymentTime = LocalDateTime.now();
     }
-
 }
