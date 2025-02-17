@@ -5,6 +5,9 @@ import com.sparta.delivery.domain.user.dto.SignupReqDto;
 import com.sparta.delivery.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -46,9 +49,16 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserDetail(@PathVariable("id")UUID id){
+    public ResponseEntity<?> getUserById(@PathVariable("id")UUID id){
         return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.getUserDetail(id));
+                .body(userService.getUserById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getUsers(@PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC)
+                                      Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUsers(pageable));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {

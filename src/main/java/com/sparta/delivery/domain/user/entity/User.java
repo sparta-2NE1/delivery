@@ -48,8 +48,8 @@ public class User extends Timestamped {
 
         return new UserResDto(
                 this.userId,
-                this.email,
                 this.username,
+                this.email,
                 this.nickname,
                 this.role.name()
         );
