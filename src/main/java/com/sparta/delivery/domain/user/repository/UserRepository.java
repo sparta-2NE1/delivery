@@ -9,6 +9,11 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User , UUID> {
 
     Optional<User> findByUsername(String username);
+
+    // username 존재 유무 확인 (존재 : true , 없을 시 : false)
     boolean existsByUsername(String username);
+
+    // 삭제되지 않은 유저 단일 조회
+    Optional<User> findByUserIdAndDeletedAtIsNull(UUID id);
 
 }

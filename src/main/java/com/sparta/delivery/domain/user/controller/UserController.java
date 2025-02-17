@@ -8,13 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -45,6 +43,12 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.authenticateUser(loginRequestDto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserDetail(@PathVariable("id")UUID id){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.getUserDetail(id));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {

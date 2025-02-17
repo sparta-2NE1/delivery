@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.user.service;
 
+import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
 import com.sparta.delivery.config.jwt.JwtUtil;
 import com.sparta.delivery.domain.user.dto.JwtResponseDto;
 import com.sparta.delivery.domain.user.dto.LoginRequestDto;
@@ -9,9 +10,11 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +57,14 @@ public class UserService {
         String accessToken = jwtUtil.createJwt(user.getUsername(), user.getEmail(), user.getRole());
 
         return new JwtResponseDto(accessToken);
+    }
+
+    public UserResDto getUserDetail(UUID id) {
+
+        User user = userRepository.findByUserIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found By Id : " + id));
+
+        return user.toResponseDto();
+
     }
 }
