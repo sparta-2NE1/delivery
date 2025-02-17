@@ -27,7 +27,7 @@ public class Payment extends Timestamped {
 // FIXME User 타입 변경 시 변경
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
