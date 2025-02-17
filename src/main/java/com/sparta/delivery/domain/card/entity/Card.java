@@ -17,16 +17,16 @@ import java.util.UUID;
 public class Card extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID card_id;
+    private UUID cardId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String card_company;
+    private String cardCompany;
 
-    private String card_name;
+    private String cardName;
 
-    private String card_number;
+    private String cardNumber;
 
 }
