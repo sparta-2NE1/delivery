@@ -1,7 +1,7 @@
 package com.sparta.delivery.domain.user.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
-import com.sparta.delivery.domain.delivery_address.DeliveryAddress;
+import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.user.dto.UserResDto;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import jakarta.persistence.*;
