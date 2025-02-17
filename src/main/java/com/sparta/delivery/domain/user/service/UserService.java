@@ -1,11 +1,10 @@
 package com.sparta.delivery.domain.user.service;
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
 import com.sparta.delivery.config.jwt.JwtUtil;
-import com.sparta.delivery.domain.user.dto.JwtResponseDto;
-import com.sparta.delivery.domain.user.dto.LoginRequestDto;
-import com.sparta.delivery.domain.user.dto.SignupReqDto;
-import com.sparta.delivery.domain.user.dto.UserResDto;
+import com.sparta.delivery.domain.user.dto.*;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
@@ -83,5 +82,25 @@ public class UserService {
 
         // Page<User> -> Page<UserResDto>
         return userPage.map(User::toResponseDto);
+    }
+
+    public UserResDto updateUser(UUID id, PrincipalDetails principalDetails, UserUpdateReqDto userUpdateReqDto) {
+        User user = userRepository.findByUserIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found By Id : " + id));
+
+        if (!user.getUsername().equals(principalDetails.getUsername())){
+            throw new ForbiddenException("Access denied.");
+        }
+
+        if (!passwordEncoder.matches(userUpdateReqDto.getCurrentPassword(),user.getPassword())){
+            throw new ForbiddenException("Incorrect password.");
+        }
+
+        user.setPassword(passwordEncoder.encode(userUpdateReqDto.getNewPassword()));
+        user.setEmail(userUpdateReqDto.getEmail());
+        user.setNickname(userUpdateReqDto.getNickname());
+        user.setRole(UserRoles.ROLE_CUSTOMER);
+
+        return userRepository.save(user).toResponseDto();
     }
 }
