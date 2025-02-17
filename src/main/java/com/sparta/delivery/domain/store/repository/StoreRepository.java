@@ -18,7 +18,9 @@ public interface StoreRepository extends JpaRepository<Stores,Long> {
 
     Optional<Stores> findByCategory(Category category);
 
-    List<Stores> findByRegion(Region region);
+    List<Stores> findByCityContaining(String city);//시로검색
+
+    List<Stores> findByLocalityContaining(String locality);//동으로검색
 
 
 
