@@ -14,17 +14,18 @@ import lombok.Setter;
 @Table(name="p_stores")
 public class Stores extends Timestamped {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long store_id;
 
-    @Column
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private Long storeid;
+
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String address;
 
-    @Column
+    @Column(nullable = false)
     private boolean status;
 
     @OneToOne(mappedBy = "stores")

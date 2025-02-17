@@ -14,15 +14,15 @@ import lombok.Setter;
 @Table(name="p_reigion")
 public class Region {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long region_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    Long regionid;
 
-    @Column
+    @Column(nullable = false)//(단위 : 도)
     private String province;
-    @Column
+    @Column(nullable = false)//(단위 : 시)
     private String city;
-    @Column
-    private String localty;
+    @Column(nullable = false)//(단위 : 동)
+    private String locality;
 
     @OneToOne
     @JoinColumn(name = "store_id")
