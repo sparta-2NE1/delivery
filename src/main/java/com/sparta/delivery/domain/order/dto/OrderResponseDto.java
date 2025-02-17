@@ -22,10 +22,10 @@ public class OrderResponseDto {
     private User user;
 
     public OrderResponseDto(Order order) {
-        this.order_id = order.getOrder_id().toString();
-        this.order_time = order.getOrder_time();
-        this.order_type = order.getOrder_type();
-        this.order_status = order.getOrder_status();
+        this.order_id = order.getOrderId().toString();
+        this.order_time = order.getOrderTime();
+        this.order_type = order.getOrderType();
+        this.order_status = order.getOrderStatus();
         this.requirements = order.getRequirements();
         this.stores = order.getStores();
         this.payment = order.getPayment();
