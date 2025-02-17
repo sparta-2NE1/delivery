@@ -1,4 +1,4 @@
-package com.sparta.delivery.domain.delivery_address;
+package com.sparta.delivery.domain.delivery_address.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.user.entity.User;
@@ -19,15 +19,17 @@ import java.util.UUID;
 public class DeliveryAddress extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID delivery_address_id;
+    @Column(name = "delivery_address_id")
+    private UUID deliveryAddressId;
 
-    @Column(nullable = false)
-    private String delivery_address;
+    @Column(name = "delivery_address", nullable = false) // ✅ 컬럼명을 소문자로 고정
+    private String deliveryAddress;
 
-    @Column(nullable = false)
-    private String delivery_address_info;
+    @Column(name = "delivery_address_info", nullable = false) // ✅ Snake_case로 변경
+    private String deliveryAddressInfo;
 
-    private String detail_address; // 상세 주소
+    @Column(name = "detail_address")
+    private String detailAddress;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
