@@ -3,14 +3,14 @@ package com.sparta.delivery.domain.region.entity;
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.store.entity.Stores;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name="p_reigion")
 public class Region {
     @Id
@@ -24,7 +24,7 @@ public class Region {
     @Column(nullable = false)//(단위 : 동)
     private String locality;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "store_id")
     private Stores stores;
 }
