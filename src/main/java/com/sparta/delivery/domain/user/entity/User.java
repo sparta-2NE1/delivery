@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Builder
@@ -17,8 +19,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "p_user")
 public class User extends Timestamped {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long user_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID userId;
 
     @Column(unique = true)
     private String username;
@@ -38,7 +40,7 @@ public class User extends Timestamped {
     public UserResDto toResponseDto() {
 
         return new UserResDto(
-                this.user_id,
+                this.userId,
                 this.email,
                 this.username,
                 this.nickname,
