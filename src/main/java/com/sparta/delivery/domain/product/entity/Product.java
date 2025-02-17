@@ -17,6 +17,7 @@ public class Product extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "product_id")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
