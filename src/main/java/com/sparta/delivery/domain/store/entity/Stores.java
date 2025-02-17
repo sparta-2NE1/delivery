@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -20,7 +21,7 @@ public class Stores extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private Long storeid;
+    private UUID storeid;
 
     @Column(nullable = false)
     private String name;
