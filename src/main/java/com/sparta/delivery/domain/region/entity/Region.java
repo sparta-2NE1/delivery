@@ -5,6 +5,8 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -15,7 +17,7 @@ import lombok.*;
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    Long regionid;
+    private UUID regionid;
 
     @Column(nullable = false)//(단위 : 도)
     private String province;
