@@ -19,7 +19,7 @@ import java.util.UUID;
 public class Review extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID review_id;
+    private UUID reviewId;
 
     @Column(nullable = false)
     private String comment;

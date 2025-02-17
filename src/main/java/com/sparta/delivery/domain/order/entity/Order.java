@@ -22,30 +22,32 @@ import java.util.UUID;
 public class Order extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID order_id;
+    private UUID orderId;
 
     @Column(nullable = false)
-    private LocalDateTime order_time;
+    private LocalDateTime orderTime;
 
     @Column(nullable = false)
-    private OrderType order_type;
+    @Enumerated(value = EnumType.STRING)
+    private OrderType orderType;
 
     @Column(nullable = false)
-    private OrderStatus order_status;
+    @Enumerated(value = EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @Column
     private String requirements;
 
     @ManyToOne
-    @JoinColumn(name = "store_id", nullable = false)
+    @JoinColumn(name = "storeId", nullable = false)
     private Stores stores;
 
     @OneToOne
-    @JoinColumn(name = "payment_id")
+    @JoinColumn(name = "paymentId")
     private Payment payment;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     //배송지정보 연관관계 추가 필요
