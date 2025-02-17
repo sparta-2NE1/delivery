@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.swing.plaf.synth.Region;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface StoreRepository extends JpaRepository<Stores,Long> {
+public interface StoreRepository extends JpaRepository<Stores, UUID> {
 
     Optional<Stores> findByName(String name);
 
