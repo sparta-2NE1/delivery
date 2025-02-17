@@ -92,7 +92,7 @@ public class UserServiceTest {
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupReqDto));
-        assertEquals("username already exists : testuser", exception.getMessage());
+        assertEquals("username already exists : test@example.com", exception.getMessage());
     }
 
     @Test
