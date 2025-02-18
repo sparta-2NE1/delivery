@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.user.controller;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.user.dto.LoginRequestDto;
 import com.sparta.delivery.domain.user.dto.SignupReqDto;
+import com.sparta.delivery.domain.user.dto.UserRoleUpdateReqDto;
 import com.sparta.delivery.domain.user.dto.UserUpdateReqDto;
 import com.sparta.delivery.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -64,10 +65,10 @@ public class UserController {
                 .body(userService.getUsers(pageable));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails,
-                                        @RequestBody UserUpdateReqDto userUpdateReqDto,
+                                        @RequestBody @Valid UserUpdateReqDto userUpdateReqDto,
                                         BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){
@@ -77,6 +78,21 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.updateUser(id, principalDetails, userUpdateReqDto));
+    }
+
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<?> updateRole(@PathVariable("id") UUID id,
+                                        @AuthenticationPrincipal PrincipalDetails principalDetails,
+                                        @RequestBody @Valid UserRoleUpdateReqDto userRoleUpdateReqDto,
+                                        BindingResult bindingResult){
+
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ValidationErrorResponse(bindingResult));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.updateRole(id, principalDetails, userRoleUpdateReqDto));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
