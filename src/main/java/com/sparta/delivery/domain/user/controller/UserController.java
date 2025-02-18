@@ -1,7 +1,9 @@
 package com.sparta.delivery.domain.user.controller;
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.user.dto.LoginRequestDto;
 import com.sparta.delivery.domain.user.dto.SignupReqDto;
+import com.sparta.delivery.domain.user.dto.UserUpdateReqDto;
 import com.sparta.delivery.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +62,21 @@ public class UserController {
                                       Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.getUsers(pageable));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") UUID id,
+                                        @AuthenticationPrincipal PrincipalDetails principalDetails,
+                                        @RequestBody UserUpdateReqDto userUpdateReqDto,
+                                        BindingResult bindingResult){
+
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ValidationErrorResponse(bindingResult));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.updateUser(id, principalDetails, userUpdateReqDto));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {

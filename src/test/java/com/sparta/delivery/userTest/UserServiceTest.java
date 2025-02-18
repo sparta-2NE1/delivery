@@ -1,6 +1,8 @@
 package com.sparta.delivery.userTest;
 
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
 import com.sparta.delivery.config.jwt.JwtUtil;
 import com.sparta.delivery.domain.user.dto.*;
@@ -184,6 +186,66 @@ public class UserServiceTest {
         // When & Then
         UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class , ()-> userService.getUsers(pageable));
         assertEquals("Users Not Found", userNotFoundException.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원정보 수정 성공 테스트")
+    void testUpdateUserSuccess(){
+
+        // Given
+        UserUpdateReqDto userUpdateReqDto = new UserUpdateReqDto("encodedPassword", "newPassword", "newEmail@example.com", "newNickname");
+
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getUsername()).thenReturn("testuser");
+
+        when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("encodedPassword", testUser.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        // When
+        UserResDto result = userService.updateUser(userId, principalDetails, userUpdateReqDto);
+
+
+        // Then
+        assertNotNull(result);
+        assertEquals("newEmail@example.com", result.getEmail());
+        assertEquals("newNickname", result.getNickname());
+    }
+
+    @Test
+    @DisplayName("회원정보 수정 실패 - 권한 없음")
+    void testUpdateUserFailAccessDenied(){
+        // Given
+        UserUpdateReqDto userUpdateReqDto = new UserUpdateReqDto("encodedPassword", "newPassword", "newEmail@example.com", "newNickname");
+
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getUsername()).thenReturn("faker"); // 다른 사용자로 설정
+
+        when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
+
+        // When
+        ForbiddenException exception = assertThrows(ForbiddenException.class, ()-> userService.updateUser(userId, principalDetails,userUpdateReqDto));
+        assertEquals("Access denied.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원정보 수정 실패 - 비밀번호 불일치")
+    void testUpdateUserFailIncorrectPassword(){
+        // Given
+        UserUpdateReqDto userUpdateReqDto = new UserUpdateReqDto("encodedPassword", "newPassword", "newEmail@example.com", "newNickname");
+
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getUsername()).thenReturn("testuser");
+
+        when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("encodedPassword", testUser.getPassword())).thenReturn(false);
+
+        ForbiddenException exception = assertThrows(ForbiddenException.class, ()-> userService.updateUser(userId,principalDetails,userUpdateReqDto));
+        assertEquals("Incorrect password.", exception.getMessage());
     }
 
 }
