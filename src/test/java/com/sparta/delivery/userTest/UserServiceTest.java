@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -293,4 +292,70 @@ public class UserServiceTest {
         assertEquals("Incorrect password.", exception.getMessage());
     }
 
+    @Test
+    @DisplayName("ROLE 변경 성공 - ROLE_MASTER 사용자")
+    void testUpdateRoleSuccess(){
+        // ROLE_CUSTOMER -> ROLE_MANAGER 로 변경
+
+        // Given
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);
+        when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
+        UserRoleUpdateReqDto reqDto = new UserRoleUpdateReqDto(UserRoles.ROLE_MANAGER);
+        User updatedUser = testUser.toBuilder().role(reqDto.getRole()).build();
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+
+        // When
+        UserResDto result = userService.updateRole(userId, principalDetails, reqDto);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(UserRoles.ROLE_MANAGER.name(), result.getRole());
+    }
+
+    @Test
+    @DisplayName("role 변경 실패 - 권한 없음")
+    void testUpdateRoleFail(){
+        // ROLE_CUSTOMER -> ROLE_MANAGER 로 변경
+
+        // Given
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
+        UserRoleUpdateReqDto userRoleUpdateReqDto = new UserRoleUpdateReqDto(UserRoles.ROLE_MANAGER);
+
+        // Then
+        ForbiddenException exception = assertThrows(ForbiddenException.class,
+                () -> userService.updateRole(userId, principalDetails ,userRoleUpdateReqDto));
+        assertEquals("Access denied.", exception.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("User 삭제 성공 - 본인 계정")
+    void testDeleteUserSuccess(){
+
+        // Given
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getUsername()).thenReturn(testUser.getUsername());
+        when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
+
+
+        // When & Then
+        assertDoesNotThrow(() -> userService.deleteUser(userId,principalDetails));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("사용자 삭제 실패 - 권한 없음")
+    void testDeleteUserFailForbidden() {
+        // Given
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getUsername()).thenReturn("otherUser");
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
+        when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
+
+        // When & Then
+        ForbiddenException exception = assertThrows(ForbiddenException.class, () -> userService.deleteUser(userId, principalDetails));
+        assertEquals("Access denied.", exception.getMessage());
+    }
 }
