@@ -1,6 +1,7 @@
 package com.sparta.delivery.userTest;
 
 
+import com.querydsl.core.BooleanBuilder;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
@@ -19,8 +20,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,10 +104,20 @@ public class UserServiceTest {
     @DisplayName("로그인 성공 테스트")
     void testAuthenticateUserSuccess() {
         // Given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("testuser", "password");
+        LoginRequestDto loginRequestDto = new LoginRequestDto("newuser", "password");
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("password", testUser.getPassword())).thenReturn(true);
+        // 이미 존재하는 사용자 'newuser'를 mock 처리
+        User newUser = User.builder()
+                .userId(UUID.randomUUID())
+                .email("newuser@example.com")
+                .password("encodedPassword")  // 실제 비밀번호로 암호화된 비밀번호를 설정
+                .username("newuser")
+                .nickname("newuserNickname")
+                .role(UserRoles.ROLE_CUSTOMER)
+                .build();
+
+        when(userRepository.findByUsernameAndDeletedAtIsNull("newuser")).thenReturn(Optional.of(newUser));
+        when(passwordEncoder.matches("password", newUser.getPassword())).thenReturn(true);
         when(jwtUtil.createJwt(anyString(), anyString(), any(UserRoles.class))).thenReturn("accessToken");
 
         // When
@@ -121,12 +134,12 @@ public class UserServiceTest {
         // Given
         LoginRequestDto loginRequestDto = new LoginRequestDto("testuser", "1234");
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("1234", testUser.getPassword())).thenReturn(false);
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.authenticateUser(loginRequestDto));
-        assertEquals("Invalid password : wrongpassword", exception.getMessage());
+        assertEquals("Invalid password : 1234", exception.getMessage());
     }
 
     @Test
@@ -160,17 +173,34 @@ public class UserServiceTest {
     void testGetUsersSuccess(){
 
         // Given
-        PageRequest pageable = PageRequest.of(0,10);
+        UserSearchReqDto userSearchReqDto = new UserSearchReqDto();
+        userSearchReqDto.setPage(0);
+        userSearchReqDto.setSize(10);
+        userSearchReqDto.setSortBy("createdAt");
+        userSearchReqDto.setOrder("asc");
+
+        // Given: 테스트용 유저 객체 생성
+        User testUser = User.builder()
+                .userId(UUID.randomUUID()) // UUID 생성
+                .username("testUser")
+                .password("password123") // 테스트에서는 암호화 없이 설정
+                .email("testuser@example.com")
+                .nickname("Test User")
+                .role(UserRoles.ROLE_CUSTOMER) // 유저 권한 설정
+                .deliveryAddresses(new ArrayList<>()) // 배송 주소 리스트 초기화
+                .build();
+
+        // Given: Mock으로 페이징된 유저 리스트 반환 설정
         Page<User> userPage = new PageImpl<>(List.of(testUser));
+        when(userRepository.findAll(any(BooleanBuilder.class), any(Pageable.class))).thenReturn(userPage);
 
-        when(userRepository.findAllDeletedIsNull(pageable)).thenReturn(userPage);
+        // When: 서비스 메서드 실행
+        Page<UserResDto> result = userService.getUsers(userSearchReqDto);
 
-        // When
-        Page<UserResDto> result = userService.getUsers(pageable);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
+        // Then: 검증
+        assertNotNull(result); // null이 아님을 확인
+        assertEquals(1, result.getTotalElements()); // 총 개수가 1인지 확인
+        assertEquals("testUser", result.getContent().get(0).getUsername()); // 첫 번째 유저의 username 검증
 
     }
 
@@ -178,13 +208,19 @@ public class UserServiceTest {
     @DisplayName("모든 유저 조회 실패 - 결과 없음")
     void testGetUsersFail(){
         // Given
-        PageRequest pageable = PageRequest.of(0,10);
-        Page<User> emptyPage = Page.empty();
+        UserSearchReqDto userSearchReqDto = new UserSearchReqDto();
+        userSearchReqDto.setPage(0);
+        userSearchReqDto.setSize(10);
+        userSearchReqDto.setSortBy("createdAt");
+        userSearchReqDto.setOrder("asc");
 
-        when(userRepository.findAllDeletedIsNull(pageable)).thenReturn(emptyPage);
+        Page<User> emptyPage = Page.empty();
+        when(userRepository.findAll(any(BooleanBuilder.class), any(Pageable.class))).thenReturn(emptyPage);
+
 
         // When & Then
-        UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class , ()-> userService.getUsers(pageable));
+        UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class,
+                () -> userService.getUsers(userSearchReqDto));
         assertEquals("Users Not Found", userNotFoundException.getMessage());
     }
 
@@ -204,9 +240,16 @@ public class UserServiceTest {
         when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
+        User updateUser = testUser.toBuilder()
+                .email("newEmail@example.com")
+                .nickname("newNickname")
+                .password("encodedNewPassword")
+                .build();
+        when(userRepository.save(any(User.class))).thenReturn(updateUser);
+
+
         // When
         UserResDto result = userService.updateUser(userId, principalDetails, userUpdateReqDto);
-
 
         // Then
         assertNotNull(result);
@@ -222,12 +265,14 @@ public class UserServiceTest {
 
         // PrincipalDetails mock 객체 생성
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
-        when(principalDetails.getUsername()).thenReturn("faker"); // 다른 사용자로 설정
+        when(principalDetails.getUsername()).thenReturn("test"); // 다른 사용자로 설정
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
+        // userRepository.findByUserIdAndDeletedAtIsNull()가 정상적으로 testUser 반환하도록 설정
         when(userRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(Optional.of(testUser));
 
-        // When
-        ForbiddenException exception = assertThrows(ForbiddenException.class, ()-> userService.updateUser(userId, principalDetails,userUpdateReqDto));
+        // When & Then
+        ForbiddenException exception = assertThrows(ForbiddenException.class, () -> userService.updateUser(userId, principalDetails, userUpdateReqDto));
         assertEquals("Access denied.", exception.getMessage());
     }
 

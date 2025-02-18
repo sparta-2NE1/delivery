@@ -1,17 +1,21 @@
 package com.sparta.delivery.domain.user.service;
 
+import com.querydsl.core.BooleanBuilder;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
 import com.sparta.delivery.config.jwt.JwtUtil;
 import com.sparta.delivery.domain.user.dto.*;
+import com.sparta.delivery.domain.user.entity.QUser;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,18 +75,24 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResDto> getUsers(Pageable pageable) {
-        // Pageable 로받아오면 자동으로 페이지 번호(page) 와 size 가 음수 값으로 들어와도
-        // page = 0 , size = 10 으로 기본값으로 처리 해준다.
+    public Page<UserResDto> getUsers(UserSearchReqDto userSearchReqDto) {
+        QUser qUser = QUser.user;
 
-        Page<User> userPage = userRepository.findAllDeletedIsNull(pageable);
+        BooleanBuilder builder = buildSearchConditions(userSearchReqDto,qUser);
 
-        if (userPage.isEmpty()){
+        // 페이지네이션 설정
+        Sort sort = getSortOrder(userSearchReqDto);
+
+        PageRequest pageRequest = PageRequest.of(userSearchReqDto.getPage(), userSearchReqDto.getSize(),sort);
+
+        // 유저 목록 조회 (페이징 + 검색 조건)
+        Page<User> userPages = userRepository.findAll(builder,pageRequest);
+
+        if (userPages.isEmpty()){
             throw new UserNotFoundException("Users Not Found");
         }
 
-        // Page<User> -> Page<UserResDto>
-        return userPage.map(User::toResponseDto);
+        return userPages.map(User :: toResponseDto);
     }
 
     public UserResDto updateUser(UUID id, PrincipalDetails principalDetails, UserUpdateReqDto userUpdateReqDto) {
@@ -135,5 +145,52 @@ public class UserService {
         user.setDeletedBy(principalDetails.getUsername());
 
         userRepository.save(user);
+    }
+
+    private BooleanBuilder buildSearchConditions(UserSearchReqDto userSearchReqDto, QUser qUser) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // username 조건
+        if (userSearchReqDto.getUsername() != null && !userSearchReqDto.getUsername().isEmpty()){
+            builder.and(qUser.username.containsIgnoreCase(userSearchReqDto.getUsername()));
+        }
+
+        // email 조건
+        if (userSearchReqDto.getEmail() != null && !userSearchReqDto.getEmail().isEmpty()){
+            builder.and(qUser.username.containsIgnoreCase(userSearchReqDto.getEmail()));
+        }
+
+        // role 조건
+        if (userSearchReqDto.getRole() != null){
+            builder.and(qUser.role.eq(userSearchReqDto.getRole()));
+        }
+
+        return builder;
+    }
+
+    private Sort getSortOrder(UserSearchReqDto userSearchReqDto) {
+        String sortBy = userSearchReqDto.getSortBy();
+
+        if (!isValidSortBy(sortBy)) {
+            throw new IllegalArgumentException("SortBy 는 'createdAt', 'updatedAt', 'deletedAt' 값만 허용합니다.");
+        }
+
+        Sort sort = Sort.by(Sort.Order.by(sortBy));
+
+        sort = getSortDirection(sort, userSearchReqDto.getOrder());
+
+        return sort;
+    }
+
+    private boolean isValidSortBy(String sortBy) {
+        return "createdAt".equals(sortBy) || "updatedAt".equals(sortBy) || "deletedAt".equals(sortBy);
+    }
+
+    private Sort getSortDirection(Sort sort, String order) {
+        if (order.equals("desc")){
+            return sort.descending();
+        }else{
+            return sort.ascending();
+        }
     }
 }
