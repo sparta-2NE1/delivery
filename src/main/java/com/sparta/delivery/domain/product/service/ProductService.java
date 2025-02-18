@@ -4,6 +4,7 @@ import com.sparta.delivery.config.global.exception.custom.DuplicateProductExcept
 import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
 import com.sparta.delivery.domain.product.dto.ProductRequestDto;
 import com.sparta.delivery.domain.product.dto.ProductResponseDto;
+import com.sparta.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,5 +58,13 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         return productRepository.findAll(pageable).map(ProductResponseDto::from);
+    }
+
+    @Transactional
+    public ProductResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+        product.update(productUpdateRequestDto);
+
+        return ProductResponseDto.from(product);
     }
 }
