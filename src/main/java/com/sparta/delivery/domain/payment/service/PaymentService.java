@@ -90,10 +90,19 @@ public class PaymentService {
         return paymentDtos;
     }
 
-    // TODO : QueryDSL을 이용해 구현 예정
-    public List<SearchDto> searchPayments(SearchDto searchDto) {
-        return null;
+    public List<PaymentDto> searchPayments(SearchDto searchDto, String username) {
+        List<Payment> payments = paymentRepository.searchPayments(searchDto, username);
+        return payments.stream().map(payment -> PaymentDto.builder()
+                .paymentId(payment.getPaymentId())
+                .amount(payment.getAmount())
+                .orderId(payment.getOrder().getOrderId())
+                .orderTime(payment.getOrder().getOrderTime())
+                .orderType(payment.getOrder().getOrderType())
+                .orderStatus(payment.getOrder().getOrderStatus())
+                .requirements(payment.getOrder().getRequirements())
+                .build()).toList();
     }
+
 
     @Transactional
     public String deletePayment(UUID paymentId, String username) {

@@ -56,7 +56,7 @@ public class PaymentController {
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         SearchDto searchDto = new SearchDto(minAmount, maxAmount, orderStatus, orderType, paymentTime, cardCompany);
-        return ResponseEntity.ok().body(paymentService.searchPayments(searchDto));
+        return ResponseEntity.ok().body(paymentService.searchPayments(searchDto,principalDetails.getUsername()));
     }
 
     @Operation(summary = "결제 내역 삭제")
