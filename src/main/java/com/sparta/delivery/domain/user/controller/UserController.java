@@ -95,6 +95,16 @@ public class UserController {
                 .body(userService.updateRole(id, principalDetails, userRoleUpdateReqDto));
     }
 
+    @PatchMapping("/{id}/delete")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") UUID id,
+                                        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        userService.deleteUser(id, principalDetails);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
+    }
+
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
         List<Map<String, String>> errors = bindingResult.getFieldErrors().stream()
                 .map(fieldError -> Map.of(
