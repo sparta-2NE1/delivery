@@ -9,6 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class StoreService {
@@ -20,6 +24,15 @@ public class StoreService {
         Stores store = reqDtoToEntity(storereqdto); //entity->DTO 변환
         return entityToResDto(storeRepository.save(store));
     }
+
+    public List<StoreResDto> getStoreList(){ //가게 리스트 조회
+        List<Stores> storeList = storeRepository.findAll();
+
+        if(storeList.isEmpty()){throw new NoSuchElementException("매장이 한개도 등록되어있지 않습니다.");}
+
+        return storeList.stream().map(StoreResDto::new).collect(Collectors.toList());
+    }
+
 
     public StoreResDto entityToResDto(Stores stores) {
 
