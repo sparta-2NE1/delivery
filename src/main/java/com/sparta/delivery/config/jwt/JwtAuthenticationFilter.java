@@ -101,10 +101,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 인증 정보 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 검증이 완료된 후, 응답 헤더에 값 추가
-            response.setHeader("X-Authenticated-User",username);
-            response.setHeader("X-User-Role", role);
-
         } catch (ExpiredJwtException e) {
             PrintWriter writer = response.getWriter();
             writer.print("Access token expired");
