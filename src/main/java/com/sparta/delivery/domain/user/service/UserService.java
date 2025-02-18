@@ -104,4 +104,19 @@ public class UserService {
 
         return userRepository.save(updateUser).toResponseDto();
     }
+
+    public UserResDto updateRole(UUID id, PrincipalDetails principalDetails, UserRoleUpdateReqDto userRoleUpdateReqDto) {
+        if (!principalDetails.getRole().name().equals("ROLE_MASTER")){
+            throw new ForbiddenException("Access denied.");
+        }
+
+        User user = userRepository.findByUserIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found By Id : " + id));
+
+        User updateUser = user.toBuilder()
+                .role(userRoleUpdateReqDto.getRole())
+                .build();
+
+        return userRepository.save(updateUser).toResponseDto();
+    }
 }
