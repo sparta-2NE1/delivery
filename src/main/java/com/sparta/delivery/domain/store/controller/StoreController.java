@@ -47,10 +47,10 @@ public class StoreController {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 errorSave.put("error-field : "+fieldError.getField(), "message : "+fieldError.getDefaultMessage());
             }
-            return ResponseEntity.status(HttpStatus.OK).body(errorSave);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave);
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.storeCreate(storeReqDto));
     }
 
@@ -66,6 +66,20 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreOne(store_id));
     }
+
+    @PutMapping("/{store_id}")
+    public ResponseEntity<Object> // 가게 업데이트
+    storeUpdate(@PathVariable UUID store_id, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
+        Map<String,Object> errorsave2 = new HashMap<String, Object>();
+
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorsave2);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(storeService.updateStore(storeReqDto,store_id));
+    }
+
 
 
 
