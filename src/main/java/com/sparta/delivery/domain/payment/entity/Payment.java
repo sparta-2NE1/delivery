@@ -6,8 +6,8 @@ import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface PaymentRepository extends JpaRepository<Payment, UUID> {
+public interface PaymentRepository extends JpaRepository<Payment, UUID>, PaymentRepositoryCustom{
 
     List<Payment> findByUser_UsernameAndDeletedAtIsNull(String username);
 
