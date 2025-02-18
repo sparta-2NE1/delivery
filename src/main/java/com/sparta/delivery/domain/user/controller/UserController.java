@@ -1,10 +1,8 @@
 package com.sparta.delivery.domain.user.controller;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
-import com.sparta.delivery.domain.user.dto.LoginRequestDto;
-import com.sparta.delivery.domain.user.dto.SignupReqDto;
-import com.sparta.delivery.domain.user.dto.UserRoleUpdateReqDto;
-import com.sparta.delivery.domain.user.dto.UserUpdateReqDto;
+import com.sparta.delivery.domain.user.dto.*;
+import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +57,10 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC)
-                                      Pageable pageable){
+    public ResponseEntity<?> getUsers(@RequestBody UserSearchReqDto userSearchReqDto){
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.getUsers(pageable));
+                .body(userService.getUsers(userSearchReqDto));
     }
 
     @PatchMapping("/{id}")
