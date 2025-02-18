@@ -79,7 +79,15 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.updateStore(storeReqDto,store_id));
     }
+    @DeleteMapping("/{store_id}")
+    public ResponseEntity // 가게 삭제
+    storeDelete(@PathVariable UUID store_id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
+        storeService.deleteStore(store_id, principalDetails.getUsername());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(store_id);
+    }
 
 
 

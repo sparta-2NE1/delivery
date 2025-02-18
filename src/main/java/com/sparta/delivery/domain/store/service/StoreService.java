@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -50,7 +51,11 @@ public class StoreService {
         return entityToResDto(store);//
     }
 
-
+    @Transactional
+    public void deleteStore(UUID id, String username){//가게 삭제
+        Stores store = storeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 가게입니다."));
+        store.setDeletedBy(username); store.setDeletedAt(LocalDateTime.now());
+    }
 
     public StoreResDto entityToResDto(Stores stores) {
 
