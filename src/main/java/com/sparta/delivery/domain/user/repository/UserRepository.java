@@ -19,6 +19,9 @@ public interface UserRepository extends JpaRepository<User , UUID> {
     // 삭제되지 않은 유저 단일 조회
     Optional<User> findByUserIdAndDeletedAtIsNull(UUID id);
 
+    // 삭제되지 않은 유저 단일 조회 (username)
+    Optional<User> findByUsernameAndDeletedAtIsNull(String username);
+
     // 삭제되지 않은 유저 페이징 조회 (생성일 최근일 부터 정렬)
     @Query("SELECT u FROM User u WHERE u.deletedAt IS NULL ORDER BY u.createdAt DESC")
     Page<User> findAllDeletedIsNull(Pageable pageable);

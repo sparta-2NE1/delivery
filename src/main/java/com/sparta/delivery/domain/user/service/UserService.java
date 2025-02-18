@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -48,7 +50,7 @@ public class UserService {
 
     public JwtResponseDto authenticateUser(LoginRequestDto loginRequestDto) {
 
-        User user = userRepository.findByUsername(loginRequestDto.getUsername())
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(loginRequestDto.getUsername())
                 .orElseThrow(()-> new IllegalArgumentException("Invalid username : " + loginRequestDto.getUsername()));
 
         if (!passwordEncoder.matches(loginRequestDto.getPassword(),user.getPassword() )){
@@ -118,5 +120,21 @@ public class UserService {
                 .build();
 
         return userRepository.save(updateUser).toResponseDto();
+    }
+
+    public void deleteUser(UUID id, PrincipalDetails principalDetails) {
+        User user = userRepository.findByUserIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new UserNotFoundException("User Not Found By Id : " + id));
+
+        if (!user.getUsername().equals(principalDetails.getUsername()) &&
+                !principalDetails.getRole().name().equals("ROLE_MASTER") &&
+                !principalDetails.getRole().name().equals("ROLE_MANAGER")){
+            throw new ForbiddenException("Access denied.");
+        }
+
+        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedBy(principalDetails.getUsername());
+
+        userRepository.save(user);
     }
 }
