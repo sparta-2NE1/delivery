@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.product.service;
 
 import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
+import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
 import com.sparta.delivery.domain.product.dto.ProductRequestDto;
 import com.sparta.delivery.domain.product.dto.ProductResponseDto;
 import com.sparta.delivery.domain.product.entity.Product;
@@ -37,6 +38,12 @@ public class ProductService {
         } catch (Exception e) {
             throw new RuntimeException("상품 등록 중 알 수 없는 오류가 발생했습니다.");
         }
+    }
+
+    public ProductResponseDto getProduct(UUID productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+
+        return ProductResponseDto.from(product);
     }
 
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String order) {

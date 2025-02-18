@@ -27,6 +27,12 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productResponseDto);
     }
 
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable UUID productId) {
+        ProductResponseDto productResponseDto = productService.getProduct(productId);
+        return ResponseEntity.ok(productResponseDto);
+    }
+
     @GetMapping
     public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String order) {
         Page<ProductResponseDto> allProducts = productService.getAllProducts(page, size, sortBy, order);
