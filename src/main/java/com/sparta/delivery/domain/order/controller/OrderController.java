@@ -24,10 +24,10 @@ import java.util.UUID;
 public class OrderController {
     private final OrderService orderService;
 
-//    @PostMapping()
-//    public void createOrder() {
-//        orderService.createOrder();
-//    }
+    @PostMapping("")
+    public void createOrder(@RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        orderService.createOrder(requestDto, userDetails.getUsername());
+    }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrder(@PathVariable("orderId") UUID orderId) {
