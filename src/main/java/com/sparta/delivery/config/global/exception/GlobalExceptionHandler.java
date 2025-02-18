@@ -1,8 +1,6 @@
 package com.sparta.delivery.config.global.exception;
 
-import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
-import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
-import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,6 +41,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> duplicateProductException(DuplicateProductException ex){
         int status = HttpServletResponse.SC_CONFLICT;
         ExceptionResponse response = new ExceptionResponse("CONFLICT", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(PaymentAlreadyCompletedException.class)
+    public ResponseEntity<ExceptionResponse> PaymentAlreadyCompletedException(PaymentAlreadyCompletedException ex){
+        int status = HttpServletResponse.SC_CONFLICT;
+        ExceptionResponse response = new ExceptionResponse("Already Paid", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ExistCardException.class)
+    public ResponseEntity<ExceptionResponse> ExistCardException(ExistCardException ex){
+        int status = HttpServletResponse.SC_CONFLICT;
+        ExceptionResponse response = new ExceptionResponse("Already Register Card", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
     }
 

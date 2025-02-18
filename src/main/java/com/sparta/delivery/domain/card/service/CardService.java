@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.card.service;
 
+import com.sparta.delivery.config.global.exception.custom.ExistCardException;
 import com.sparta.delivery.domain.card.dto.RegistrationCardDto;
 import com.sparta.delivery.domain.card.entity.Card;
 import com.sparta.delivery.domain.card.repository.CardRepository;
@@ -21,11 +22,25 @@ public class CardService {
     private final UserRepository userRepository;
 
 
+    private boolean existCard(String username,RegistrationCardDto registrationCardDto) {
+        List<Card> cards = cardRepository.findByUser_UsernameAndDeletedAtIsNull(username);
+        for(Card card : cards){
+            if(card.getCardCompany().equals(registrationCardDto.getCardCompany())&&
+                    card.getCardNumber().equals(registrationCardDto.getCardNumber())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Transactional
     public void registrationCard(String username, RegistrationCardDto registrationCardDto) {
 
         User user = userRepository.findByUsername(username).orElseThrow(() ->
                 new NullPointerException("유저가 존재하지 않습니다."));
+        if(existCard(username,registrationCardDto)){
+            throw new ExistCardException("이미 등록한 카드입니다");
+        }
 
         Card card = Card.builder()
                 .cardCompany(registrationCardDto.getCardCompany())
@@ -55,12 +70,14 @@ public class CardService {
                 .build()).toList();
     }
 
-    // Todo : delete 안된 녀석들만 모아보기 전체 메서드 해당
     @Transactional
     public void updateCard(String username, UUID cardId, RegistrationCardDto registrationCardDto) {
-        // 수정은 수정일, 수정자 등록
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("해당 카드가 존재하지 않습니다."));
+
+        if(existCard(username,registrationCardDto)){
+            throw new ExistCardException("이미 등록한 카드입니다");
+        }
 
         card = card.toBuilder()
                 .cardCompany(registrationCardDto.getCardCompany() != null ? registrationCardDto.getCardCompany() : card.getCardCompany())
