@@ -19,6 +19,6 @@ public interface StoreRepository extends JpaRepository<Stores, UUID> {
 
     List<Stores> findByCategory(Category category);
 
-
+    List<Stores> findByNameContaining(String name);
 
 }
