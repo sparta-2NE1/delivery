@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.payment.service;
 
+import com.sparta.delivery.config.global.exception.custom.PaymentAlreadyCompletedException;
 import com.sparta.delivery.domain.card.entity.Card;
 import com.sparta.delivery.domain.card.repository.CardRepository;
 import com.sparta.delivery.domain.order.entity.Order;
@@ -35,10 +36,13 @@ public class PaymentService {
         // 결제 내역만 관리하므로 직접 결제는 필요 없지만, 데이터 저장을 위해 생성
         Card card = cardRepository.findByCardIdAndDeletedAtIsNull(registerPaymentDto.getCardId())
                 .orElseThrow(() -> new NullPointerException("카드가 존재하지 않습니다"));
-        // TODO : Order Deleted 검증 필요
-        Order order = orderRepository.findById(registerPaymentDto.getOrderId())
+        Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(registerPaymentDto.getOrderId())
                 .orElseThrow(() -> new NullPointerException("주문이 존재하지 않습니다"));
         User user = userRepository.findByUsername(username).orElseThrow(() -> new NullPointerException("유저가 존재하지 않습니다"));
+
+        if(order.getOrderStatus().equals(OrderStatus.PAYMENT_COMPLETE)){
+            throw new PaymentAlreadyCompletedException("이미 결제된 주문입니다.");
+        }
         order.setOrderStatus(OrderStatus.PAYMENT_COMPLETE);
         try {
             paymentRepository.save(Payment.builder()
@@ -56,8 +60,7 @@ public class PaymentService {
     public PaymentDto getPayment(UUID paymentId) {
         Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId).orElseThrow(()
                 -> new NullPointerException("결제 내역이 존재하지 않습니다."));
-        // TODO : Order Deleted 검증 필요
-        Order order = orderRepository.findById(payment.getOrder().getOrderId()).orElseThrow(()
+        Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(payment.getOrder().getOrderId()).orElseThrow(()
                 -> new NullPointerException("주문이 존재하지 않습니다."));
 
         PaymentDto paymentDto = PaymentDto.builder()
@@ -108,10 +111,6 @@ public class PaymentService {
     public String deletePayment(UUID paymentId, String username) {
         Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId).orElseThrow(() ->
                 new NullPointerException("결제 정보가 존재하지 않습니다."));
-        if (payment.getDeletedAt() != null) {
-            return "결제 정보가 존재하지 않습니다.";
-        }
-
         try {
             payment.setDeletedAt(LocalDateTime.now());
             payment.setDeletedBy(username);
