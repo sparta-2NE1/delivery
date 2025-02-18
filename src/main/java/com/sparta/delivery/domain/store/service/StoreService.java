@@ -41,6 +41,11 @@ public class StoreService {
         return entityToResDto( storeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("가계를찾을수없어요")));
     }
 
+    public List<StoreResDto> searchStore(String keyword){//가게 검색
+        List<Stores> storeList = storeRepository.findByNameContaining(keyword);
+        return storeList.stream().map(StoreResDto::new).collect(Collectors.toList());
+    }
+
     @Transactional
     public StoreResDto updateStore(StoreReqDto storereqdto, UUID id){ //가게 업데이트
         Stores store = storeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 가게입니다."));
