@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "p_card")
 public class Card extends Timestamped {
     @Id
