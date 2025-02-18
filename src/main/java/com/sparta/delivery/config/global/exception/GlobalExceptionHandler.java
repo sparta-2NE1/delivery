@@ -1,6 +1,11 @@
 package com.sparta.delivery.config.global.exception;
 
-import com.sparta.delivery.config.global.exception.custom.*;
+import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
+import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.PaymentAlreadyCompletedException;
+import com.sparta.delivery.config.global.exception.custom.ExistCardException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +39,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> userNotFoundException(UserNotFoundException ex){
         int status = HttpServletResponse.SC_NOT_FOUND;
         ExceptionResponse response = new ExceptionResponse("User_Not_Found", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> productNotFoundException(ProductNotFoundException ex){
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        ExceptionResponse response = new ExceptionResponse("PRODUCT_NOT_FOUND", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
     }
 
