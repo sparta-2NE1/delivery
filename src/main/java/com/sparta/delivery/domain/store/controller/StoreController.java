@@ -54,6 +54,18 @@ public class StoreController {
                 .body(storeService.storeCreate(storeReqDto));
     }
 
+    @GetMapping("/") //가게 리스트 조회
+    public ResponseEntity<List<StoreResDto>> storeList() {
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(storeService.getStoreList());
+    }
+
+    @GetMapping("/{store_id}")// 가게 단일조회
+    public ResponseEntity<StoreResDto> storeOne(@PathVariable UUID store_id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(storeService.getStoreOne(store_id));
+    }
 
 
 
