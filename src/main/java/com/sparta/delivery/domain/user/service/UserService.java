@@ -88,7 +88,7 @@ public class UserService {
         User user = userRepository.findByUserIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new UserNotFoundException("User Not Found By Id : " + id));
 
-        if (!user.getUsername().equals(principalDetails.getUsername()) || !principalDetails.getRole().name().equals("ROLE_MASTER")){
+        if (!user.getUsername().equals(principalDetails.getUsername()) && !principalDetails.getRole().name().equals("ROLE_MASTER")){
             throw new ForbiddenException("Access denied.");
         }
 
@@ -96,11 +96,12 @@ public class UserService {
             throw new ForbiddenException("Incorrect password.");
         }
 
-        user.setPassword(passwordEncoder.encode(userUpdateReqDto.getNewPassword()));
-        user.setEmail(userUpdateReqDto.getEmail());
-        user.setNickname(userUpdateReqDto.getNickname());
-        user.setRole(UserRoles.ROLE_CUSTOMER);
+        User updateUser = user.toBuilder()
+                .password(passwordEncoder.encode(userUpdateReqDto.getNewPassword()))
+                .email(userUpdateReqDto.getEmail())
+                .nickname(userUpdateReqDto.getNickname())
+                .build();
 
-        return userRepository.save(user).toResponseDto();
+        return userRepository.save(updateUser).toResponseDto();
     }
 }
