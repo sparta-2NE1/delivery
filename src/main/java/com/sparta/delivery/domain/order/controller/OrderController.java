@@ -1,10 +1,18 @@
 package com.sparta.delivery.domain.order.controller;
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.order.dto.OrderRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
+import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.service.OrderService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,29 +29,43 @@ public class OrderController {
 //        orderService.createOrder();
 //    }
 
-    @GetMapping("/{order_id}")
-    public OrderResponseDto getOrder(@PathVariable UUID orderId) {
-        return orderService.getOrder(orderId);
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> getOrder(@PathVariable("orderId") UUID orderId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(orderService.getOrder(orderId));
     }
 
-    @GetMapping
-    public List<OrderResponseDto> getUserOrderList(Long userId) {
-        //추후 유저아이디 받는 방식 변경 예정
-        return orderService.getUserOrderList(userId);
+    @GetMapping("/getUserOrder")
+    public ResponseEntity<?> getUserOrderList(@PageableDefault(size = 10, page = 0, sort = "createdAt",
+                                                      direction = Sort.Direction.DESC) Pageable pageable,
+                                              @AuthenticationPrincipal PrincipalDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(orderService.getUserOrderList(userDetails.getUsername(), pageable));
     }
 
-    @GetMapping("/{store_id}")
-    public List<OrderResponseDto> getStoreOrderList(@PathVariable UUID storeId) {
-        return orderService.getStoreOrderList(storeId);
+    @GetMapping("/getStoreOrder/{storeId}")
+    public ResponseEntity<?> getStoreOrderList(@PathVariable("storeId") UUID storeId,
+                                               @PageableDefault(size = 10, page = 0, sort = "createdAt",
+                                                       direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(orderService.getStoreOrderList(storeId, pageable));
     }
 
-    @DeleteMapping("/{order_id}")
-    public void deleteOrder(@PathVariable UUID orderId, Long userId) {
-        orderService.deleteOrder(orderId, userId);
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<?> deleteOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(orderService.deleteOrder(orderId, userDetails.getUsername()));
     }
 
-    @PutMapping("/{order_id}")
-    public OrderResponseDto updateOrder(@RequestBody OrderRequestDto requestDto, @PathVariable UUID orderId, Long user_id) {
-        return orderService.updateOrder(orderId, user_id);
+    @PutMapping("/{orderId}")
+    public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(orderService.updateOrder(requestDto, orderId, userDetails.getUsername()));
+    }
+
+    @PostMapping("/updateOrderStatus/{orderId}")
+    public ResponseEntity<?> updateOrderStatus(@RequestBody OrderStatusRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(orderService.updateOrderStatus(orderId, userDetails.getUsername(), requestDto));
     }
 }

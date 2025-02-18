@@ -1,15 +1,15 @@
 package com.sparta.delivery.domain.order.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
+import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
+import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
 import com.sparta.delivery.domain.payment.entity.Payment;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,7 +17,9 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Table(name = "p_order")
 public class Order extends Timestamped {
     @Id
@@ -42,14 +44,24 @@ public class Order extends Timestamped {
     @JoinColumn(name = "storeId", nullable = false)
     private Stores stores;
 
-    @OneToOne
-    @JoinColumn(name = "paymentId")
-    private Payment payment;
-
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    //배송지정보 연관관계 추가 필요
+    @OneToOne
+    @JoinColumn(name = "deliveryAddressId")
+    private DeliveryAddress deliveryAddress;
+
+    public OrderResponseDto toResponseDto() {
+        return new OrderResponseDto(
+                this.orderId,
+                this.orderTime,
+                this.orderType,
+                this.orderStatus,
+                this.requirements,
+                this.stores,
+                this.user
+        );
+    }
 
 }

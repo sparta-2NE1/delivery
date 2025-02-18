@@ -7,28 +7,18 @@ import com.sparta.delivery.domain.payment.entity.Payment;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@AllArgsConstructor
 public class OrderResponseDto {
-    private String order_id;
-    private LocalDateTime order_time;
-    private OrderType order_type;
-    private OrderStatus order_status;
+    private UUID orderId;
+    private LocalDateTime orderTime;
+    private OrderType orderType;
+    private OrderStatus orderStatus;
     private String requirements;
     private Stores stores;
-    private Payment payment;
     private User user;
-
-    public OrderResponseDto(Order order) {
-        this.order_id = order.getOrderId().toString();
-        this.order_time = order.getOrderTime();
-        this.order_type = order.getOrderType();
-        this.order_status = order.getOrderStatus();
-        this.requirements = order.getRequirements();
-        this.stores = order.getStores();
-        this.payment = order.getPayment();
-        this.user = order.getUser();
-    }
 }

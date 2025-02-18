@@ -8,10 +8,10 @@ import java.util.UUID;
 
 @Getter
 public class OrderRequestDto {
-    private Long user_id;
-    private UUID delivery_address_id;
-    private UUID store_id;
-    private List<UUID> product_id;
+    private String username;
+    private UUID deliveryAddressId;
+    private UUID storeId;
+    private List<UUID> productId;
     private OrderType orderType;
     private String requirements;
 }
