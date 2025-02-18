@@ -5,12 +5,14 @@ import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +33,10 @@ public class StoreService {
         if(storeList.isEmpty()){throw new NoSuchElementException("매장이 한개도 등록되어있지 않습니다.");}
 
         return storeList.stream().map(StoreResDto::new).collect(Collectors.toList());
+    }
+
+    public StoreResDto getStoreOne(UUID id){//가게 단일 조회
+        return entityToResDto( storeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("가계를찾을수없어요")));
     }
 
 

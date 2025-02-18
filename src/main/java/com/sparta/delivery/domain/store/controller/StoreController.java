@@ -61,6 +61,12 @@ public class StoreController {
                 .body(storeService.getStoreList());
     }
 
+    @GetMapping("/{store_id}")// 가게 단일조회
+    public ResponseEntity<StoreResDto> storeOne(@PathVariable UUID store_id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(storeService.getStoreOne(store_id));
+    }
+
 
 
 }
