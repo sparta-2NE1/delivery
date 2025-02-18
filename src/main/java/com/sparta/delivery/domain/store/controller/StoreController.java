@@ -47,10 +47,10 @@ public class StoreController {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 errorSave.put("error-field : "+fieldError.getField(), "message : "+fieldError.getDefaultMessage());
             }
-            return ResponseEntity.status(HttpStatus.OK).body(errorSave);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave);
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.storeCreate(storeReqDto));
     }
 
@@ -65,6 +65,31 @@ public class StoreController {
     public ResponseEntity<StoreResDto> storeOne(@PathVariable UUID store_id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreOne(store_id));
+    }
+
+    @PutMapping("/{store_id}")
+    public ResponseEntity<Object> // 가게 업데이트
+    storeUpdate(@PathVariable UUID store_id, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
+        Map<String,String> errorSave2 = new HashMap<String, String>();
+
+        if (bindingResult.hasErrors()) {
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                errorSave2.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave2);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(storeService.updateStore(storeReqDto,store_id));
+    }
+    @DeleteMapping("/{store_id}")
+    public ResponseEntity // 가게 삭제
+    storeDelete(@PathVariable UUID store_id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        storeService.deleteStore(store_id, principalDetails.getUsername());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(store_id);
     }
 
 
