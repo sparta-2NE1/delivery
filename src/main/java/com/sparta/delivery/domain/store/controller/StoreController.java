@@ -66,6 +66,13 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreOne(store_id));
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<StoreResDto>> // 가게 검색
+    storeSearch(@RequestParam String keyword) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(storeService.searchStore(keyword));
+    }
+
 
     @PutMapping("/{store_id}")
     public ResponseEntity<Object> // 가게 업데이트
