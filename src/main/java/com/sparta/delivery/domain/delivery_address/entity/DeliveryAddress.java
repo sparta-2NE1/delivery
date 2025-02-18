@@ -39,6 +39,7 @@ public class DeliveryAddress extends Timestamped {
     public AddressResDto toResponse() {
 
         return new AddressResDto(
+                this.deliveryAddressId,
                 this.deliveryAddress,
                 this.deliveryAddressInfo,
                 this.detailAddress
