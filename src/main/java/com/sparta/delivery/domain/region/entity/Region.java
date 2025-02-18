@@ -13,11 +13,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="p_reigion")
+@Table(name="p_region")
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID regionid;
+    private UUID regionId;
 
     @Column(nullable = false)//(단위 : 도)
     private String province;
