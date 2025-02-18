@@ -22,8 +22,7 @@ public class DeliveryAddressController {
     private final DeliveryAddressService deliveryAddressService;
 
     @PostMapping
-    public ResponseEntity<?> addAddress(
-                                        @Valid @RequestBody AddressReqDto addressReqDto,
+    public ResponseEntity<?> addAddress(@Valid @RequestBody AddressReqDto addressReqDto,
                                         BindingResult bindingResult ,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails){
 
