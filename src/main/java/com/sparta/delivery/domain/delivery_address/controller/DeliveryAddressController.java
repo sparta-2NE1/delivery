@@ -66,6 +66,13 @@ public class DeliveryAddressController {
                 .body(deliveryAddressService.updateDeliveryAddresses(id,addressReqDto,principalDetails));
     }
 
+    @PatchMapping("/{id}/delete")
+    public ResponseEntity<?> deleteDeliveryAddresses(@PathVariable("id") UUID id,
+                                                     @AuthenticationPrincipal PrincipalDetails principalDetails){
+        deliveryAddressService.deleteDeliveryAddresses(id,principalDetails);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
         List<Map<String, String>> errors = bindingResult.getFieldErrors().stream()
                 .map(fieldError -> Map.of(

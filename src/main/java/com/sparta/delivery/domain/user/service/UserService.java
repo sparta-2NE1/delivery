@@ -165,6 +165,8 @@ public class UserService {
             builder.and(qUser.role.eq(userSearchReqDto.getRole()));
         }
 
+        builder.and(qUser.deletedAt.isNull());
+
         return builder;
     }
 

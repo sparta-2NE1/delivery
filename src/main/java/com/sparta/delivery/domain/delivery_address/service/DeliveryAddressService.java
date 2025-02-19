@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -36,12 +37,12 @@ public class DeliveryAddressService {
                 .orElseThrow(()-> new IllegalArgumentException("Invalid username : " + principalDetails.getUsername()));
 
         // 동일한 user를 가지고있는 deliveryAddress 중에 중복된 명이 있으면 중복 반환
-        if(addressRepository.existsByUserAndDeliveryAddress(user, addressReqDto.getDeliveryAddress())){
+        if(addressRepository.existsByUserAndDeliveryAddressAndDeletedAtIsNull(user, addressReqDto.getDeliveryAddress())){
             throw new IllegalArgumentException("해당 유저의 동일한 배송지가 이미 존재합니다. :" + addressReqDto.getDeliveryAddress());
         }
 
         // user는 가지고있는 deliveryAddress수가 3개 까지만 가질 수 있음
-        if (addressRepository.countByUser(user) >= 3){
+        if (addressRepository.countByUserAndDeletedAtIsNull(user) >= 3){
             throw new IllegalArgumentException("배송지는 최대 3개 까지만 추가할 수 있습니다.");
         }
 
@@ -104,8 +105,46 @@ public class DeliveryAddressService {
             builder.and(qDeliveryAddress.deliveryAddressInfo.containsIgnoreCase(addressSearchDto.getDeliveryAddressInfo()));
         }
 
+        builder.and(qDeliveryAddress.deletedAt.isNull());
+
         return builder;
     }
+
+    public AddressResDto updateDeliveryAddresses(UUID id, AddressReqDto addressReqDto, PrincipalDetails principalDetails) {
+
+        DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new DeliveryAddressNotFoundException("DeliveryAddress Not Found By Id : "+ id));
+
+        if (!deliveryAddress.getUser().getUsername().equals(principalDetails.getUsername()) &&
+                !principalDetails.getRole().name().equals("ROLE_MASTER")){
+            throw new ForbiddenException("Access denied.");
+        }
+
+        DeliveryAddress updateDeliveryAddress = deliveryAddress.toBuilder()
+                .deliveryAddress(addressReqDto.getDeliveryAddress())
+                .deliveryAddressInfo(addressReqDto.getDeliveryAddressInfo())
+                .detailAddress(addressReqDto.getDetailAddress())
+                .build();
+
+        return addressRepository.save(updateDeliveryAddress).toResponse();
+    }
+
+    public void deleteDeliveryAddresses(UUID id, PrincipalDetails principalDetails) {
+
+        DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new DeliveryAddressNotFoundException("DeliveryAddress Not Found By Id : "+ id));
+
+        if (!deliveryAddress.getUser().getUsername().equals(principalDetails.getUsername()) &&
+                !principalDetails.getRole().name().equals("ROLE_MASTER")){
+            throw new ForbiddenException("Access denied.");
+        }
+
+        deliveryAddress.setDeletedAt(LocalDateTime.now());
+        deliveryAddress.setDeletedBy(principalDetails.getUsername());
+
+        addressRepository.save(deliveryAddress);
+    }
+
 
     private Sort getSortOrder(AddressSearchDto addressSearchDto) {
 
@@ -132,24 +171,5 @@ public class DeliveryAddressService {
         }else{
             return sort.ascending();
         }
-    }
-
-    public AddressResDto updateDeliveryAddresses(UUID id, AddressReqDto addressReqDto, PrincipalDetails principalDetails) {
-
-        DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new DeliveryAddressNotFoundException("DeliveryAddress Not Found By Id : "+ id));
-
-        if (!deliveryAddress.getUser().getUsername().equals(principalDetails.getUsername()) &&
-                !principalDetails.getRole().name().equals("ROLE_MASTER")){
-            throw new ForbiddenException("Access denied.");
-        }
-
-        DeliveryAddress updateDeliveryAddress = deliveryAddress.toBuilder()
-                .deliveryAddress(addressReqDto.getDeliveryAddress())
-                .deliveryAddressInfo(addressReqDto.getDeliveryAddressInfo())
-                .detailAddress(addressReqDto.getDetailAddress())
-                .build();
-
-        return addressRepository.save(updateDeliveryAddress).toResponse();
     }
 }
