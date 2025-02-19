@@ -65,8 +65,15 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
+    public ProductResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto,  PrincipalDetails userDetails) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+
+        AuthorizationResult authorizationResult = checkAuthorization(product, userDetails);
+
+        if (!authorizationResult.isStoreOwner && !authorizationResult.hasPermission) {
+            throw new UnauthorizedException("상품 수정을 위한 권한이 없습니다.");
+        }
+
         product.update(productUpdateRequestDto);
 
         return ProductResponseDto.from(product);
@@ -80,19 +87,23 @@ public class ProductService {
             throw new ProductAlreadyDeletedException("이미 삭제된 상품입니다.");
         }
 
-        validateDeletePermission(product, userDetails);
+        AuthorizationResult authorizationResult = checkAuthorization(product, userDetails);
+
+        if (!authorizationResult.isStoreOwner && !authorizationResult.hasPermission) {
+            throw new UnauthorizedException("상품 삭제를 위한 권한이 없습니다.");
+        }
 
         product.softDelete(userDetails.getUsername());
 
         return ProductResponseDto.from(product);
     }
 
-    private void validateDeletePermission(Product product, PrincipalDetails userDetails) {
+    public record AuthorizationResult(boolean isStoreOwner, boolean hasPermission) {}
+
+    public AuthorizationResult checkAuthorization(Product product, PrincipalDetails userDetails) {
         boolean isStoreOwner = product.getStore().getUser().getUsername().equals(userDetails.getUsername());
         boolean isAdmin = userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER);
 
-        if (!isStoreOwner && !isAdmin) {
-            throw new UnauthorizedException("상품 삭제를 위한 권한이 없습니다.");
-        }
+        return new AuthorizationResult(isStoreOwner, isAdmin);
     }
 }

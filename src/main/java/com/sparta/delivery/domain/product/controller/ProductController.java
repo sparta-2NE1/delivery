@@ -41,8 +41,8 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}")
-    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID productId, @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto) {
-        ProductResponseDto productResponseDto = productService.updateProduct(productId, productUpdateRequestDto);
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID productId, @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        ProductResponseDto productResponseDto = productService.updateProduct(productId, productUpdateRequestDto, userDetails);
         return ResponseEntity.ok(productResponseDto);
     }
 
