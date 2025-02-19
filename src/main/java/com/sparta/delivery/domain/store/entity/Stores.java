@@ -20,7 +20,7 @@ import java.util.UUID;
 @Builder
 @Table(name="p_stores")
 public class Stores extends Timestamped {
-
+//올리는용
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
