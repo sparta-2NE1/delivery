@@ -31,7 +31,7 @@ public class ProductService {
     private static final int DEFAULT_PAGE_SIZE = 10;
 
     public ProductResponseDto addProductToStore(UUID storeId, ProductRequestDto productRequestDto, String username) {
-        if (productRepository.existsByNameAndStore_StoreId(productRequestDto.getName(), storeId)) {
+        if (productRepository.existsByNameAndStore_StoreIdAndDeletedAtIsNull(productRequestDto.getName(), storeId)) {
             throw new DuplicateProductException("이미 동일한 이름의 상품이 존재합니다.");
         }
 

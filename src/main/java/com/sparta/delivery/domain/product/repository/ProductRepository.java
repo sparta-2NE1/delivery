@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    boolean existsByNameAndStore_StoreId(String name, UUID storeId);
-
     Page<Product> findAllByOrderByCreatedAtDescUpdatedAtDesc(Pageable pageable);
+
+    boolean existsByNameAndStore_StoreIdAndDeletedAtIsNull(String name, UUID storeId);
 }
