@@ -46,9 +46,18 @@ public class ProductService {
         }
     }
 
-    public ProductResponseDto getProduct(UUID productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+    public ProductResponseDto getProduct(UUID productId, PrincipalDetails userDetails) {
+        if (userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER)) {
+            Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+            return ProductResponseDto.from(product);
+        }
 
+        if (userDetails.getRole().equals(UserRoles.ROLE_OWNER)) {
+            Product product = productRepository.findByProductIdAndDeletedAtIsNull(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+            return ProductResponseDto.from(product);
+        }
+
+        Product product = productRepository.findByProductIdAndDeletedAtIsNullAndHiddenFalse(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
         return ProductResponseDto.from(product);
     }
 
