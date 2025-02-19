@@ -1,5 +1,6 @@
 package com.sparta.delivery.paymentTest;
 
+import com.sparta.delivery.config.global.exception.custom.PaymentAlreadyCompletedException;
 import com.sparta.delivery.domain.card.entity.Card;
 import com.sparta.delivery.domain.card.repository.CardRepository;
 import com.sparta.delivery.domain.order.entity.Order;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -95,6 +97,22 @@ public class PaymentServiceTest {
 
         assertEquals("결제 성공", result);
     }
+    @Test
+    @DisplayName("결제 실패 : 이미 결제된 주문")
+    void testIsRegisterPaymentFailAlreadyPaid() {
+        testOrder.setOrderStatus(OrderStatus.PAYMENT_COMPLETE);
+        RegisterPaymentDto registerPaymentDto = new RegisterPaymentDto(cardId, 10000,orderId);
+
+        when(cardRepository.findByCardIdAndDeletedAtIsNull(cardId)).thenReturn(Optional.of(testCard));
+        when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        PaymentAlreadyCompletedException exception = assertThrows(PaymentAlreadyCompletedException.class,
+                () -> paymentService.isRegisterPayment(registerPaymentDto, "testuser"));
+
+        assertEquals("이미 결제된 주문입니다.", exception.getMessage());
+    }
+
 
 
 }
