@@ -103,6 +103,7 @@ public class OrderService {
             //주문 시간으로부터 5분 이내일때만 취소 가능
             LocalDateTime now = LocalDateTime.now();
             if(Duration.between(order.getOrderTime(), now).toMinutes() <= Long.valueOf(5)) {
+                order.setOrderStatus(OrderStatus.ORDER_CANCEL);
                 order.setDeletedAt(now);
                 order.setDeletedBy(username);
 
