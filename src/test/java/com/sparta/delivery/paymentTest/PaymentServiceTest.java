@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PaymentServiceTest {
 
@@ -188,5 +188,27 @@ public class PaymentServiceTest {
         assertFalse(searchNullResult.isEmpty());
         assertEquals(testPayment.getPaymentId(), searchNullResult.get(0).getPaymentId());
     }
+
+    @Test
+    @DisplayName("결제 내역 삭제 성공")
+    void testDeletePaymentSuccess() {
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+
+        String result = paymentService.deletePayment(paymentId, "testuser");
+
+        assertEquals("결제 내역 삭제 성공", result);
+    }
+
+    @Test
+    @DisplayName("결제 내역 삭제 실패 : 결제 정보 없음")
+    void testDeletePaymentFailNotFound() {
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.empty());
+
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> paymentService.deletePayment(paymentId, "testuser"));
+
+        assertEquals("결제 정보가 존재하지 않습니다.", exception.getMessage());
+    }
+
 
 }
