@@ -40,7 +40,7 @@ public class CardController {
     }
 
     @Operation(summary = "카드 정보 수정")
-    @PutMapping("/{card_id}")
+    @PatchMapping("/update/{card_id}")
     public ResponseEntity<?> updateCard(@AuthenticationPrincipal PrincipalDetails principalDetails, @PathVariable UUID card_id, @RequestBody RegistrationCardDto registrationCardDto) {
         cardService.updateCard(principalDetails.getUsername(), card_id, registrationCardDto);
         return ResponseEntity.ok().build();
