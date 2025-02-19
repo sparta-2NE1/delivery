@@ -3,12 +3,14 @@ package com.sparta.delivery.domain.delivery_address.service;
 import com.querydsl.core.BooleanBuilder;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.DeliveryAddressNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.domain.delivery_address.dto.AddressReqDto;
 import com.sparta.delivery.domain.delivery_address.dto.AddressResDto;
 import com.sparta.delivery.domain.delivery_address.dto.AddressSearchDto;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.entity.QDeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.repository.DeliveryAddressRepository;
+import com.sparta.delivery.domain.user.dto.UserResDto;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -130,5 +132,24 @@ public class DeliveryAddressService {
         }else{
             return sort.ascending();
         }
+    }
+
+    public AddressResDto updateDeliveryAddresses(UUID id, AddressReqDto addressReqDto, PrincipalDetails principalDetails) {
+
+        DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new DeliveryAddressNotFoundException("DeliveryAddress Not Found By Id : "+ id));
+
+        if (!deliveryAddress.getUser().getUsername().equals(principalDetails.getUsername()) &&
+                !principalDetails.getRole().name().equals("ROLE_MASTER")){
+            throw new ForbiddenException("Access denied.");
+        }
+
+        DeliveryAddress updateDeliveryAddress = deliveryAddress.toBuilder()
+                .deliveryAddress(addressReqDto.getDeliveryAddress())
+                .deliveryAddressInfo(addressReqDto.getDeliveryAddressInfo())
+                .detailAddress(addressReqDto.getDetailAddress())
+                .build();
+
+        return addressRepository.save(updateDeliveryAddress).toResponse();
     }
 }
