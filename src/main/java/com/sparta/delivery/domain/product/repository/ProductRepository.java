@@ -12,7 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     Optional<Product> findByProductIdAndDeletedAtIsNullAndHiddenFalse(UUID productId);
 
-//    Optional<Product> findByIdAndDeletedAtIsNullAndHiddenFalse(UUID productId);
-
     Optional<Product> findByProductIdAndDeletedAtIsNull(UUID productId);
 }
