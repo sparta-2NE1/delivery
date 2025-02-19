@@ -2,6 +2,7 @@ package com.sparta.delivery.domain.delivery_address.controller;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.delivery_address.dto.AddressReqDto;
+import com.sparta.delivery.domain.delivery_address.dto.AddressSearchDto;
 import com.sparta.delivery.domain.delivery_address.service.DeliveryAddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,13 @@ public class DeliveryAddressController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(deliveryAddressService.getDeliveryAddressById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getDeliveryAddresses(@RequestBody AddressSearchDto addressSearchDto){
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(deliveryAddressService.getDeliveryAddresses(addressSearchDto));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
