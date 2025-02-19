@@ -6,6 +6,7 @@ import com.sparta.delivery.domain.card.repository.CardRepository;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
+import com.sparta.delivery.domain.payment.dto.PaymentDto;
 import com.sparta.delivery.domain.payment.dto.RegisterPaymentDto;
 import com.sparta.delivery.domain.payment.entity.Payment;
 import com.sparta.delivery.domain.payment.repository.PaymentRepository;
@@ -22,8 +23,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -111,6 +111,18 @@ public class PaymentServiceTest {
                 () -> paymentService.isRegisterPayment(registerPaymentDto, "testuser"));
 
         assertEquals("이미 결제된 주문입니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 내역 조회 성공")
+    void testGetPaymentSuccess() {
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+        when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
+
+        PaymentDto result = paymentService.getPayment(paymentId);
+
+        assertNotNull(result);
+        assertEquals(paymentId, result.getPaymentId());
     }
 
 
