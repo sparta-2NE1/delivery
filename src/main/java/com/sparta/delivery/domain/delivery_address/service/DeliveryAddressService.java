@@ -37,11 +37,13 @@ public class DeliveryAddressService {
                 .orElseThrow(()-> new IllegalArgumentException("Invalid username : " + principalDetails.getUsername()));
 
         // 동일한 user를 가지고있는 deliveryAddress 중에 중복된 명이 있으면 중복 반환
+        // 삭제된 deliveryAddress 는 중복 검사에서 제외
         if(addressRepository.existsByUserAndDeliveryAddressAndDeletedAtIsNull(user, addressReqDto.getDeliveryAddress())){
             throw new IllegalArgumentException("해당 유저의 동일한 배송지가 이미 존재합니다. :" + addressReqDto.getDeliveryAddress());
         }
 
         // user는 가지고있는 deliveryAddress수가 3개 까지만 가질 수 있음
+        // 삭제된 deliveryAddress 는 count 에서 제외
         if (addressRepository.countByUserAndDeletedAtIsNull(user) >= 3){
             throw new IllegalArgumentException("배송지는 최대 3개 까지만 추가할 수 있습니다.");
         }
