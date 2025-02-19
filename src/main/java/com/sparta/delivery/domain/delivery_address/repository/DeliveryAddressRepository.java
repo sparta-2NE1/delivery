@@ -4,6 +4,7 @@ import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress , UUID> {
@@ -13,4 +14,7 @@ public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress
 
     // 사용자가 가지고있는 배송지 개수의 수 반환
     long countByUser(User user);
+
+    // 제거 되지않은 배송지 반환
+    Optional<DeliveryAddress> findByDeliveryAddressIdAndDeletedAtIsNull(UUID deliveryAddressId);
 }

@@ -1,11 +1,6 @@
 package com.sparta.delivery.config.global.exception;
 
-import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
-import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
-import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
-import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
-import com.sparta.delivery.config.global.exception.custom.PaymentAlreadyCompletedException;
-import com.sparta.delivery.config.global.exception.custom.ExistCardException;
+import com.sparta.delivery.config.global.exception.custom.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +62,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> ExistCardException(ExistCardException ex){
         int status = HttpServletResponse.SC_CONFLICT;
         ExceptionResponse response = new ExceptionResponse("Already Register Card", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(DeliveryAddressNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> DeliveryAddressNotFoundException(DeliveryAddressNotFoundException ex){
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        ExceptionResponse response = new ExceptionResponse("DeliveryAddress Not Found", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
     }
 

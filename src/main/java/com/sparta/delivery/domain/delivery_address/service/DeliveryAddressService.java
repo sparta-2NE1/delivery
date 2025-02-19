@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.delivery_address.service;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.DeliveryAddressNotFoundException;
 import com.sparta.delivery.domain.delivery_address.dto.AddressReqDto;
 import com.sparta.delivery.domain.delivery_address.dto.AddressResDto;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
@@ -10,6 +11,8 @@ import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +49,13 @@ public class DeliveryAddressService {
         userRepository.save(user);
 
         return deliveryAddress.toResponse();
+    }
+
+    public AddressResDto getDeliveryAddressById(UUID id) {
+
+        DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new DeliveryAddressNotFoundException("DeliveryAddress Not Found By Id : "+ id));
+
+        return  deliveryAddress.toResponse();
     }
 }

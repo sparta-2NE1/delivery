@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/delivery-addresses")
@@ -33,6 +34,13 @@ public class DeliveryAddressController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(deliveryAddressService.addAddress(addressReqDto, principalDetails));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getDeliveryAddressById(@PathVariable("id") UUID id){
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(deliveryAddressService.getDeliveryAddressById(id));
     }
 
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
