@@ -41,6 +41,9 @@ public class CardService {
         if(existCard(username,registrationCardDto)){
             throw new ExistCardException("이미 등록한 카드입니다");
         }
+        if(registrationCardDto.getCardCompany()==null || registrationCardDto.getCardNumber()==null || registrationCardDto.getCardName()==null){
+            throw new IllegalArgumentException("필수 입력 값입니다.");
+        }
 
         Card card = Card.builder()
                 .cardCompany(registrationCardDto.getCardCompany())
