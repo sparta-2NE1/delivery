@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -83,6 +84,7 @@ public class PaymentServiceTest {
                 .amount(10000)
                 .build();
     }
+
     @Test
     @DisplayName("결제 성공")
     void testIsRegisterPaymentSuccess() {
@@ -97,6 +99,7 @@ public class PaymentServiceTest {
 
         assertEquals("결제 성공", result);
     }
+
     @Test
     @DisplayName("결제 실패 : 이미 결제된 주문")
     void testIsRegisterPaymentFailAlreadyPaid() {
@@ -134,6 +137,22 @@ public class PaymentServiceTest {
                 () -> paymentService.getPayment(paymentId));
 
         assertEquals("결제 내역이 존재하지 않습니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("전체 결제 내역 조회")
+    void testGetPaymentsSuccess() {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(paymentRepository.findByUser_UsernameAndDeletedAtIsNull("testuser")).thenReturn(List.of(testPayment));
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+        when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
+
+        List<PaymentDto> result = paymentService.getPayments("testuser");
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(testPayment.getPaymentId(), result.get(0).getPaymentId());
     }
 
 
