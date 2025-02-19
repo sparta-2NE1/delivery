@@ -155,5 +155,19 @@ public class PaymentServiceTest {
         assertEquals(testPayment.getPaymentId(), result.get(0).getPaymentId());
     }
 
+    @Test
+    @DisplayName("전체 결제 내역 조회 실패 : 결제 내역 없음")
+    void testGetPaymentsFailNoPayments() {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(paymentRepository.findByUser_UsernameAndDeletedAtIsNull("testuser")).thenReturn(List.of());
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+        when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
+
+        List<PaymentDto> result = paymentService.getPayments("testuser");
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
 
 }
