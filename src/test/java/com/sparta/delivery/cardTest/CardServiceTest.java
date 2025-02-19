@@ -61,7 +61,7 @@ public class CardServiceTest {
     @DisplayName("카드 등록 성공")
     void testRegisterCardSuccess(){
         RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름","1234");
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.save(any(Card.class))).thenReturn(testCard);
 
         assertDoesNotThrow(() -> cardService.registrationCard("testuser", registrationCardDto));
@@ -72,7 +72,7 @@ public class CardServiceTest {
     @DisplayName("카드 등록 실패 : 카드 정보 누락")
     void testRegisterCardFailIllegal(){
         RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름",null);
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> cardService.registrationCard("testuser", registrationCardDto));
         assertEquals("필수 입력 값입니다.",exception.getMessage());
@@ -82,7 +82,7 @@ public class CardServiceTest {
     @DisplayName("카드 등록 실패 : 이미 등록된 카드")
     void testRegisterCardFailAlreadyExists() {
         RegistrationCardDto dto = new RegistrationCardDto("국민", "국민카드", "1234");
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.findByUser_UsernameAndDeletedAtIsNull("testuser"))
                 .thenReturn(List.of(testCard));
 

@@ -36,7 +36,7 @@ public class CardService {
     @Transactional
     public void registrationCard(String username, RegistrationCardDto registrationCardDto) {
 
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
                 new NullPointerException("유저가 존재하지 않습니다."));
         if(existCard(username,registrationCardDto)){
             throw new ExistCardException("이미 등록한 카드입니다");
@@ -55,6 +55,8 @@ public class CardService {
     }
 
     public RegistrationCardDto getCard(String username, UUID cardId) {
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("카드가 존재하지 않습니다."));
         return RegistrationCardDto.builder()
@@ -65,6 +67,8 @@ public class CardService {
     }
 
     public List<RegistrationCardDto> getCards(String username) {
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
         List<Card> cards = cardRepository.findByUser_UsernameAndDeletedAtIsNull(username);
         return cards.stream().map(card -> RegistrationCardDto.builder()
                 .cardNumber(card.getCardNumber())
@@ -75,6 +79,8 @@ public class CardService {
 
     @Transactional
     public void updateCard(String username, UUID cardId, RegistrationCardDto registrationCardDto) {
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("해당 카드가 존재하지 않습니다."));
 
@@ -91,12 +97,12 @@ public class CardService {
     }
 
     public void deleteCard(String username, UUID cardId) {
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("해당 카드가 존재하지 않습니다."));
         card.setDeletedAt(LocalDateTime.now());
         card.setDeletedBy(username);
         cardRepository.save(card);
-
-
     }
 }
