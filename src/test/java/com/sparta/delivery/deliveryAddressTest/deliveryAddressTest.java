@@ -220,7 +220,7 @@ public class deliveryAddressTest {
     }
 
     @Test
-    @DisplayName("배송지 수정 성공 테스트")
+    @DisplayName("배송지 정보 수정 성공 테스트")
     void testUpdateDeliveryAddressesSuccess(){
         // Given
         AddressReqDto addressReqDto = new AddressReqDto("updateHome","new info","202");
@@ -289,7 +289,7 @@ public class deliveryAddressTest {
     }
 
     @Test
-    @DisplayName("배송지 삭제 성공")
+    @DisplayName("배송지 삭제 실패")
     void testDeleteDeliveryAddressesFail(){
 
         // Given
