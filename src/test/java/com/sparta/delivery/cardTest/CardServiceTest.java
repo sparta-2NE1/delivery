@@ -138,7 +138,25 @@ public class CardServiceTest {
 
         verify(cardRepository, times(1)).save(any(Card.class));
     }
+    @Test
+    @DisplayName("카드 삭제 성공")
+    void testDeleteCardSuccess() {
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
+                .thenReturn(Optional.of(testCard));
 
+        assertDoesNotThrow(() -> cardService.deleteCard("testuser", cardId));
+        verify(cardRepository, times(1)).save(any(Card.class));
+    }
+
+    @Test
+    @DisplayName("카드 삭제 실패 : 존재하지 않는 카드")
+    void testDeleteCardFail_NotFound() {
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
+                .thenReturn(Optional.empty());
+
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.deleteCard("testuser", cardId));
+        assertEquals("해당 카드가 존재하지 않습니다.", exception.getMessage());
+    }
 
 
 }
