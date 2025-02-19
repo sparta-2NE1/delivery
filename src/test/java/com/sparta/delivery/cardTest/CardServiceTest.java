@@ -122,4 +122,23 @@ public class CardServiceTest {
         assertFalse(list.isEmpty());
     }
 
+    @Test
+    @DisplayName("카드 정보 업데이트")
+    void testUpdateCardSuccess() {
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
+                .thenReturn(Optional.of(testCard));
+
+        when(cardRepository.save(any(Card.class))).thenReturn(testCard.toBuilder()
+                .cardCompany("신한")
+                .cardNumber("5678")
+                .cardName("신한카드")
+                .build());
+
+        assertDoesNotThrow(() -> cardService.updateCard("testuser", cardId, new RegistrationCardDto("nothing","nothing","nothing")));
+
+        verify(cardRepository, times(1)).save(any(Card.class));
+    }
+
+
+
 }
