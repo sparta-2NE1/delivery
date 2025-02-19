@@ -7,7 +7,6 @@ import com.sparta.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.sparta.delivery.domain.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Fetch;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +41,14 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}")
-    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID productId, @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto) {
-        ProductResponseDto productResponseDto = productService.updateProduct(productId, productUpdateRequestDto);
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID productId, @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        ProductResponseDto productResponseDto = productService.updateProduct(productId, productUpdateRequestDto, userDetails);
+        return ResponseEntity.ok(productResponseDto);
+    }
+
+    @PatchMapping("/{productId}/delete")
+    public ResponseEntity<ProductResponseDto> deleteProduct(@PathVariable UUID productId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        ProductResponseDto productResponseDto = productService.deleteProduct(productId, userDetails);
         return ResponseEntity.ok(productResponseDto);
     }
 }

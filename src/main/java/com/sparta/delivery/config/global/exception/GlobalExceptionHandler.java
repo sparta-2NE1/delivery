@@ -37,6 +37,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ExceptionResponse> unauthorizedException(UnauthorizedException ex){
+        int status = HttpServletResponse.SC_UNAUTHORIZED;
+        ExceptionResponse response = new ExceptionResponse("UNAUTHORIZED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ExceptionResponse> productNotFoundException(ProductNotFoundException ex){
         int status = HttpServletResponse.SC_NOT_FOUND;
@@ -46,6 +53,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateProductException.class)
     public ResponseEntity<ExceptionResponse> duplicateProductException(DuplicateProductException ex){
+        int status = HttpServletResponse.SC_CONFLICT;
+        ExceptionResponse response = new ExceptionResponse("CONFLICT", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ProductAlreadyDeletedException.class)
+    public ResponseEntity<ExceptionResponse> productAlreadyDeletedException(ProductAlreadyDeletedException ex){
         int status = HttpServletResponse.SC_CONFLICT;
         ExceptionResponse response = new ExceptionResponse("CONFLICT", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
