@@ -8,6 +8,7 @@ import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.payment.dto.PaymentDto;
 import com.sparta.delivery.domain.payment.dto.RegisterPaymentDto;
+import com.sparta.delivery.domain.payment.dto.SearchDto;
 import com.sparta.delivery.domain.payment.entity.Payment;
 import com.sparta.delivery.domain.payment.repository.PaymentRepository;
 import com.sparta.delivery.domain.payment.service.PaymentService;
@@ -169,5 +170,23 @@ public class PaymentServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    @DisplayName("결제 내역 검색 성공")
+    void testSearchPaymentsSuccess() {
+        SearchDto searchDto = new SearchDto();
+        when(paymentRepository.searchPayments(searchDto, "testuser")).thenReturn(List.of(testPayment));
+        when(paymentRepository.searchPayments(null, "testuser")).thenReturn(List.of(testPayment));
+
+        List<PaymentDto> searchResult = paymentService.searchPayments(searchDto, "testuser");
+        List<PaymentDto> searchNullResult = paymentService.searchPayments(null, "testuser");
+
+        assertNotNull(searchResult);
+        assertFalse(searchResult.isEmpty());
+        assertEquals(testPayment.getPaymentId(), searchResult.get(0).getPaymentId());
+
+        assertNotNull(searchNullResult);
+        assertFalse(searchNullResult.isEmpty());
+        assertEquals(testPayment.getPaymentId(), searchNullResult.get(0).getPaymentId());
+    }
 
 }
