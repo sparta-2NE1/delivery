@@ -1,12 +1,16 @@
 package com.sparta.delivery.domain.product.service;
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
+import com.sparta.delivery.config.global.exception.custom.ProductAlreadyDeletedException;
 import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
 import com.sparta.delivery.domain.product.dto.ProductRequestDto;
 import com.sparta.delivery.domain.product.dto.ProductResponseDto;
 import com.sparta.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.product.repository.ProductRepository;
+import com.sparta.delivery.domain.user.enums.UserRoles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,5 +70,29 @@ public class ProductService {
         product.update(productUpdateRequestDto);
 
         return ProductResponseDto.from(product);
+    }
+
+    @Transactional
+    public ProductResponseDto deleteProduct(UUID productId, PrincipalDetails userDetails) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+
+        if (product.getDeletedAt() != null) {
+            throw new ProductAlreadyDeletedException("이미 삭제된 상품입니다.");
+        }
+
+        validateDeletePermission(product, userDetails);
+
+        product.softDelete(userDetails.getUsername());
+
+        return ProductResponseDto.from(product);
+    }
+
+    private void validateDeletePermission(Product product, PrincipalDetails userDetails) {
+        boolean isStoreOwner = product.getStore().getUser().getUsername().equals(userDetails.getUsername());
+        boolean isAdmin = userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER);
+
+        if (!isStoreOwner && !isAdmin) {
+            throw new UnauthorizedException("상품 삭제를 위한 권한이 없습니다.");
+        }
     }
 }

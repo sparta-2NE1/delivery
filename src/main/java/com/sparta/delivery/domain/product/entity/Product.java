@@ -6,6 +6,7 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -45,5 +46,11 @@ public class Product extends Timestamped {
         this.price = (productUpdateRequestDto.getPrice() == 0 || productUpdateRequestDto.getPrice() < 0) ? this.price : productUpdateRequestDto.getPrice();
         this.quantity = productUpdateRequestDto.getQuantity() == 0 ? this.quantity : productUpdateRequestDto.getQuantity();
         this.hidden = productUpdateRequestDto.isHidden();
+    }
+
+    public void softDelete(String username) {
+        this.hidden = true;
+        setDeletedBy(username);
+        setDeletedAt(LocalDateTime.now());
     }
 }
