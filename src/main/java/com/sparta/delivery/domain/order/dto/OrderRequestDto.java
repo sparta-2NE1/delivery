@@ -6,13 +6,17 @@ import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Builder
+@Data
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderRequestDto {
     private UUID deliveryAddressId;
     private UUID storeId;
@@ -24,8 +28,8 @@ public class OrderRequestDto {
         return Order.builder()
                 .orderTime(LocalDateTime.now())
                 .orderType(orderType)
-                //주문 생성 시 기본 상태는 주문 확인
-                .orderStatus(OrderStatus.ORDER_IN)
+                //주문 생성 시 기본 상태는 결제 대기
+                .orderStatus(OrderStatus.PAYMENT_WAIT)
                 .requirements(requirements)
                 .stores(store)
                 .deliveryAddress(deliveryAddress)

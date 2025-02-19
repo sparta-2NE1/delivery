@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
     Optional<Order> findByOrderIdAndDeletedAtIsNull(UUID orderId);
     Page<Order> findAllByUserAndDeletedAtIsNull(User user, Pageable pageable);
     Page<Order> findAllByStoresAndDeletedAtIsNull(Stores store, Pageable pageable);
-    Optional<Order> findByOrderIdAndUserAndDeletedAtIsNotNull(UUID orderId, User user);
+    Optional<Order> findByOrderIdAndUserAndDeletedAtIsNull(UUID orderId, User user);
 
 }

@@ -5,7 +5,7 @@ import com.sparta.delivery.domain.order.dto.OrderRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.service.OrderService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,8 +25,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("")
-    public void createOrder(@RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
         orderService.createOrder(requestDto, userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/{orderId}")
@@ -53,8 +54,8 @@ public class OrderController {
 
     @DeleteMapping("/{orderId}")
     public ResponseEntity<?> deleteOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(orderService.deleteOrder(orderId, userDetails.getUsername()));
+        orderService.deleteOrder(orderId, userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PutMapping("/{orderId}")

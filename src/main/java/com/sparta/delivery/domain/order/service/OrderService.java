@@ -35,7 +35,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final StoreRepository storeRepository;
 
-    public OrderResponseDto createOrder(OrderRequestDto requestDto, String username) {
+    public void createOrder(OrderRequestDto requestDto, String username) {
         //주문목록 테이블에 상품 추가 필요
         try {
             User user = getUser(username);
@@ -45,8 +45,6 @@ public class OrderService {
 
             Order order = requestDto.createOrder(store, deliveryAddress, user);
             orderRepository.save(order);
-            return order.toResponseDto();
-
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -59,7 +57,6 @@ public class OrderService {
         Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 취소된 주문입니다."));
 
-        
         return order.toResponseDto();
     }
 
@@ -98,17 +95,19 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponseDto deleteOrder(UUID orderId, String username) {
+    public void deleteOrder(UUID orderId, String username) {
         try {
             User user = getUser(username);
             Order order = getUserOrder(orderId, user);
 
-            order.setDeletedAt(LocalDateTime.now());
-            order.setDeletedBy(username);
+            //주문 시간으로부터 5분 이내일때만 취소 가능
+            LocalDateTime now = LocalDateTime.now();
+            if(Duration.between(order.getOrderTime(), now).toMinutes() <= Long.valueOf(5)) {
+                order.setDeletedAt(now);
+                order.setDeletedBy(username);
 
-            orderRepository.save(order).toResponseDto();
-
-            return order.toResponseDto();
+                orderRepository.save(order);
+            }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
@@ -125,11 +124,10 @@ public class OrderService {
             List<Product> productList = getProductList(requestDto.getProductId());
             Order order = getUserOrder(orderId, user);
 
-            //주문 시간이 현재 시간에서 5분 이하일때 && 결제 전일 때 주문 변경 가능
+            //결제 전일 때 주문 변경 가능
             //취소 주문건은 위에서 걸러 옴
             LocalDateTime now = LocalDateTime.now();
-            if(Duration.between(order.getOrderTime(), now).toMinutes() <= Long.valueOf(5)
-                    && order.getOrderStatus().equals(OrderStatus.PAYMENT_WAIT))
+            if(order.getOrderStatus().equals(OrderStatus.PAYMENT_WAIT))
             {
                 order.setUpdatedAt(now);
                 order.setUpdatedBy(username);
@@ -173,7 +171,7 @@ public class OrderService {
     }
 
     private Order getUserOrder(UUID orderId, User user) {
-        return orderRepository.findByOrderIdAndUserAndDeletedAtIsNotNull(orderId, user)
+        return orderRepository.findByOrderIdAndUserAndDeletedAtIsNull(orderId, user)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저에 존재하지 않거나 취소된 주문입니다."));
     }
 
