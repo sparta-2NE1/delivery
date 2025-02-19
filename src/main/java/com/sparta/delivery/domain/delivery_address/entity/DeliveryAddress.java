@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.delivery_address.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
+import com.sparta.delivery.domain.delivery_address.dto.AddressResDto;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_delivery_address")
@@ -22,10 +23,10 @@ public class DeliveryAddress extends Timestamped {
     @Column(name = "delivery_address_id")
     private UUID deliveryAddressId;
 
-    @Column(name = "delivery_address", nullable = false) // ✅ 컬럼명을 소문자로 고정
+    @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
 
-    @Column(name = "delivery_address_info", nullable = false) // ✅ Snake_case로 변경
+    @Column(name = "delivery_address_info", nullable = false)
     private String deliveryAddressInfo;
 
     @Column(name = "detail_address")
@@ -34,4 +35,14 @@ public class DeliveryAddress extends Timestamped {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public AddressResDto toResponse() {
+
+        return new AddressResDto(
+                this.deliveryAddressId,
+                this.deliveryAddress,
+                this.deliveryAddressInfo,
+                this.detailAddress
+        );
+    }
 }
