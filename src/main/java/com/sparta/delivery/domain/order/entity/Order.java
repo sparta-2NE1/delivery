@@ -48,7 +48,7 @@ public class Order extends Timestamped {
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "deliveryAddressId")
     private DeliveryAddress deliveryAddress;
 
@@ -59,8 +59,9 @@ public class Order extends Timestamped {
                 this.orderType,
                 this.orderStatus,
                 this.requirements,
-                this.stores,
-                this.user
+                this.stores.getStoreId(),
+                this.user.getUserId(),
+                this.deliveryAddress.getDeliveryAddressId()
         );
     }
 

@@ -8,10 +8,14 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Builder
+@Getter
 @AllArgsConstructor
 public class OrderResponseDto {
     private UUID orderId;
@@ -19,6 +23,7 @@ public class OrderResponseDto {
     private OrderType orderType;
     private OrderStatus orderStatus;
     private String requirements;
-    private Stores stores;
-    private User user;
+    private UUID stores;
+    private UUID user;
+    private UUID deliveryAddressId;
 }
