@@ -71,6 +71,15 @@ public class CardServiceTest {
         assertDoesNotThrow(() -> cardService.registrationCard("testuser", registrationCardDto));
         verify(cardRepository, times(1)).save(any(Card.class));
     }
+    @Test
+    @DisplayName("카드 등록 실패 : 카드 정보 누락")
+    void testRegisterCardFailIllegal(){
+        RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름",null);
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> cardService.registrationCard("testuser", registrationCardDto));
+        assertEquals("필수 입력 값입니다.",exception.getMessage());
+    }
 
 
 }
