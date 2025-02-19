@@ -112,6 +112,14 @@ public class CardServiceTest {
         assertEquals("카드가 존재하지 않습니다.",exception.getMessage());
     }
 
-
+    @Test
+    @DisplayName("카드 리스트 조회")
+    void testGetCardsSuccess(){
+        when(cardRepository.findByUser_UsernameAndDeletedAtIsNull("testuser"))
+                .thenReturn(List.of(testCard));
+        List<RegistrationCardDto> list = cardService.getCards("testuser");
+        assertNotNull(list);
+        assertFalse(list.isEmpty());
+    }
 
 }
