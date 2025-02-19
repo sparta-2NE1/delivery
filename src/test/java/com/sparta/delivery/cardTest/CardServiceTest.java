@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.card.repository.CardRepository;
 import com.sparta.delivery.domain.card.service.CardService;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
+import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -88,6 +89,29 @@ public class CardServiceTest {
         ExistCardException exception = assertThrows(ExistCardException.class, () -> cardService.registrationCard("testuser", dto));
         assertEquals("이미 등록한 카드입니다", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("카드 단일 조회 성공")
+    void testGetCardSuccess(){
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
+                .thenReturn(Optional.of(testCard));
+        RegistrationCardDto registrationCardDto = cardService.getCard("testuser",cardId);
+        assertNotNull(registrationCardDto);
+        assertAll(
+                () -> assertEquals("국민", registrationCardDto.getCardCompany()),
+                () -> assertEquals("1234", registrationCardDto.getCardNumber())
+        );
+    }
+
+    @Test
+    @DisplayName("카드 단일 조회 실패 : 존재하지 않는 카드")
+    void testGetCardFailNotFound(){
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId,"testuser"))
+                .thenReturn(Optional.empty());
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.getCard("testUser", cardId));
+        assertEquals("카드가 존재하지 않습니다.",exception.getMessage());
+    }
+
 
 
 }
