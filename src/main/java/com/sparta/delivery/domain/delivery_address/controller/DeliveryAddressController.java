@@ -51,6 +51,21 @@ public class DeliveryAddressController {
                 .body(deliveryAddressService.getDeliveryAddresses(addressSearchDto));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateDeliveryAddresses(@PathVariable("id") UUID id,
+                                                     @AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                     @Valid @RequestBody AddressReqDto addressReqDto,
+                                                     BindingResult bindingResult){
+
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ValidationErrorResponse(bindingResult));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(deliveryAddressService.updateDeliveryAddresses(id,addressReqDto,principalDetails));
+    }
+
     private Map<String, Object> ValidationErrorResponse(BindingResult bindingResult) {
         List<Map<String, String>> errors = bindingResult.getFieldErrors().stream()
                 .map(fieldError -> Map.of(
