@@ -125,6 +125,16 @@ public class PaymentServiceTest {
         assertEquals(paymentId, result.getPaymentId());
     }
 
+    @Test
+    @DisplayName("결제 내역 조회 실패 : 결제 내역 없음")
+    void testGetPaymentFailNotFound() {
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.empty());
+
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> paymentService.getPayment(paymentId));
+
+        assertEquals("결제 내역이 존재하지 않습니다.", exception.getMessage());
+    }
 
 
 }
