@@ -10,7 +10,6 @@ import com.sparta.delivery.domain.delivery_address.dto.AddressSearchDto;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.entity.QDeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.repository.DeliveryAddressRepository;
-import com.sparta.delivery.domain.user.dto.UserResDto;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -93,25 +92,6 @@ public class DeliveryAddressService {
         return deliveryAddressPages.map(DeliveryAddress :: toResponse);
     }
 
-    private BooleanBuilder buildSearchConditions(AddressSearchDto addressSearchDto, QDeliveryAddress qDeliveryAddress) {
-
-        BooleanBuilder builder = new BooleanBuilder();
-
-        // username 조건
-        if (addressSearchDto.getDeliveryAddress() != null && !addressSearchDto.getDeliveryAddress().isEmpty()){
-            builder.and(qDeliveryAddress.deliveryAddress.containsIgnoreCase(addressSearchDto.getDeliveryAddress()));
-        }
-
-        // email 조건
-        if (addressSearchDto.getDeliveryAddressInfo() != null && !addressSearchDto.getDeliveryAddressInfo().isEmpty()){
-            builder.and(qDeliveryAddress.deliveryAddressInfo.containsIgnoreCase(addressSearchDto.getDeliveryAddressInfo()));
-        }
-
-        builder.and(qDeliveryAddress.deletedAt.isNull());
-
-        return builder;
-    }
-
     public AddressResDto updateDeliveryAddresses(UUID id, AddressReqDto addressReqDto, PrincipalDetails principalDetails) {
 
         DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
@@ -147,6 +127,24 @@ public class DeliveryAddressService {
         addressRepository.save(deliveryAddress);
     }
 
+    private BooleanBuilder buildSearchConditions(AddressSearchDto addressSearchDto, QDeliveryAddress qDeliveryAddress) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // username 조건
+        if (addressSearchDto.getDeliveryAddress() != null && !addressSearchDto.getDeliveryAddress().isEmpty()){
+            builder.and(qDeliveryAddress.deliveryAddress.containsIgnoreCase(addressSearchDto.getDeliveryAddress()));
+        }
+
+        // email 조건
+        if (addressSearchDto.getDeliveryAddressInfo() != null && !addressSearchDto.getDeliveryAddressInfo().isEmpty()){
+            builder.and(qDeliveryAddress.deliveryAddressInfo.containsIgnoreCase(addressSearchDto.getDeliveryAddressInfo()));
+        }
+
+        builder.and(qDeliveryAddress.deletedAt.isNull());
+
+        return builder;
+    }
 
     private Sort getSortOrder(AddressSearchDto addressSearchDto) {
 
