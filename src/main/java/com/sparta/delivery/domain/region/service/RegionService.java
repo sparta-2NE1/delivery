@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.region.service;
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.region.dto.RegionReqDto;
 import com.sparta.delivery.domain.region.dto.RegionResDto;
 import com.sparta.delivery.domain.region.entity.Region;
@@ -9,8 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +24,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class RegionService {
 
-    @Autowired
     private final RegionRepository regionRepository;
 
     public RegionResDto regionCreate(RegionReqDto regionReqDto){ //운영 지역 생성
@@ -38,6 +41,36 @@ public class RegionService {
         List<Region> regionList = regionRepository.findAll();
         return regionList.stream().map(RegionResDto::new).collect(Collectors.toList()); //
 
+    }
+
+    public List<RegionResDto> searchRegion(String keyword,Pageable pageable){ //운영 지역 검색(동 기준으로만검색됨)
+
+        List<Region> regionList = regionRepository.findByLocalityContainingAndDeletedAtIsNull(keyword);
+        if(regionList.isEmpty()){throw new NoSuchElementException("매장이 한개도 등록되어있지 않습니다.");}
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), regionList.size());
+
+        List<RegionResDto> dtoList = regionList.subList(start, end)
+                .stream()
+                .map(RegionResDto::new)
+                .collect(Collectors.toList());
+
+        return regionList.subList(start, end)
+                .stream()
+                .map(RegionResDto::new)
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional
+    public RegionResDto updateRegion(RegionReqDto regionReqDto, UUID id){ //운영 지역 업데이트
+        Region region = regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 지역입니다."));
+
+        region.setProvince(regionReqDto.getProvince());
+        region.setCity(regionReqDto.getCity()); region.setLocality(regionReqDto.getLocality());
+
+        return entityToResDto(region);//
     }
 
     public Region reqDtoToEntity(RegionReqDto regionReqDto){
