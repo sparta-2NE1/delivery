@@ -35,10 +35,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void addRefreshTokenEntity(User user, String refresh) {
+
+        // 사용자의 RefreshToken 이 이미 존재하는지 확인 (로그인이 되어있는 경우)
         if (refreshTokenRepository.findByUser(user).isPresent()){
-            throw new RefreshTokenAlreadyExistsException("이미 로그인되었거나 비정상 로그아웃되었습니다.");
+
+            // 기존 RefreshToken이 존재하는 경우, 해당 토큰이 만료되었는지 확인
+            if (!jwtUtil.isExpired(refresh)){
+                // 토큰이 아직 만료되지 않았다면 이미 로그인된 상태
+                throw new RefreshTokenAlreadyExistsException("이미 로그인되었거나 비정상 로그아웃되었습니다.");
+            }
         }
 
+        // 기존 RefreshToken이 있지만, 만료된 경우 새로운 RefreshToken 발급
         Date date = new Date(System.currentTimeMillis() + refreshExpiredMs);
 
         RefreshToken refreshToken = RefreshToken.builder()
@@ -49,7 +57,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         refreshTokenRepository.save(refreshToken);
     }
-
 
     @Override
     public void removeRefreshToken(String refreshToken) {
@@ -63,7 +70,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         cookie.setMaxAge(0);
         cookie.setPath("/");
     }
-    // 1. 재발급 요청은 프론트에서 보낸다
 
     @Override
     public String reissueAccessToken(String refreshToken) {

@@ -5,7 +5,6 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.InvalidRefreshTokenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
-import com.sparta.delivery.domain.token.repository.RefreshTokenRepository;
 import com.sparta.delivery.domain.token.service.JwtServiceImpl;
 import com.sparta.delivery.domain.token.service.RefreshTokenServiceImpl;
 import com.sparta.delivery.domain.user.dto.*;
@@ -30,7 +29,6 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder  passwordEncoder;
     private final JwtServiceImpl jwtService;
     private final RefreshTokenServiceImpl refreshTokenService;
