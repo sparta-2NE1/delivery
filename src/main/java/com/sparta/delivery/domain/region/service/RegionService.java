@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,14 +33,14 @@ public class RegionService {
 
         return entityToResDto(regionRepository.save(region)) ;
     }
-    public RegionResDto getRegionOne(UUID id){//가게 단일 조회
-//        UUID uuid = convertHexToUUID(id); //16진수->uuid로 변환한다! UUID형식 8-4-4-4-12
-        return entityToResDto(regionRepository.findById(id).orElseThrow(()-> new EntityNotFoundException()));
+
+    public RegionResDto getRegionOne(UUID id){//운영지역 단일 조회
+        return entityToResDto(regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(()-> new EntityNotFoundException()));
     }
 
-    public List<RegionResDto> getSRegionList(){ //운영 지역 리스트 조회
-        List<Region> regionList = regionRepository.findAll();
-        return regionList.stream().map(RegionResDto::new).collect(Collectors.toList()); //
+    public Page<RegionResDto> getsRegionList(Pageable pageable){ //운영 지역 리스트 조회
+        Page<Region> regionList = regionRepository.findAllByDeletedAtIsNull(pageable);
+        return regionList.map(RegionResDto::new);
 
     }
 
