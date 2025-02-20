@@ -35,7 +35,7 @@ public class PaymentController {
     @Operation(summary = "결제 내역 조회")
     @GetMapping("/{payment_id}")
     public ResponseEntity<?> getPayment(@PathVariable UUID payment_id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ResponseEntity.ok().body(paymentService.getPayment(payment_id));
+        return ResponseEntity.ok().body(paymentService.getPayment(payment_id,principalDetails.getUsername()));
     }
 
     @Operation(summary = "결제 내역 리스트 조회")

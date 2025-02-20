@@ -31,6 +31,12 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
 
+
+    private User undeletedUser(String username){
+        return userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
+    }
+
     @Transactional
     public String isRegisterPayment(RegisterPaymentDto registerPaymentDto, String username) {
         // 결제 내역만 관리하므로 직접 결제는 필요 없지만, 데이터 저장을 위해 생성
@@ -38,7 +44,7 @@ public class PaymentService {
                 .orElseThrow(() -> new NullPointerException("카드가 존재하지 않습니다"));
         Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(registerPaymentDto.getOrderId())
                 .orElseThrow(() -> new NullPointerException("주문이 존재하지 않습니다"));
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new NullPointerException("유저가 존재하지 않습니다"));
+        User user = undeletedUser(username);
 
         if(order.getOrderStatus().equals(OrderStatus.PAYMENT_COMPLETE)){
             throw new PaymentAlreadyCompletedException("이미 결제된 주문입니다.");
@@ -57,7 +63,9 @@ public class PaymentService {
         return "결제 성공";
     }
 
-    public PaymentDto getPayment(UUID paymentId) {
+    public PaymentDto getPayment(UUID paymentId,String username) {
+
+        User user = undeletedUser(username);
         Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId).orElseThrow(()
                 -> new NullPointerException("결제 내역이 존재하지 않습니다."));
         Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(payment.getOrder().getOrderId()).orElseThrow(()
@@ -76,9 +84,7 @@ public class PaymentService {
     }
 
     public List<PaymentDto> getPayments(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new NullPointerException("유저 정보가 없습니다.")
-        );
+        User user = undeletedUser(username);
         List<PaymentDto> paymentDtos = new ArrayList<>();
 
         // TODO User에 List<Payment> 생기면 작업
@@ -87,13 +93,14 @@ public class PaymentService {
         // 만들지 않은 경우
         List<Payment> payments = paymentRepository.findByUser_UsernameAndDeletedAtIsNull(username);
         for (Payment payment : payments) {
-            paymentDtos.add(getPayment(payment.getPaymentId()));
+            paymentDtos.add(getPayment(payment.getPaymentId(),username));
         }
 
         return paymentDtos;
     }
 
     public List<PaymentDto> searchPayments(SearchDto searchDto, String username) {
+        User user = undeletedUser(username);
         List<Payment> payments = paymentRepository.searchPayments(searchDto, username);
         return payments.stream().map(payment -> PaymentDto.builder()
                 .paymentId(payment.getPaymentId())
@@ -109,6 +116,7 @@ public class PaymentService {
 
     @Transactional
     public String deletePayment(UUID paymentId, String username) {
+        User user = undeletedUser(username);
         Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId).orElseThrow(() ->
                 new NullPointerException("결제 정보가 존재하지 않습니다."));
         try {

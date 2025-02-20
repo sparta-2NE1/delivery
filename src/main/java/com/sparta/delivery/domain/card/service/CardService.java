@@ -22,6 +22,10 @@ public class CardService {
     private final UserRepository userRepository;
 
 
+    private User undeletedUser(String username){
+        return userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
+    }
     private boolean existCard(String username,RegistrationCardDto registrationCardDto) {
         List<Card> cards = cardRepository.findByUser_UsernameAndDeletedAtIsNull(username);
         for(Card card : cards){
@@ -36,10 +40,12 @@ public class CardService {
     @Transactional
     public void registrationCard(String username, RegistrationCardDto registrationCardDto) {
 
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new NullPointerException("유저가 존재하지 않습니다."));
+        User user = undeletedUser(username);
         if(existCard(username,registrationCardDto)){
             throw new ExistCardException("이미 등록한 카드입니다");
+        }
+        if(registrationCardDto.getCardCompany()==null || registrationCardDto.getCardNumber()==null || registrationCardDto.getCardName()==null){
+            throw new IllegalArgumentException("필수 입력 값입니다.");
         }
 
         Card card = Card.builder()
@@ -52,6 +58,7 @@ public class CardService {
     }
 
     public RegistrationCardDto getCard(String username, UUID cardId) {
+        User user = undeletedUser(username);
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("카드가 존재하지 않습니다."));
         return RegistrationCardDto.builder()
@@ -62,6 +69,7 @@ public class CardService {
     }
 
     public List<RegistrationCardDto> getCards(String username) {
+        User user = undeletedUser(username);
         List<Card> cards = cardRepository.findByUser_UsernameAndDeletedAtIsNull(username);
         return cards.stream().map(card -> RegistrationCardDto.builder()
                 .cardNumber(card.getCardNumber())
@@ -72,6 +80,7 @@ public class CardService {
 
     @Transactional
     public void updateCard(String username, UUID cardId, RegistrationCardDto registrationCardDto) {
+        User user = undeletedUser(username);
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("해당 카드가 존재하지 않습니다."));
 
@@ -88,12 +97,11 @@ public class CardService {
     }
 
     public void deleteCard(String username, UUID cardId) {
+        User user = undeletedUser(username);
         Card card = cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username).orElseThrow(() ->
                 new NullPointerException("해당 카드가 존재하지 않습니다."));
         card.setDeletedAt(LocalDateTime.now());
         card.setDeletedBy(username);
         cardRepository.save(card);
-
-
     }
 }
