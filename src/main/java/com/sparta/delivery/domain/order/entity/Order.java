@@ -5,13 +5,16 @@ import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
+import com.sparta.delivery.domain.orderProduct.entity.OrderProduct;
 import com.sparta.delivery.domain.payment.entity.Payment;
+import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -49,8 +52,18 @@ public class Order extends Timestamped {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "deliveryAddressId")
+    @JoinColumn(name = "deliveryAddressId", nullable = false)
     private DeliveryAddress deliveryAddress;
+
+    //주문상품 테이블과의 연관관계 매핑. 필요 시 사용
+    @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<OrderProduct> orderProductList;
+
+    public void updateOrderProductList(List<OrderProduct> newList) {
+        orderProductList.clear();
+        for(OrderProduct orderProduct : newList)
+            orderProductList.add(orderProduct);
+    }
 
     public OrderResponseDto toResponseDto() {
         return new OrderResponseDto(
