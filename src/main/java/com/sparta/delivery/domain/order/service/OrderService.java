@@ -8,6 +8,7 @@ import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
+import com.sparta.delivery.domain.orderProduct.entity.OrderProduct;
 import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.product.repository.ProductRepository;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -36,14 +37,18 @@ public class OrderService {
     private final StoreRepository storeRepository;
 
     public void createOrder(OrderRequestDto requestDto, String username) {
-        //주문목록 테이블에 상품 추가 필요
         try {
             User user = getUser(username);
             DeliveryAddress deliveryAddress = getDeliveryAddress(requestDto.getDeliveryAddressId());
             Stores store = getStores(requestDto.getStoreId());
             List<Product> productList = getProductList(requestDto.getProductId());
+            List<OrderProduct> orderProductList = new ArrayList<>();
 
             Order order = requestDto.toOrder(store, deliveryAddress, user);
+            for(Product product : productList) {
+                orderProductList.add(new OrderProduct(order, product));
+            }
+            order.setOrderProductList(orderProductList);
             orderRepository.save(order);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
@@ -109,6 +114,9 @@ public class OrderService {
 
                 orderRepository.save(order);
             }
+            else {
+                throw new IllegalArgumentException("주문 취소 가능 시간이 지났습니다.");
+            }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
@@ -127,18 +135,20 @@ public class OrderService {
 
             //결제 전일 때 주문 변경 가능
             //취소 주문건은 위에서 걸러 옴
-            LocalDateTime now = LocalDateTime.now();
             if(order.getOrderStatus().equals(OrderStatus.PAYMENT_WAIT))
             {
-                order.setUpdatedAt(now);
-                order.setUpdatedBy(username);
                 order.setOrderType(requestDto.getOrderType());
                 order.setRequirements(requestDto.getRequirements());
                 order.setDeliveryAddress(deliveryAddress);
-                //주문목록 테이블 수정 필요
+
+                List<OrderProduct> orderProductList = new ArrayList<>();
+                for(Product product : productList) {
+                    orderProductList.add(new OrderProduct(order, product));
+                }
+                order.updateOrderProductList(orderProductList);
             }
             else {
-                throw new IllegalArgumentException("조건에 맞는 주문이 없습니다.");
+                throw new IllegalArgumentException("결제 이후 주문 변경은 불가능합니다.");
             }
 
             orderRepository.save(order);
@@ -193,11 +203,16 @@ public class OrderService {
 
     private List<Product> getProductList(List<UUID> productIdList) {
         List<Product> productList = new ArrayList<>();
-        for(UUID productId : productIdList) {
-            Product product = productRepository.findByProductIdAndDeletedAtIsNullAndHiddenFalse(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 품절된 상품입니다."));
+        if(productIdList.size() == 0) {
+            throw new IllegalArgumentException("1개 이상의 상품을 선택해야합니다.");
+        }
+        else {
+            for (UUID productId : productIdList) {
+                Product product = productRepository.findByProductIdAndDeletedAtIsNullAndHiddenFalse(productId)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 품절된 상품입니다."));
 
-            productList.add(product);
+                productList.add(product);
+            }
         }
         return productList;
     }
