@@ -50,4 +50,7 @@ public class Stores extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     private Category category;
+
+
+
 }

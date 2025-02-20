@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StoreRepository extends JpaRepository<Stores, UUID> {
+public interface StoreRepository extends JpaRepository<Stores, UUID>,StoreRepositoryCustom {
 
     Optional<Stores> findByName(String name);
 

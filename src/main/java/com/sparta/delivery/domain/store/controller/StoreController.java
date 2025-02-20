@@ -1,11 +1,13 @@
 package com.sparta.delivery.domain.store.controller;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.domain.region.repository.RegionRepository;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 
 import com.sparta.delivery.domain.store.entity.Stores;
+import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.service.StoreService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
@@ -13,6 +15,9 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +60,10 @@ public class StoreController {
     }
 
     @GetMapping("/") //가게 리스트 조회
-    public ResponseEntity<List<StoreResDto>> storeList() {
-
+    public ResponseEntity<?> storeList(@PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"})Pageable pageable) {
+        System.out.print("페이징내용:"+ pageable.getPageNumber()+ pageable.getPageSize()+pageable.getSort()+"임니다");
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.getStoreList());
+                .body(storeService.getStoreList(pageable));
     }
 
     @GetMapping("/{store_id}")// 가게 단일조회
@@ -67,10 +72,14 @@ public class StoreController {
                 .body(storeService.getStoreOne(store_id));
     }
     @GetMapping("/search")
-    public ResponseEntity<List<StoreResDto>> // 가게 검색
-    storeSearch(@RequestParam String keyword) {
+    public ResponseEntity<?> // 가게 검색
+    storeSearch(@RequestParam String keyword, @RequestParam Category category, @PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"})Pageable pageable) {
+
+        List<Integer> Size_List = List.of(10,20,30);//SIZE크기제한
+        if(!Size_List.contains((pageable.getPageSize()))){//10건,20건,30건이 사이즈오면 제한하고 10건으로 고정)
+            pageable = PageRequest.of(pageable.getPageNumber(), 10,pageable.getSort()); }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.searchStore(keyword));
+                .body(storeService.searchStore(keyword,pageable,category));
     }
 
 
