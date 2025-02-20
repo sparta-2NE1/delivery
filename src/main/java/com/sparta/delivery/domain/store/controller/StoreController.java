@@ -72,10 +72,14 @@ public class StoreController {
                 .body(storeService.getStoreOne(store_id));
     }
     @GetMapping("/search")
-    public ResponseEntity<List<StoreResDto>> // 가게 검색
-    storeSearch(@RequestParam String keyword) {
+    public ResponseEntity<?> // 가게 검색
+    storeSearch(@RequestParam String keyword, @RequestParam Category category, @PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"})Pageable pageable) {
+
+        List<Integer> Size_List = List.of(10,20,30);//SIZE크기제한
+        if(!Size_List.contains((pageable.getPageSize()))){//10건,20건,30건이 사이즈오면 제한하고 10건으로 고정)
+            pageable = PageRequest.of(pageable.getPageNumber(), 10,pageable.getSort()); }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.searchStore(keyword));
+                .body(storeService.searchStore(keyword,pageable,category));
     }
 
 

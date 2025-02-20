@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StoreRepository extends JpaRepository<Stores, UUID> {
+public interface StoreRepository extends JpaRepository<Stores, UUID>,StoreRepositoryCustom {
 
     Optional<Stores> findByName(String name);
 
@@ -20,7 +20,7 @@ public interface StoreRepository extends JpaRepository<Stores, UUID> {
 
     List<Stores> findByNameContaining(String name);
 
-    Optional<Stores> findByStoreIdAndDeletedAtIsNull(UUID id);//deletedAt이 null이아닌 가게 단건검색
+    //Optional<Stores> findByStoreIdAndDeletedAtIsNull(UUID id);//deletedAt이 null이아닌 가게 단건검색
 
     Page<Stores> findAllByDeletedAtIsNull(Pageable pageable);//deletedAt이 null이 아닌 가게조회
 
