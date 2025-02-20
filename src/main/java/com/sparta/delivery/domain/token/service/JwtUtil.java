@@ -1,4 +1,4 @@
-package com.sparta.delivery.config.jwt;
+package com.sparta.delivery.domain.token.service;
 
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import io.jsonwebtoken.Claims;

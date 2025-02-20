@@ -58,6 +58,20 @@ public class UserController {
                 .build();
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> removeRefreshToken(@CookieValue(name = "refresh", defaultValue = "")String refreshToken){
+
+        if (refreshToken.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Refresh token not found in cookies");
+        }
+
+        userService.removeRefreshToken(refreshToken);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id")UUID id){
         return ResponseEntity.status(HttpStatus.OK)
