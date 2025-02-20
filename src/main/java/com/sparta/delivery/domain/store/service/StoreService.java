@@ -78,7 +78,7 @@ public class StoreService {
 
     @Transactional
     public void deleteStore(UUID id, String username){//가게 삭제
-        Stores store = storeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 가게입니다."));
+        Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 가게입니다."));
         store.setDeletedBy(username); store.setDeletedAt(LocalDateTime.now());
     }
 

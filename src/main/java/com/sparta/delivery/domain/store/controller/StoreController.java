@@ -44,7 +44,7 @@ public class StoreController {
     private final StoreService storeService;
 
     @PostMapping("/") // 가게 등록
-    public ResponseEntity<Object>
+    public ResponseEntity<?>
     register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
         Map<String,String> errorSave = new HashMap<>();
 
@@ -67,7 +67,7 @@ public class StoreController {
     }
 
     @GetMapping("/{store_id}")// 가게 단일조회
-    public ResponseEntity<StoreResDto> storeOne(@PathVariable UUID store_id) {
+    public ResponseEntity<?> storeOne(@PathVariable UUID store_id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreOne(store_id));
     }
@@ -84,7 +84,7 @@ public class StoreController {
 
 
     @PutMapping("/{store_id}")
-    public ResponseEntity<Object> // 가게 업데이트
+    public ResponseEntity<?> // 가게 업데이트
     storeUpdate(@PathVariable UUID store_id, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
         Map<String,String> errorSave2 = new HashMap<String, String>();
 
