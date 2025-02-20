@@ -7,13 +7,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Builder
 @Getter
 @AllArgsConstructor
-public class OrderResponseDto {
+public class OrderListResponseDto {
     private UUID orderId;
     private LocalDateTime orderTime;
     private OrderType orderType;
@@ -22,5 +21,4 @@ public class OrderResponseDto {
     private UUID stores;
     private UUID user;
     private UUID deliveryAddressId;
-    private List<UUID> productIdList;
 }

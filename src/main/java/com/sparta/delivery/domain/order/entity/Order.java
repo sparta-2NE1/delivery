@@ -2,11 +2,11 @@ package com.sparta.delivery.domain.order.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
+import com.sparta.delivery.domain.order.dto.OrderListResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
 import com.sparta.delivery.domain.orderProduct.entity.OrderProduct;
-import com.sparta.delivery.domain.payment.entity.Payment;
 import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
@@ -14,6 +14,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,6 +66,27 @@ public class Order extends Timestamped {
             orderProductList.add(orderProduct);
     }
 
+    private List<UUID> getProductIdList() {
+        List<UUID> productIdList = new ArrayList<>();
+        for(OrderProduct orderProduct : this.getOrderProductList()) {
+            productIdList.add(orderProduct.getProduct().getProductId());
+        }
+        return productIdList;
+    }
+
+    public OrderListResponseDto toResponseListDto() {
+        return new OrderListResponseDto(
+                this.orderId,
+                this.orderTime,
+                this.orderType,
+                this.orderStatus,
+                this.requirements,
+                this.stores.getStoreId(),
+                this.user.getUserId(),
+                this.deliveryAddress.getDeliveryAddressId()
+        );
+    }
+
     public OrderResponseDto toResponseDto() {
         return new OrderResponseDto(
                 this.orderId,
@@ -74,7 +96,8 @@ public class Order extends Timestamped {
                 this.requirements,
                 this.stores.getStoreId(),
                 this.user.getUserId(),
-                this.deliveryAddress.getDeliveryAddressId()
+                this.deliveryAddress.getDeliveryAddressId(),
+                getProductIdList()
         );
     }
 
