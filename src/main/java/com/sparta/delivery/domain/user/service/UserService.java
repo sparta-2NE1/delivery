@@ -5,32 +5,49 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
 import com.sparta.delivery.config.jwt.JwtUtil;
+import com.sparta.delivery.domain.token.entity.RefreshToken;
+import com.sparta.delivery.domain.token.repository.RefreshTokenRepository;
 import com.sparta.delivery.domain.user.dto.*;
 import com.sparta.delivery.domain.user.entity.QUser;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder  passwordEncoder;
     private final JwtUtil jwtUtil;
+
+    private final Long accessExpiredMs;
+    private final Long refreshExpiredMs;
+
+    public UserService(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil,
+                       @Value("${spring.jwt.accessTokenValidityInMilliseconds}") Long accessExpiredMs,
+                       @Value("${spring.jwt.refreshTokenValidityInMilliseconds}") Long refreshExpiredMs) {
+        this.userRepository = userRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.accessExpiredMs = accessExpiredMs;
+        this.refreshExpiredMs = refreshExpiredMs;
+    }
 
     public UserResDto signup(SignupReqDto signupReqDto) {
 
@@ -60,9 +77,12 @@ public class UserService {
             throw new IllegalArgumentException("Invalid password : " + loginRequestDto.getPassword());
         }
 
-        String accessToken = jwtUtil.createJwt(user.getUsername(), user.getEmail(), user.getRole());
+        String accessToken = jwtUtil.createJwt("access",user.getUsername(), user.getEmail(), user.getRole(),accessExpiredMs);
+        String refreshToken = jwtUtil.createJwt("refresh",user.getUsername(), user.getEmail(), user.getRole(),refreshExpiredMs);
 
-        return new JwtResponseDto(accessToken);
+        addRefreshTokenEntity(user,refreshToken);
+
+        return new JwtResponseDto(accessToken,refreshToken);
     }
 
     @Transactional(readOnly = true)
@@ -146,6 +166,21 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+
+    private void addRefreshTokenEntity(User user, String refresh){
+
+        Date date = new Date(System.currentTimeMillis() + refreshExpiredMs);
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
+                .refresh(refresh)
+                .expiration(date.toString())
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+    }
+
 
     private BooleanBuilder buildSearchConditions(UserSearchReqDto userSearchReqDto, QUser qUser) {
         BooleanBuilder builder = new BooleanBuilder();
