@@ -29,8 +29,8 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable UUID productId) {
-        ProductResponseDto productResponseDto = productService.getProduct(productId);
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable UUID productId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        ProductResponseDto productResponseDto = productService.getProduct(productId, userDetails);
         return ResponseEntity.ok(productResponseDto);
     }
 

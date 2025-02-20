@@ -11,6 +11,9 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,12 +51,39 @@ public class RegionController {
     }
 
     @GetMapping("/")//운영 지역 리스트 조회
-    public ResponseEntity<List<RegionResDto>> regionList(){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(regionService.getSRegionList());
+    public ResponseEntity<?> regionList(@PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"}) Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(regionService.getsRegionList(pageable));
     }
+
 
     @GetMapping("/{region_id}")//운영 지역 단일 조회
     public ResponseEntity<RegionResDto> regionOne(@PathVariable UUID region_id){
         return ResponseEntity.status(HttpStatus.OK).body(regionService.getRegionOne(region_id));
     }
+
+
+    @GetMapping("/search")//운영 지역 검색
+    public ResponseEntity<List<RegionResDto>> regionSearch(@RequestParam String keyword,@PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"})Pageable pageable){
+        List<Integer> Size_List = List.of(10,20,30);//SIZE크기제한
+        if(!Size_List.contains((pageable.getPageSize()))){//10건,20건,30건이 사이즈오면 제한하고 10건으로 고정)
+            pageable = PageRequest.of(pageable.getPageNumber(), 10,pageable.getSort()); }
+
+        return ResponseEntity.status(HttpStatus.OK).body(regionService.searchRegion(keyword,pageable));
+    }
+
+    @PutMapping("/{region_id}")//운영 지역 수정
+    public ResponseEntity<Object> regionUdate
+            (@PathVariable UUID region_id, @RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult){
+        Map<String,Object> errorsave2 = new HashMap<String, Object>();
+
+        if (bindingResult.hasErrors()) { //name,address,status notnull - 테스트필요
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorsave2);
+        }
+        //반환값 StoreResDto
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(regionService.updateRegion(regionReqDto,region_id));
+
+    }
+
+
 }
