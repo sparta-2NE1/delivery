@@ -3,18 +3,20 @@ package com.sparta.delivery.domain.review.entity;
 
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.order.entity.Order;
+import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Table(name = "p_review")
 public class Review extends Timestamped {
     @Id
@@ -28,12 +30,25 @@ public class Review extends Timestamped {
     private int star;
 
     @OneToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "orderId", nullable = false)
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    //배송지 정보 연관관계 설정 필요
+    @ManyToOne
+    @JoinColumn(name = "storeId", nullable = false)
+    private Stores store;
+
+    public ReviewResponseDto toResponseDto() {
+        return new ReviewResponseDto(
+                this.reviewId,
+                this.comment,
+                this.star,
+                this.order.getOrderId(),
+                this.user.getUserId(),
+                this.store.getStoreId()
+        );
+    }
 }
