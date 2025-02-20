@@ -96,9 +96,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> exception(Exception ex){
-
-        System.out.println("Exception 발생: " + ex.getClass().getSimpleName());
-
         int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         ExceptionResponse response = new ExceptionResponse("그 외 모든 에러", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
