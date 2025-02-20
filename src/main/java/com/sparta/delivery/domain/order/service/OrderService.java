@@ -43,7 +43,7 @@ public class OrderService {
             Stores store = getStores(requestDto.getStoreId());
             List<Product> productList = getProductList(requestDto.getProductId());
 
-            Order order = requestDto.createOrder(store, deliveryAddress, user);
+            Order order = requestDto.toOrder(store, deliveryAddress, user);
             orderRepository.save(order);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
@@ -177,25 +177,25 @@ public class OrderService {
     }
 
     private User getUser(String username) {
-        return userRepository.findByUsername(username)
+        return userRepository.findByUsernameAndDeletedAtIsNull(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
     }
 
     private DeliveryAddress getDeliveryAddress(UUID deliveryAddressId) {
-        return deliveryAddressRepository.findById(deliveryAddressId)
+        return deliveryAddressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(deliveryAddressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배달 주소입니다."));
     }
 
     private Stores getStores(UUID storeId) {
-        return storeRepository.findById(storeId)
+        return storeRepository.findByStoreIdAndDeletedAtIsNull(storeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 가게입니다."));
     }
 
     private List<Product> getProductList(List<UUID> productIdList) {
         List<Product> productList = new ArrayList<>();
         for(UUID productId : productIdList) {
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+            Product product = productRepository.findByProductIdAndDeletedAtIsNullAndHiddenFalse(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 품절된 상품입니다."));
 
             productList.add(product);
         }
