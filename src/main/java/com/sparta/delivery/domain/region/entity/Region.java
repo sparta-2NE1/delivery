@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Table(name="p_region")
-public class Region {
+public class Region extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID regionId;

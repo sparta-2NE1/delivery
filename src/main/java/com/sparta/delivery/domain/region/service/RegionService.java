@@ -74,6 +74,14 @@ public class RegionService {
         return entityToResDto(region);//
     }
 
+    @Transactional
+    public void deleteRegion(UUID id,String username){//운영 지역 삭제
+        Region region=regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElse(null);
+        region.setDeletedBy(username); region.setDeletedAt(LocalDateTime.now());
+
+    }
+
+
     public Region reqDtoToEntity(RegionReqDto regionReqDto){
 
         return Region.builder().province(regionReqDto.getProvince()).city(regionReqDto.getCity()).
