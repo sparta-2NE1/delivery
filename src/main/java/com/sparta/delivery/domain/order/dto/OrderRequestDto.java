@@ -24,7 +24,7 @@ public class OrderRequestDto {
     private OrderType orderType;
     private String requirements;
 
-    public Order createOrder(Stores store, DeliveryAddress deliveryAddress, User user) {
+    public Order toOrder(Stores store, DeliveryAddress deliveryAddress, User user) {
         return Order.builder()
                 .orderTime(LocalDateTime.now())
                 .orderType(orderType)
