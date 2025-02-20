@@ -2,7 +2,6 @@ package com.sparta.delivery.domain.order.controller;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.order.dto.OrderRequestDto;
-import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.service.OrderService;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController

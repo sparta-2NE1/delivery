@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.order.service;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.repository.DeliveryAddressRepository;
 import com.sparta.delivery.domain.order.dto.OrderRequestDto;
+import com.sparta.delivery.domain.order.dto.OrderListResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.entity.Order;
@@ -65,7 +66,7 @@ public class OrderService {
         return order.toResponseDto();
     }
 
-    public Page<OrderResponseDto> getUserOrderList(String username, Pageable pageable) {
+    public Page<OrderListResponseDto> getUserOrderList(String username, Pageable pageable) {
         try {
             User user = getUser(username);
             Page<Order> userOrderList = orderRepository.findAllByUserAndDeletedAtIsNull(user, pageable);
@@ -74,7 +75,7 @@ public class OrderService {
                 throw new IllegalArgumentException("해당 유저에 존재하는 주문이 없습니다.");
             }
 
-            return userOrderList.map(order -> order.toResponseDto());
+            return userOrderList.map(order -> order.toResponseListDto());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
@@ -82,7 +83,7 @@ public class OrderService {
         }
     }
 
-    public Page<OrderResponseDto> getStoreOrderList(UUID storeId, Pageable pageable) {
+    public Page<OrderListResponseDto> getStoreOrderList(UUID storeId, Pageable pageable) {
         try {
             Stores store = getStores(storeId);
 
@@ -91,7 +92,7 @@ public class OrderService {
             if(storeOrderList.isEmpty()) {
                 throw new IllegalArgumentException("해당 가게에 존재하는 주문건이 없습니다.");
             }
-            return storeOrderList.map(order -> order.toResponseDto());
+            return storeOrderList.map(order -> order.toResponseListDto());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
