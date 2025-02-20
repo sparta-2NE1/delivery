@@ -41,12 +41,12 @@ public class ReviewController {
                 .body(reviewService.getUserReview(userDetails.getUsername(), pageable));
     }
 
-//    @GetMapping("/getStoreReview/{storeId}")
-//    public ResponseEntity<?> getStoreReview(@PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-//                                           @PathVariable("storeId") UUID storeId) {
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(reviewService.getStoreReview(storeId, pageable));
-//    }
+    @GetMapping("/getStoreReview/{storeId}")
+    public ResponseEntity<?> getStoreReview(@PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                           @PathVariable("storeId") UUID storeId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(reviewService.getStoreReview(storeId, pageable));
+    }
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal PrincipalDetails userDetails) {

@@ -72,21 +72,21 @@ public class ReviewService {
         }
     }
 
-//    public List<ReviewResponseDto> getStoreReview(UUID storeId, Pageable pageable) {
-//        try {
-//            Stores store = getStores(storeId);
-//            List<Review> reviewList = reviewRepository.findAllByStoreAndDeletedAtIsNull(store, pageable);
-//
-//            if(reviewList.isEmpty()) {
-//                throw new IllegalArgumentException("해당 가게에 작성된 리뷰가 존재하지 않습니다.");
-//            }
-//            return reviewList.stream().map(review -> review.toResponseDto()).toList();
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException(e.getMessage());
-//        } catch (Exception e) {
-//            throw new RuntimeException("가게 리뷰 조회 중 알 수 없는 오류가 발생했습니다.");
-//        }
-//    }
+    public List<ReviewResponseDto> getStoreReview(UUID storeId, Pageable pageable) {
+        try {
+            Stores store = getStores(storeId);
+            List<Review> reviewList = reviewRepository.findAllByStoreAndDeletedAtIsNull(store, pageable);
+
+            if(reviewList.isEmpty()) {
+                throw new IllegalArgumentException("해당 가게에 작성된 리뷰가 존재하지 않습니다.");
+            }
+            return reviewList.stream().map(review -> review.toResponseDto()).toList();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("가게 리뷰 조회 중 알 수 없는 오류가 발생했습니다.");
+        }
+    }
 
     public void deleteReview(UUID reviewId, String username) {
         try {
@@ -131,8 +131,8 @@ public class ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 취소된 주문입니다."));
     }
 
-//    private Stores getStores(UUID storeId) {
-//       return storeRepository.findByStoreIdAndDeletedAtIsNull(storeId)
-//               .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 삭제된 가게입니다."));
-//    }
+    private Stores getStores(UUID storeId) {
+       return storeRepository.findByStoreIdAndDeletedAtIsNull(storeId)
+               .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 삭제된 가게입니다."));
+    }
 }
