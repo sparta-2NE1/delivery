@@ -71,8 +71,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String headerAuthorizationToken = request.getHeader(AUTHORIZATION_HEADER);
 
+        // JWT 토큰이 없거나 Bearer 접두어가 없는 경우
         if (headerAuthorizationToken == null || !headerAuthorizationToken.startsWith(BEARER_PREFIX)){
-            filterChain.doFilter(request,response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter writer = response.getWriter();
+            writer.print("No authentication information found. Please log in.");
+            return;
         }
 
         String accessToken = headerAuthorizationToken.split(" ")[1];

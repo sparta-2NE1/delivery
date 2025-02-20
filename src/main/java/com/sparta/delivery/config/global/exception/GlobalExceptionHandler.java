@@ -3,6 +3,7 @@ package com.sparta.delivery.config.global.exception;
 import com.sparta.delivery.config.global.exception.custom.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -83,6 +84,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> DeliveryAddressNotFoundException(DeliveryAddressNotFoundException ex){
         int status = HttpServletResponse.SC_NOT_FOUND;
         ExceptionResponse response = new ExceptionResponse("DeliveryAddress Not Found", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ExceptionResponse> AuthorizationDeniedException(AuthorizationDeniedException ex){
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("Access Denied", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
     }
 
