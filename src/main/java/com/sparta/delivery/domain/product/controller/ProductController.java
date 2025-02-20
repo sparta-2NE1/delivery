@@ -51,4 +51,10 @@ public class ProductController {
         ProductResponseDto productResponseDto = productService.deleteProduct(productId, userDetails);
         return ResponseEntity.ok(productResponseDto);
     }
+
+    @GetMapping("search/{productName}")
+    public ResponseEntity<Page<ProductResponseDto>> searchProduct(@PathVariable String productName, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String order, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        Page<ProductResponseDto> searchProducts = productService.searchProducts(productName, page, size, sortBy, order, userDetails);
+        return ResponseEntity.ok(searchProducts);
+    }
 }

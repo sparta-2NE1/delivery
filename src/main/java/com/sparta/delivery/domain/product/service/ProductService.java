@@ -107,6 +107,7 @@ public class ProductService {
         return ProductResponseDto.from(product);
     }
 
+
     public record AuthorizationResult(boolean isStoreOwner, boolean hasPermission) {}
 
     public AuthorizationResult checkAuthorization(Product product, PrincipalDetails userDetails) {
@@ -114,5 +115,25 @@ public class ProductService {
         boolean isAdmin = userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER);
 
         return new AuthorizationResult(isStoreOwner, isAdmin);
+    }
+
+    public Page<ProductResponseDto> searchProducts(String productName, int page, int size, String sortBy, String order, PrincipalDetails userDetails) {
+        if (!ALLOWED_PAGE_SIZES.contains(size)) {   // 허용된 페이지 사이즈가 아닌 경우, 기본 페이지 사이즈로 설정
+            size = DEFAULT_PAGE_SIZE;
+        }
+
+        Sort.Direction direction = order.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        if (userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER)) {
+            return productRepository.findAllByNameContaining(productName, pageable).map(ProductResponseDto::from);
+        }
+
+        if (userDetails.getRole().equals(UserRoles.ROLE_OWNER)) {
+            return productRepository.findAllByNameContainingAndDeletedAtIsNull(productName, pageable).map(ProductResponseDto::from);
+        }
+
+        return productRepository.findAllByNameContainingAndDeletedAtIsNullAndHiddenFalse(productName, pageable).map(ProductResponseDto::from);
     }
 }
