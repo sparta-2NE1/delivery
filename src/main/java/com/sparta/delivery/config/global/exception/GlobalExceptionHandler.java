@@ -45,6 +45,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ExceptionResponse> InvalidTokenException(InvalidTokenException ex) {
+        int status = HttpServletResponse.SC_UNAUTHORIZED;
+        ExceptionResponse response = new ExceptionResponse("UNAUTHORIZED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ExceptionResponse> InvalidRefreshTokenException(InvalidRefreshTokenException ex) {
+        int status = HttpServletResponse.SC_UNAUTHORIZED;
+        ExceptionResponse response = new ExceptionResponse("UNAUTHORIZED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ExceptionResponse> unauthorizedException(UnauthorizedException ex) {
         int status = HttpServletResponse.SC_UNAUTHORIZED;
