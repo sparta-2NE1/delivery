@@ -41,71 +41,63 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @PostMapping("/") // 가게 등록
+    @PostMapping("") // 가게 등록
     public ResponseEntity<?>
     register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
-        Map<String,String> errorSave = new HashMap<>();
-
+        Map<String, String> errorSave = new HashMap<>();
         if (bindingResult.hasErrors()) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                errorSave.put("error-field : "+fieldError.getField(), "message : "+fieldError.getDefaultMessage());
+                errorSave.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave);
         }
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.storeCreate(storeReqDto));
     }
 
-    @GetMapping("/") //가게 리스트 조회
-    public ResponseEntity<?> storeList(@PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"})Pageable pageable) {
-        System.out.print("페이징내용:"+ pageable.getPageNumber()+ pageable.getPageSize()+pageable.getSort()+"임니다");
+    @GetMapping("") //가게 리스트 조회
+    public ResponseEntity<?> storeList(@PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreList(pageable));
     }
 
-    @GetMapping("/{store_id}")// 가게 단일조회
-    public ResponseEntity<?> storeOne(@PathVariable UUID store_id) {
+    @GetMapping("/{storeId}")// 가게 단일조회
+    public ResponseEntity<?> storeOne(@PathVariable UUID storeId) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.getStoreOne(store_id));
+                .body(storeService.getStoreOne(storeId));
     }
+
     @GetMapping("/search")
     public ResponseEntity<?> // 가게 검색
-    storeSearch(@RequestParam String keyword, @RequestParam Category category, @PageableDefault(page=0,size=10,sort={"createdAt","updatedAt"})Pageable pageable) {
-
-        List<Integer> Size_List = List.of(10,20,30);//SIZE크기제한
-        if(!Size_List.contains((pageable.getPageSize()))){//10건,20건,30건이 사이즈오면 제한하고 10건으로 고정)
-            pageable = PageRequest.of(pageable.getPageNumber(), 10,pageable.getSort()); }
+    storeSearch(@RequestParam String keyword, @RequestParam Category category, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
+        List<Integer> Size_List = List.of(10, 20, 30);//SIZE크기제한
+        if (!Size_List.contains((pageable.getPageSize()))) {//10건,20건,30건이 사이즈오면 제한하고 10건으로 고정)
+            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
+        }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.searchStore(keyword,pageable,category));
+                .body(storeService.searchStore(keyword, pageable, category));
     }
 
 
-    @PutMapping("/{store_id}")
+    @PutMapping("/{storeId}")
     public ResponseEntity<?> // 가게 업데이트
-    storeUpdate(@PathVariable UUID store_id, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
-        Map<String,String> errorSave2 = new HashMap<String, String>();
-
+    storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
+        Map<String, String> errorSave2 = new HashMap<String, String>();
         if (bindingResult.hasErrors()) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 errorSave2.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave2);
         }
-
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.updateStore(storeReqDto,store_id));
-    }
-    @DeleteMapping("/{store_id}")
-    public ResponseEntity // 가게 삭제
-    storeDelete(@PathVariable UUID store_id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-
-        storeService.deleteStore(store_id, principalDetails.getUsername());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(store_id);
+                .body(storeService.updateStore(storeReqDto, storeId));
     }
 
+    @DeleteMapping("/{storeId}")
+    public void // 가게 삭제
+    storeDelete(@PathVariable UUID storeId, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        storeService.deleteStore(storeId, principalDetails.getUsername());
+    }
 
 
 }
