@@ -38,6 +38,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(RefreshTokenAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponse> RefreshTokenAlreadyExistsException(RefreshTokenAlreadyExistsException ex){
+        int status = HttpServletResponse.SC_CONFLICT;
+        ExceptionResponse response = new ExceptionResponse("CONFLICT", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ExceptionResponse> unauthorizedException(UnauthorizedException ex){
         int status = HttpServletResponse.SC_UNAUTHORIZED;
@@ -87,6 +94,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(StoreNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> StoreNotFoundException(StoreNotFoundException ex){
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        ExceptionResponse response = new ExceptionResponse("STORE_NOT_FOUND", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+    
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ExceptionResponse> AuthorizationDeniedException(AuthorizationDeniedException ex){
         int status = HttpServletResponse.SC_FORBIDDEN;
