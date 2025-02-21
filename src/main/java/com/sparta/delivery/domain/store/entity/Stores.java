@@ -1,4 +1,5 @@
 package com.sparta.delivery.domain.store.entity;
+
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.product.entity.Product;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="p_stores")
+@Table(name = "p_stores")
 public class Stores extends Timestamped {
 //올리는용
 
@@ -48,9 +49,14 @@ public class Stores extends Timestamped {
     @JoinColumn(name = "user_id")
     User user;
 
+    @Column(nullable = false)
+    private int starSum;//초기값
+
+    @Column(nullable = false)
+    private int reviewSum;//초기값
+
     @Enumerated(EnumType.STRING)
     private Category category;
-
 
 
 }

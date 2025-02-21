@@ -18,7 +18,6 @@ public class RegionResDto {
 
     private String locality;
 
-//  private Stores store;
 
     public RegionResDto(Region region) {
         this.province = region.getProvince();

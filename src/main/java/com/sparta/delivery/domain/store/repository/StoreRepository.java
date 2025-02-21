@@ -12,13 +12,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StoreRepository extends JpaRepository<Stores, UUID>,StoreRepositoryCustom {
+public interface StoreRepository extends JpaRepository<Stores, UUID>, StoreRepositoryCustom {
 
-    Optional<Stores> findByName(String name);
 
     List<Stores> findByCategory(Category category);
-
-    List<Stores> findByNameContaining(String name);
 
     Optional<Stores> findByStoreIdAndDeletedAtIsNull(UUID id);//deletedAt이 null이아닌 가게 단건검색
 

@@ -13,14 +13,6 @@ import java.util.UUID;
 public interface RegionRepository extends JpaRepository<Region, UUID> {
 
 
-    List<Region> findByProvince(String province);  // 등록한 도(province) 정보 조회
-
-
-    List<Region> findByCity(String city);  // 등록한 시(city) 정보 조회
-
-
-    List<Region> findByLocality(String locality);  // 등록한 동(locality) 조회
-
     List<Region> findByLocalityContainingAndDeletedAtIsNull(String locality);
 
     Optional<Region> findByRegionIdAndDeletedAtIsNull(UUID id);//deletedAt이 null이아닌 가게 단건검색
