@@ -1,10 +1,12 @@
 package com.sparta.delivery.domain.review.service;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
 import com.sparta.delivery.domain.review.dto.ReviewUpdateRequestDto;
+import com.sparta.delivery.domain.review.entity.QReview;
 import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,6 +35,8 @@ public class ReviewService {
     private final StoreRepository storeRepository;
 
     private final StoreService storeService;
+
+    private final JPAQueryFactory queryFactory;
 
     private final int REVIEW_PLUS = 1;
     private final int REVIEW_MINUS = -1;
@@ -71,15 +76,32 @@ public class ReviewService {
         }
     }
 
-    public List<ReviewResponseDto> getStoreReview(UUID storeId, Pageable pageable) {
+    public List<ReviewResponseDto> getStoreReviewSearch(UUID storeId, List<Integer> starList, Pageable pageable) {
         try {
             Stores store = getStores(storeId);
-            Page<Review> reviewList = reviewRepository.findAllByStoresAndDeletedAtIsNull(store, pageable);
+
+            QReview qReview = QReview.review;
+
+            List<Review> reviewList = queryFactory.selectFrom(qReview)
+                    .where(
+                            qReview.stores.eq(store),
+                            qReview.deletedAt.isNull(),
+                            (starList != null && !starList.isEmpty()) ? qReview.star.in(starList) : null
+                    )
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .orderBy(qReview.star.asc())
+                    .fetch();
 
             if(reviewList.isEmpty()) {
-                throw new IllegalArgumentException("해당 가게에 작성된 리뷰가 존재하지 않습니다.");
+                if(starList.isEmpty())
+                    throw new IllegalArgumentException("해당 가게에 작성된 리뷰가 존재하지 않습니다.");
+                else
+                    throw new IllegalArgumentException("해당 가게에 선택한 별점의 리뷰가 존재하지 않습니다.");
             }
-            return reviewList.stream().map(review -> review.toResponseDto()).toList();
+
+            Page<Review> reviewPage = PageableExecutionUtils.getPage(reviewList, pageable, () -> reviewList.size());
+            return reviewPage.stream().map(review -> review.toResponseDto()).toList();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
@@ -146,9 +168,5 @@ public class ReviewService {
     private Stores getStores(UUID storeId) {
        return storeRepository.findByStoreIdAndDeletedAtIsNull(storeId)
                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 가게입니다."));
-    }
-
-    public Object getStoreReviewSearch(UUID storeId, Pageable pageable) {
-        return null;
     }
 }
