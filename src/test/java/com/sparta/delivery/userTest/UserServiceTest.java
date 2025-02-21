@@ -80,7 +80,7 @@ public class UserServiceTest {
         SignupReqDto signupReqDto = new SignupReqDto("test@example.com", "testuser", "password", "testnick");
 
         when(userRepository.existsByUsername("testuser")).thenReturn(false); // 해당 username 존재 유무 확인
-        when(passwordEncoder.encode("password")).thenReturn("encodedPassword"); // 비밀번호 엄호화
+        when(passwordEncoder.encode("password")).thenReturn("encodedPassword"); // 비밀번호 암호화
         when(userRepository.save(any(User.class))).thenReturn(testUser); // user entity 에 저장
 
         // When
