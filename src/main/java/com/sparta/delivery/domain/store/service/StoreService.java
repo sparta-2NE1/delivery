@@ -1,5 +1,6 @@
 package com.sparta.delivery.domain.store.service;
 
+import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -27,7 +28,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StoreService {
 
-    @Autowired
     private final StoreRepository storeRepository;
 
     public StoreResDto storeCreate(StoreReqDto storereqdto) {//가게 저장
@@ -37,7 +37,7 @@ public class StoreService {
 
     public Page<StoreResDto> getStoreList(Pageable pageable){ //가게 리스트 조회
         Page<Stores> storeList = storeRepository.findAllByDeletedAtIsNull(pageable);
-        if(storeList.isEmpty()){throw new NoSuchElementException("매장이 한개도 등록되어있지 않습니다.");}
+        if(storeList.isEmpty()){throw new StoreNotFoundException("매장이 한개도 등록되어있지 않습니다.");}
 
         return storeList.map(StoreResDto::new);
     }
@@ -50,7 +50,7 @@ public class StoreService {
         List<Stores> storeList=(keyword==null||keyword.trim().isEmpty())?
                 storeRepository.findByCategory(category):storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);//deletedAt필터추가필요! 다른것도다점검
 
-        if(storeList.isEmpty()){throw new NoSuchElementException("매장이 한개도 등록되어있지 않습니다.");}
+        if(storeList.isEmpty()){throw new StoreNotFoundException("매장이 한개도 등록되어있지 않습니다.");}
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), storeList.size());
@@ -68,7 +68,7 @@ public class StoreService {
     }
     @Transactional
     public StoreResDto updateStore(StoreReqDto storereqdto, UUID id){ //가게 업데이트
-        Stores store = storeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 가게입니다."));
+        Stores store = storeRepository.findById(id).orElseThrow(()-> new StoreNotFoundException("존재하지 않는 가게입니다."));
 
         store.setAddress(storereqdto.getAddress());
         store.setCategory(storereqdto.getCategory()); store.setName(storereqdto.getName());
@@ -78,7 +78,7 @@ public class StoreService {
 
     @Transactional
     public void deleteStore(UUID id, String username){//가게 삭제
-        Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 가게입니다."));
+        Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(()-> new StoreNotFoundException("존재하지 않는 가게입니다."));
         store.setDeletedBy(username); store.setDeletedAt(LocalDateTime.now());
     }
 

@@ -30,11 +30,10 @@ import java.util.*;
 @RestController
 public class RegionController {
 
-    @Autowired
     private final RegionService regionService;
 
     @PostMapping("/")
-    public ResponseEntity<Object> // 운영 지역 등록
+    public ResponseEntity<?> // 운영 지역 등록
     register(@RequestHeader("Authorization") String authorizationHeader,
              @RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult) {
         Map<String,Object> errorSave = new HashMap<>();
@@ -72,7 +71,7 @@ public class RegionController {
     }
 
     @PutMapping("/{region_id}")//운영 지역 수정
-    public ResponseEntity<Object> regionUdate
+    public ResponseEntity<?> regionUdate
             (@PathVariable UUID region_id, @RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult){
         Map<String,Object> errorsave2 = new HashMap<String, Object>();
 
@@ -83,6 +82,11 @@ public class RegionController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(regionService.updateRegion(regionReqDto,region_id));
 
+    }
+
+    @DeleteMapping("/{region_id}")//운영 지역 삭제
+    public void regionDelete(@PathVariable UUID region_id,@AuthenticationPrincipal PrincipalDetails principalDetails){
+        regionService.deleteRegion(region_id,principalDetails.getUsername());
     }
 
 
