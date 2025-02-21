@@ -5,7 +5,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
+import com.sparta.delivery.domain.token.service.JwtServiceImpl;
 import com.sparta.delivery.domain.token.service.JwtUtil;
+import com.sparta.delivery.domain.token.service.RefreshTokenServiceImpl;
 import com.sparta.delivery.domain.user.dto.*;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
@@ -28,7 +30,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -44,6 +45,12 @@ public class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private JwtServiceImpl jwtService;
+
+    @Mock
+    private RefreshTokenServiceImpl refreshTokenService;
+
+    @Mock
     private JwtUtil jwtUtil;
 
     private User testUser;
@@ -51,6 +58,7 @@ public class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+
         MockitoAnnotations.openMocks(this);
 
         // 테스트용 사용자 생성
@@ -117,7 +125,8 @@ public class UserServiceTest {
 
         when(userRepository.findByUsernameAndDeletedAtIsNull("newuser")).thenReturn(Optional.of(newUser));
         when(passwordEncoder.matches("password", newUser.getPassword())).thenReturn(true);
-        when(jwtUtil.createJwt(anyString(), anyString(), anyString(), any(UserRoles.class),1000L)).thenReturn("accessToken");
+        when(jwtService.createAccessToken(any(User.class))).thenReturn("accessToken");
+        when(jwtService.createRefreshToken(any(User.class))).thenReturn("refreshToken");
 
         // When
         JwtResponseDto response = userService.authenticateUser(loginRequestDto);
