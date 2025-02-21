@@ -39,8 +39,6 @@ import java.util.UUID;
 @RestController
 public class StoreController {
 
-
-    @Autowired
     private final StoreService storeService;
 
     @PostMapping("/") // 가게 등록
