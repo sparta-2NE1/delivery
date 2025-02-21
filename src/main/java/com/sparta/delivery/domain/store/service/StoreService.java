@@ -35,30 +35,36 @@ public class StoreService {
         return entityToResDto(storeRepository.save(store));
     }
 
-    public Page<StoreResDto> getStoreList(Pageable pageable){ //가게 리스트 조회
+    public Page<StoreResDto> getStoreList(Pageable pageable) { //가게 리스트 조회
         Page<Stores> storeList = storeRepository.findAllByDeletedAtIsNull(pageable);
-        if(storeList.isEmpty()){throw new StoreNotFoundException("매장이 한개도 등록되어있지 않습니다.");}
+        if (storeList.isEmpty()) {
+            throw new StoreNotFoundException("가게가 한개도 등록되어있지 않습니다.");
+        }
 
         return storeList.map(StoreResDto::new);
     }
 
-    public StoreResDto getStoreOne(UUID id){//가게 단일 조회------------
-        return entityToResDto( storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(()-> new EntityNotFoundException("가계를찾을수없어요")));
+    public StoreResDto getStoreOne(UUID id) {//가게 단일 조회
+        return entityToResDto(storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("가계를 등록할 수 없습니다")));
     }
 
-    public List<StoreResDto> searchStore(String keyword, Pageable pageable, Category category){//가게 검색
-        List<Stores> storeList=(keyword==null||keyword.trim().isEmpty())?
-                storeRepository.findByCategory(category):storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);//deletedAt필터추가필요! 다른것도다점검
+    public Stores updateStoreReview(UUID id, int star, int cnt) { //별점, 개수여부(+1 or -1)
+        Stores store = storeRepository.findById(id).orElseThrow(() -> new StoreNotFoundException("가게를 등록할 수 없습니다."));
+        store.setStarSum(store.getStarSum() + star);
+        store.setReviewSum(store.getReviewSum() + cnt);
+        return storeRepository.save(store);//
+    }
 
-        if(storeList.isEmpty()){throw new StoreNotFoundException("매장이 한개도 등록되어있지 않습니다.");}
+    public List<StoreResDto> searchStore(String keyword, Pageable pageable, Category category) {//가게 검색
+        List<Stores> storeList = (keyword == null || keyword.trim().isEmpty()) ?
+                storeRepository.findByCategory(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);//deletedAt필터추가필요! 다른것도다점검
+
+        if (storeList.isEmpty()) {
+            throw new StoreNotFoundException("가게가 한개도 등록되어있지 않습니다.");
+        }
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), storeList.size());
-
-        List<StoreResDto> dtoList = storeList.subList(start, end)
-                .stream()
-                .map(StoreResDto::new)
-                .toList();
 
         return storeList.subList(start, end)
                 .stream()
@@ -66,20 +72,23 @@ public class StoreService {
                 .collect(Collectors.toList());
 
     }
+
     @Transactional
-    public StoreResDto updateStore(StoreReqDto storereqdto, UUID id){ //가게 업데이트
-        Stores store = storeRepository.findById(id).orElseThrow(()-> new StoreNotFoundException("존재하지 않는 가게입니다."));
+    public StoreResDto updateStore(StoreReqDto storereqdto, UUID id) { //가게 업데이트
+        Stores store = storeRepository.findById(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
 
         store.setAddress(storereqdto.getAddress());
-        store.setCategory(storereqdto.getCategory()); store.setName(storereqdto.getName());
+        store.setCategory(storereqdto.getCategory());
+        store.setName(storereqdto.getName());
 
         return entityToResDto(store);//
     }
 
     @Transactional
-    public void deleteStore(UUID id, String username){//가게 삭제
-        Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(()-> new StoreNotFoundException("존재하지 않는 가게입니다."));
-        store.setDeletedBy(username); store.setDeletedAt(LocalDateTime.now());
+    public void deleteStore(UUID id, String username) {//가게 삭제
+        Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
+        store.setDeletedBy(username);
+        store.setDeletedAt(LocalDateTime.now());
     }
 
     public StoreResDto entityToResDto(Stores stores) {
@@ -99,7 +108,7 @@ public class StoreService {
                 .name(storeReqDto.getName())
                 .address(storeReqDto.getAddress())
                 .category(storeReqDto.getCategory())
-                .status(true) // 기본값 true
+                .status(true)// 기본값 true
                 .build();
     }
 
