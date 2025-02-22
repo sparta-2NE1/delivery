@@ -32,7 +32,6 @@ public class StoreResDto {
         this.name = store.getName();
         this.address = store.getAddress();
         this.status = store.isStatus();
-        this.regionList = store.getRegionList();
         this.category = store.getCategory();
     }
 

@@ -1,6 +1,7 @@
 package com.sparta.delivery.storeTest;
 
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
@@ -9,6 +10,7 @@ import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.store.service.StoreService;
 
+import com.sparta.delivery.domain.user.enums.UserRoles;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 public class StoreServiceTest {
     @InjectMocks
     private StoreService storeService;
@@ -34,7 +37,6 @@ public class StoreServiceTest {
 
     private Stores testStore;
     private UUID storeId;
-    private UUID storeId2;
 
     @BeforeEach
     void setUp() {
@@ -48,11 +50,14 @@ public class StoreServiceTest {
     @DisplayName("가게등록 성공 테스트")
     void testRegisterSuccess() {
         // Given
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);//권한설정
         StoreReqDto storeReqDto = new StoreReqDto("본죽", Category.한식, "종로동");
         when(storeRepository.save(any(Stores.class))).thenReturn(testStore);
 
         // When - 가게를 저장했을때
-        StoreResDto result = storeService.storeCreate(storeReqDto);
+        StoreResDto result = storeService.storeCreate(storeReqDto, principalDetails);
 
         // Then - 더미데이터와 일치하는지 검사
         assertNotNull(result);
@@ -133,12 +138,15 @@ public class StoreServiceTest {
     @DisplayName("가게 수정 테스트")
     void testUpdateSuccess() {
         // Given
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_OWNER);
         Stores testStore = Stores.builder().name("본죽").address("종로동").category(Category.한식).storeId(storeId).build();
         StoreReqDto storeReqDto = StoreReqDto.builder().name("흰죽").address("청학동").category(Category.분식).build();
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.of(testStore));
 
         // When - 가게를 저장했을때
-        StoreResDto result = storeService.updateStore(storeReqDto, storeId);
+        StoreResDto result = storeService.updateStore(storeReqDto, storeId, principalDetails);
 
         // Then - 더미데이터와 일치하는지 검사
         assertNotNull(result);
@@ -153,11 +161,14 @@ public class StoreServiceTest {
     @DisplayName("가게 수정 실패 테스트")
     void testUpdateFail() {
         // Given
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_OWNER);
         StoreReqDto storeReqDto = StoreReqDto.builder().name("흰죽").address("청학동").category(Category.분식).build();
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.empty());
 
         //When && Then - 예외발생 여부 테스트
-        assertThrows(StoreNotFoundException.class, () -> storeService.updateStore(storeReqDto, storeId));
+        assertThrows(StoreNotFoundException.class, () -> storeService.updateStore(storeReqDto, storeId, principalDetails));
 
     }
 
