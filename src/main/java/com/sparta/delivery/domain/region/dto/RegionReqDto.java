@@ -6,11 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 public class RegionReqDto {
+
+    private UUID storeId;
 
     @NotBlank(message = "도를 입력 해주세요")
     private String province;

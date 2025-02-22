@@ -6,11 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 public class RegionResDto {
+
+    private UUID storeId;
 
     private String province;
 
@@ -23,6 +27,7 @@ public class RegionResDto {
         this.province = region.getProvince();
         this.city = region.getCity();
         this.locality = region.getLocality();
+        this.storeId = region.getStores() != null ? region.getStores().getStoreId() : null; // storeId 값 설정
 
     }
 }
