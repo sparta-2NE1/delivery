@@ -45,6 +45,16 @@ public @interface UserSwaggerDocs {
             @ApiResponse(responseCode = "409", description = "이미 로그아웃된 상태"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "refresh",
+            description = "리프레시 토큰 (쿠키에서 전달)",
+            required = true
+    )
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface Logout {}
 
     @Target({ElementType.METHOD})
@@ -54,18 +64,30 @@ public @interface UserSwaggerDocs {
             @Parameter(name = "id", description = "조회할 회원의 UUID", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
     })
     @ApiResponses({
-            @ApiResponse(responseCode = "404" , description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface GetUser {}
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "회원 목록 검색", description = "검색 조건을 기반으로 회원 목록을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "404" , description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface SearchUsers {}
 
     @Target({ElementType.METHOD})
@@ -76,10 +98,16 @@ public @interface UserSwaggerDocs {
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
             @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
             @ApiResponse(responseCode = "404", description = "해당 회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface UpdateUser {}
 
     @Target({ElementType.METHOD})
@@ -90,10 +118,16 @@ public @interface UserSwaggerDocs {
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
             @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
             @ApiResponse(responseCode = "404", description = "해당 회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface UpdateRole {}
 
     @Target({ElementType.METHOD})
@@ -108,5 +142,10 @@ public @interface UserSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface DeleteUser {}
 }

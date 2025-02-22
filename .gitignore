@@ -39,3 +39,6 @@ out/
 
 ### YAML ###
 *.yml
+
+### env ###
+.env
