@@ -131,12 +131,12 @@ public class DeliveryAddressService {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        // username 조건
+        // deliveryAddress 조건
         if (addressSearchDto.getDeliveryAddress() != null && !addressSearchDto.getDeliveryAddress().isEmpty()){
             builder.and(qDeliveryAddress.deliveryAddress.containsIgnoreCase(addressSearchDto.getDeliveryAddress()));
         }
 
-        // email 조건
+        // deliveryAddressInfo 조건
         if (addressSearchDto.getDeliveryAddressInfo() != null && !addressSearchDto.getDeliveryAddressInfo().isEmpty()){
             builder.and(qDeliveryAddress.deliveryAddressInfo.containsIgnoreCase(addressSearchDto.getDeliveryAddressInfo()));
         }

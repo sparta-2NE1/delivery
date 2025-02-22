@@ -39,7 +39,7 @@ public class Review extends Timestamped {
 
     @ManyToOne
     @JoinColumn(name = "storeId", nullable = false)
-    private Stores store;
+    private Stores stores;
 
     public ReviewResponseDto toResponseDto() {
         return new ReviewResponseDto(
@@ -48,7 +48,7 @@ public class Review extends Timestamped {
                 this.star,
                 this.order.getOrderId(),
                 this.user.getUserId(),
-                this.store.getStoreId()
+                this.stores.getStoreId()
         );
     }
 }

@@ -3,6 +3,8 @@ package com.sparta.delivery.domain.user.controller;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.user.dto.*;
 import com.sparta.delivery.domain.user.service.UserService;
+import com.sparta.delivery.domain.user.swagger.UserSwaggerDocs;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name ="User API", description = "회원 관련 API")
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @UserSwaggerDocs.SignUp
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody @Valid SignupReqDto signupReqDto, BindingResult bindingResult){
 
@@ -37,6 +41,8 @@ public class UserController {
                 .body(userService.signup(signupReqDto));
     }
 
+
+    @UserSwaggerDocs.SignIn
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser (@RequestBody @Valid LoginRequestDto loginRequestDto,
                                                BindingResult bindingResult,
@@ -58,6 +64,7 @@ public class UserController {
                 .build();
     }
 
+    @UserSwaggerDocs.Logout
     @PostMapping("/logout")
     public ResponseEntity<?> removeRefreshToken(@CookieValue(name = "refresh", defaultValue = "")String refreshToken){
 
@@ -72,12 +79,14 @@ public class UserController {
                 .build();
     }
 
+    @UserSwaggerDocs.GetUser
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id")UUID id){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.getUserById(id));
     }
 
+    @UserSwaggerDocs.SearchUsers
     @GetMapping
     public ResponseEntity<?> getUsers(@RequestBody UserSearchReqDto userSearchReqDto){
 
@@ -85,6 +94,7 @@ public class UserController {
                 .body(userService.getUsers(userSearchReqDto));
     }
 
+    @UserSwaggerDocs.UpdateUser
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -100,6 +110,7 @@ public class UserController {
                 .body(userService.updateUser(id, principalDetails, userUpdateReqDto));
     }
 
+    @UserSwaggerDocs.UpdateRole
     @PatchMapping("/{id}/role")
     public ResponseEntity<?> updateRole(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -115,6 +126,7 @@ public class UserController {
                 .body(userService.updateRole(id, principalDetails, userRoleUpdateReqDto));
     }
 
+    @UserSwaggerDocs.DeleteUser
     @PatchMapping("/{id}/delete")
     public ResponseEntity<?> deleteUser(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails) {

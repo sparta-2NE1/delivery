@@ -49,11 +49,9 @@ public class Stores extends Timestamped {
     @JoinColumn(name = "user_id")
     User user;
 
-    @Column(nullable = false)
-    private int starSum;//초기값
+    private int starSum;
 
-    @Column(nullable = false)
-    private int reviewSum;//초기값
+    private int reviewSum;
 
     @Enumerated(EnumType.STRING)
     private Category category;
