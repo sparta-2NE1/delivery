@@ -4,6 +4,8 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.delivery_address.dto.AddressReqDto;
 import com.sparta.delivery.domain.delivery_address.dto.AddressSearchDto;
 import com.sparta.delivery.domain.delivery_address.service.DeliveryAddressService;
+import com.sparta.delivery.domain.delivery_address.swagger.DeliveryAddressSwaggerDocs;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name ="DeliveryAddress API", description = "배송지 관련 API")
 @RestController
 @RequestMapping("/api/delivery-addresses")
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class DeliveryAddressController {
 
     private final DeliveryAddressService deliveryAddressService;
 
+    @DeliveryAddressSwaggerDocs.addAddress
     @PostMapping
     public ResponseEntity<?> addAddress(@Valid @RequestBody AddressReqDto addressReqDto,
                                         BindingResult bindingResult ,
@@ -37,6 +41,7 @@ public class DeliveryAddressController {
                 .body(deliveryAddressService.addAddress(addressReqDto, principalDetails));
     }
 
+    @DeliveryAddressSwaggerDocs.getAddress
     @GetMapping("/{id}")
     public ResponseEntity<?> getDeliveryAddressById(@PathVariable("id") UUID id){
 
@@ -44,6 +49,7 @@ public class DeliveryAddressController {
                 .body(deliveryAddressService.getDeliveryAddressById(id));
     }
 
+    @DeliveryAddressSwaggerDocs.SearchAddress
     @GetMapping
     public ResponseEntity<?> getDeliveryAddresses(@RequestBody AddressSearchDto addressSearchDto){
 
@@ -51,6 +57,7 @@ public class DeliveryAddressController {
                 .body(deliveryAddressService.getDeliveryAddresses(addressSearchDto));
     }
 
+    @DeliveryAddressSwaggerDocs.UpdateAddress
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateDeliveryAddresses(@PathVariable("id") UUID id,
                                                      @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -66,6 +73,7 @@ public class DeliveryAddressController {
                 .body(deliveryAddressService.updateDeliveryAddresses(id,addressReqDto,principalDetails));
     }
 
+    @DeliveryAddressSwaggerDocs.DeleteAddress
     @PatchMapping("/{id}/delete")
     public ResponseEntity<?> deleteDeliveryAddresses(@PathVariable("id") UUID id,
                                                      @AuthenticationPrincipal PrincipalDetails principalDetails){

@@ -54,7 +54,8 @@ public @interface UserSwaggerDocs {
             @Parameter(name = "id", description = "조회할 회원의 UUID", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
     })
     @ApiResponses({
-            @ApiResponse(responseCode = "404" , description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @interface GetUser {}
@@ -63,7 +64,8 @@ public @interface UserSwaggerDocs {
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "회원 목록 검색", description = "검색 조건을 기반으로 회원 목록을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "404" , description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @interface SearchUsers {}
@@ -76,6 +78,7 @@ public @interface UserSwaggerDocs {
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
             @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
             @ApiResponse(responseCode = "404", description = "해당 회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
@@ -90,6 +93,7 @@ public @interface UserSwaggerDocs {
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
             @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
             @ApiResponse(responseCode = "404", description = "해당 회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
