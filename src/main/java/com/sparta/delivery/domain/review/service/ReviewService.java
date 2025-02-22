@@ -2,6 +2,7 @@ package com.sparta.delivery.domain.review.service;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.delivery.domain.order.entity.Order;
+import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.review.dto.ReviewRequestDto;
 import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
@@ -16,9 +17,7 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +47,10 @@ public class ReviewService {
             Order order = getOrder(requestDto.getOrderId(), user);
             Stores stores = getStores(order.getStores().getStoreId());
 
+            if(!order.getOrderStatus().equals(OrderStatus.ORDER_COMPLETE)) {
+                throw new IllegalArgumentException("주문이 모두 완료되었을 경우 리뷰 작성이 가능합니다.");
+            }
+
             Review review = requestDto.toReview(order, user, stores);
             storeService.updateStoreReview(order.getStores().getStoreId(), review.getStar(), REVIEW_PLUS);
             reviewRepository.save(review);
@@ -60,7 +63,7 @@ public class ReviewService {
         }
     }
 
-    public List<ReviewResponseDto> getUserReview(String username, Pageable pageable) {
+    public Page<ReviewResponseDto> getUserReview(String username, Pageable pageable) {
         try {
             User user = getUser(username);
             Page<Review> reviewList = reviewRepository.findAllByUserAndDeletedAtIsNull(user, pageable);
@@ -68,7 +71,9 @@ public class ReviewService {
             if(reviewList.isEmpty()) {
                 throw new IllegalArgumentException("로그인한 사용자가 작성한 리뷰가 존재하지 않습니다.");
             }
-            return reviewList.stream().map(review -> review.toResponseDto()).toList();
+
+            System.out.println(reviewList.getSize());
+            return reviewList.map(Review::toResponseDto);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
@@ -76,12 +81,11 @@ public class ReviewService {
         }
     }
 
-    public List<ReviewResponseDto> getStoreReviewSearch(UUID storeId, List<Integer> starList, Pageable pageable) {
+    public Page<ReviewResponseDto> getStoreReviewSearch(UUID storeId, List<Integer> starList, Pageable pageable) {
         try {
             Stores store = getStores(storeId);
 
             QReview qReview = QReview.review;
-
             List<Review> reviewList = queryFactory.selectFrom(qReview)
                     .where(
                             qReview.stores.eq(store),
@@ -100,8 +104,10 @@ public class ReviewService {
                     throw new IllegalArgumentException("해당 가게에 선택한 별점의 리뷰가 존재하지 않습니다.");
             }
 
-            Page<Review> reviewPage = PageableExecutionUtils.getPage(reviewList, pageable, () -> reviewList.size());
-            return reviewPage.stream().map(review -> review.toResponseDto()).toList();
+            long total = reviewList.size();
+            List<ReviewResponseDto> responseList = reviewList.stream().map(review -> review.toResponseDto()).toList();
+            return PageableExecutionUtils.getPage(responseList, pageable, () -> total);
+
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
