@@ -1,6 +1,7 @@
 package com.sparta.delivery.config.global.exception;
 
 import com.sparta.delivery.config.global.exception.custom.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -47,6 +48,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ExceptionResponse> InvalidTokenException(InvalidTokenException ex) {
+        int status = HttpServletResponse.SC_UNAUTHORIZED;
+        ExceptionResponse response = new ExceptionResponse("UNAUTHORIZED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ExceptionResponse> ExpiredJwtException(ExpiredJwtException ex) {
         int status = HttpServletResponse.SC_UNAUTHORIZED;
         ExceptionResponse response = new ExceptionResponse("UNAUTHORIZED", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
