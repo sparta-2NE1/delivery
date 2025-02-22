@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
+@Target({ElementType.METHOD}) // 메서드에만 적용할 수 있음
+@Retention(RetentionPolicy.RUNTIME) // 런타임까지 유지됨
+@Documented // javadoc 과 같은 문서에 포함되도록 지정
 public @interface DeliveryAddressSwaggerDocs {
 
 
@@ -22,6 +22,11 @@ public @interface DeliveryAddressSwaggerDocs {
             @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface addAddress {}
     
     @Target({ElementType.METHOD})
@@ -35,6 +40,11 @@ public @interface DeliveryAddressSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface getAddress {}
 
     @Target({ElementType.METHOD})
@@ -45,6 +55,11 @@ public @interface DeliveryAddressSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface SearchAddress {}
 
     @Target({ElementType.METHOD})
@@ -60,6 +75,11 @@ public @interface DeliveryAddressSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "해당 회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface UpdateAddress {}
 
     @Target({ElementType.METHOD})
@@ -74,5 +94,10 @@ public @interface DeliveryAddressSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "회원 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+    @Parameter(
+            name = "Authorization",
+            description = "새로운 엑세스 토큰 (응답 헤더에서 반환)",
+            required = false
+    )
     @interface DeleteAddress {}
 }
