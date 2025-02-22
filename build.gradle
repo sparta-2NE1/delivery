@@ -40,6 +40,11 @@ clean.doLast {
 
 
 dependencies {
+    implementation('io.github.cdimascio:java-dotenv:5.2.2')
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.100.Final:osx-aarch_64'
+
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
