@@ -45,8 +45,12 @@ public class UserServiceLoggingAspect {
             // 실제 메서드 실행
             returnObj = joinPoint.proceed();
 
-            log.info("[UserService] return type = {}", returnObj.getClass().getSimpleName());
-            log.info("[UserService] return value = {}", returnObj);
+            if (returnObj != null) {
+                log.info("[UserService] return type = {}", returnObj.getClass().getSimpleName());
+                log.info("[UserService] return value = {}", returnObj);
+            } else {
+                log.info("[UserService] return value is null");
+            }
         }catch (Exception e){
             log.error("[UserService] Exception occurred during method execution: {} | Error message: {}", method, e.getMessage());
 
