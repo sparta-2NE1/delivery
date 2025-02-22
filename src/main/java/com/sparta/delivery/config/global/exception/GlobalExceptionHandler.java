@@ -129,6 +129,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(InvalidApiResponseException.class)
+    public ResponseEntity<ExceptionResponse> InvalidApiResponseException(InvalidApiResponseException ex){
+        int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        ExceptionResponse response = new ExceptionResponse("INVALID_API_RESPONSE", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> exception(Exception ex) {
         int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
