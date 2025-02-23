@@ -39,6 +39,7 @@ out/
 
 ### YAML ###
 *.yml
+!.github/workflows/*.yml
 
 ### env ###
 .env
