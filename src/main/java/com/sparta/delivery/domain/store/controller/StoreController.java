@@ -12,7 +12,9 @@ import com.sparta.delivery.domain.store.service.StoreService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +43,8 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @PostMapping("") // 가게 등록
+    @Operation(summary = "가게 등록")
+    @PostMapping("")
     public ResponseEntity<?>
     register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails userDetails) {
         Map<String, String> errorSave = new HashMap<>();
@@ -54,7 +57,7 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.storeCreate(storeReqDto, userDetails));
     }
-
+    @Operation(summary = "가게 리스트 조회")
     @GetMapping("") //가게 리스트 조회
     public ResponseEntity<?> storeList(@PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -66,7 +69,7 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreOne(storeId));
     }
-
+    @Operation(summary = "가게 검색")
     @GetMapping("/search")
     public ResponseEntity<?> // 가게 검색
     storeSearch(@RequestParam String keyword, @RequestParam @Pattern(regexp = "한식|중식|분식|치킨|피자", message = "유효하지 않은 카테고리입니다.") String category,
@@ -75,7 +78,7 @@ public class StoreController {
                 .body(storeService.searchStore(keyword, pageable, category));
     }
 
-
+    @Operation(summary = "가게 업데이트")
     @PutMapping("/{storeId}")
     public ResponseEntity<?> // 가게 업데이트
     storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -89,7 +92,7 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.updateStore(storeReqDto, storeId, principalDetails));
     }
-
+    @Operation(summary = "가게 삭제")
     @PatchMapping("/{storeId}")
     public void // 가게 삭제
     storeDelete(@PathVariable UUID storeId, @AuthenticationPrincipal PrincipalDetails principalDetails) {

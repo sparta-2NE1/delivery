@@ -35,7 +35,6 @@ public class StoreService {
     private final StoreRepository storeRepository;
 
     public StoreResDto storeCreate(StoreReqDto storereqdto, PrincipalDetails userDetails) {//가게 저장
-        checkoutIfMaster(userDetails);
         Stores store = reqDtoToEntity(storereqdto);
         return entityToResDto(storeRepository.save(store));
     }
@@ -132,10 +131,15 @@ public class StoreService {
             throw new UnauthorizedException("(가계주인)허가된 사용자가 아닙니다.");
         }
     }
+    void checkoutIfManager(PrincipalDetails userDetails) {
+        if (userDetails.getRole() != UserRoles.ROLE_MANAGER) {
+            throw new UnauthorizedException("(관리자)허가된 사용자가 아닙니다.");
+        }
+    }
 
     void checkoutIfMaster(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_MASTER) {
-            throw new UnauthorizedException("(관리자)허가된 사용자가 아닙니다.");
+            throw new UnauthorizedException("(최고관리자)허가된 사용자가 아닙니다.");
         }
     }
 
