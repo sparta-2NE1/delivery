@@ -29,6 +29,10 @@ jobs:
       - name: 테스트 실행
         run: ./gradlew clean test
 
+      - name: gradle 빌드 실행
+        run: ./gradlew build
+
+
       - name: ssh 접속 후 배포
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -36,12 +40,15 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            mkdir -p /home/ubuntu/delivery/src/main/resources/
             echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
-            echo EC2 접속 완료
-
-
-
-
+            echo "yml 생성 완료"
+            cd /home/ubuntu/delivery
+            git pull origin dev
+            docker-compose down
+            docker-compose up -d --build
+            docker system prune -af
+            echo "배포 성공"
 
       
 
