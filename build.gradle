@@ -37,6 +37,10 @@ clean.doLast {
     file(querydslDir).deleteDir()
 }
 
+test {
+    useJUnitPlatform()
+}
+
 
 
 dependencies {
