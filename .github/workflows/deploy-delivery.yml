@@ -20,6 +20,10 @@ jobs:
       - name: DB 비밀번호 로드
         run: echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
 
+      - name: JWT 시크릿 로드
+        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+
+
       - name: PostgreSQL setup
         uses: harmon758/postgresql-action@v1
         with:
@@ -98,7 +102,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }} docker-compose up -d
             cd /home/ubuntu/delivery
             docker pull leewon2/backend-image
             docker-compose down
