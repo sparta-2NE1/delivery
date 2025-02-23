@@ -4,6 +4,7 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
 import com.sparta.delivery.domain.region.entity.Region;
+import com.sparta.delivery.domain.store.dto.StoreRegionResDto;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -39,17 +40,17 @@ public class StoreService {
         return entityToResDto(storeRepository.save(store));
     }
 
-    public Page<StoreResDto> getStoreList(Pageable pageable) { //가게 리스트 조회
+    public Page<StoreRegionResDto> getStoreList(Pageable pageable) { //가게 리스트 조회
         Page<Stores> storeList = storeRepository.findAllByDeletedAtIsNull(pageable);
         if (storeList.isEmpty()) {
             throw new StoreNotFoundException("가게가 한개도 등록되어있지 않습니다.");
         }
 
-        return storeList.map(StoreResDto::new);
+        return storeList.map(StoreRegionResDto::new);
     }
 
-    public StoreResDto getStoreOne(UUID id) {//가게 단일 조회
-        return entityToResDto(storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("가계를 등록할 수 없습니다")));
+    public StoreRegionResDto getStoreOne(UUID id) {//가게 단일 조회
+        return new StoreRegionResDto(storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("가계를 등록할 수 없습니다")));
     }
 
     public Stores updateStoreReview(UUID id, int star, int cnt) { //별점, 개수여부(+1 or -1)
@@ -110,7 +111,7 @@ public class StoreService {
                 .name(stores.getName())
                 .address(stores.getAddress())
                 .status(stores.isStatus())
-                .regionList(stores.getRegionList())
+                //.regionList(stores.getRegionList())
                 .category(stores.getCategory())
                 .build();
     }
