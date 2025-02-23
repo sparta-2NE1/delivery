@@ -65,8 +65,8 @@ jobs:
       - name: AI API Key 환경 변수 설정
         run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
-      - name: 테스트 실행
-        run: ./gradlew clean test
+#      - name: 테스트 실행
+#        run: ./gradlew clean test
 
       - name: gradle 빌드 실행
         run: ./gradlew build
