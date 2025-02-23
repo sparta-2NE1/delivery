@@ -45,7 +45,6 @@ public class StoreController {
     public ResponseEntity<?>
     register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails userDetails) {
         Map<String, String> errorSave = new HashMap<>();
-        System.out.println(userDetails.getRole() + "이닷");
         if (bindingResult.hasErrors()) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 errorSave.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
@@ -70,8 +69,8 @@ public class StoreController {
 
     @GetMapping("/search")
     public ResponseEntity<?> // 가게 검색
-    storeSearch(@RequestParam String keyword, @RequestParam Category category, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
-
+    storeSearch(@RequestParam String keyword, @RequestParam @Pattern(regexp = "한식|중식|분식|치킨|피자", message = "유효하지 않은 카테고리입니다.") String category,
+                @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.searchStore(keyword, pageable, category));
     }
@@ -80,12 +79,12 @@ public class StoreController {
     @PutMapping("/{storeId}")
     public ResponseEntity<?> // 가게 업데이트
     storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        Map<String, String> errorSave2 = new HashMap<String, String>();
+        Map<String, String> errorUpdate = new HashMap<String, String>();
         if (bindingResult.hasErrors()) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                errorSave2.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
+                errorUpdate.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
             }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave2);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorUpdate);
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.updateStore(storeReqDto, storeId, principalDetails));

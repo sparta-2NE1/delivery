@@ -60,27 +60,24 @@ public class StoreService {
         return storeRepository.save(store);//
     }
 
-    public List<StoreResDto> searchStore(String keyword, Pageable pageable, Category category) {//가게 검색
+    public List<StoreResDto> searchStore(String keyword, Pageable pageable, String categorys) {//가게 검색
+        Category category = Category.valueOf(categorys);
         List<Stores> storeList = (keyword == null || keyword.trim().isEmpty()) ?
-                storeRepository.findByCategory(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);//deletedAt필터추가필요! 다른것도다점검
-
+                storeRepository.findByCategory(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);
         List<Integer> Size_List = List.of(10, 20, 30);
         if (!Size_List.contains((pageable.getPageSize()))) {
             pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
         }
-
-        if (storeList.isEmpty()) {
-            throw new StoreNotFoundException("가게가 한개도 등록되어있지 않습니다.");
-        }
-
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), storeList.size());
 
+        if (storeList.isEmpty() || start >= storeList.size()) {
+            throw new StoreNotFoundException("가게 검색 결과가 존재하지 않습니다.");
+        }
         return storeList.subList(start, end)
                 .stream()
                 .map(StoreResDto::new)
                 .collect(Collectors.toList());
-
     }
 
     @Transactional
