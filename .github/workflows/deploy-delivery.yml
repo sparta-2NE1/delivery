@@ -17,6 +17,9 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: DB 비밀번호 로드
+        run: echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
       - name: PostgreSQL setup
         uses: harmon758/postgresql-action@v1
         with:
@@ -65,8 +68,8 @@ jobs:
       - name: AI API Key 환경 변수 설정
         run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
-#      - name: 테스트 실행
-#        run: ./gradlew clean test
+      - name: 테스트 실행
+        run: ./gradlew clean test
 
       - name: gradle 빌드 실행
         run: ./gradlew build
@@ -79,11 +82,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd /home/ubuntu/delivery
+            git pull origin dev
             mkdir -p /home/ubuntu/delivery/src/main/resources/
             echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
             echo "yml 생성 완료"
-            cd /home/ubuntu/delivery
-            git pull origin dev
             docker-compose down
             docker-compose up -d --build
             docker system prune -af

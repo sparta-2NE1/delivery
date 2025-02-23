@@ -40,6 +40,6 @@ out/
 ### YAML ###
 *.yml
 !.github/workflows/*.yml
-
+!docker-compose.yml
 ### env ###
 .env
