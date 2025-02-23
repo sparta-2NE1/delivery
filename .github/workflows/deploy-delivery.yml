@@ -17,6 +17,20 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: PostgreSQL setup
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '16'
+          postgresql db: 'delivery'
+          postgresql user: 'twenty1'
+          postgresql password: 'twenty1'
+
+      - name: install PostgreSQL
+        run: sudo apt-get install -y postgresql-client
+
+      - name: connection
+        run: PGPASSWORD=twenty1 psql -h 127.0.0.1 -U twenty1 -d delivery -c "\l"
+
       - name: java 17 version setup
         uses: actions/setup-java@v3
         with:
