@@ -102,14 +102,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            JWT_SECRET=${{ secrets.JWT_SECRET }} docker-compose up -d
             cd /home/ubuntu/delivery
+            
+            rm -f .env
+            touch .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> .env
+            
             docker pull leewon2/backend-image
             docker-compose down
             mkdir -p /home/ubuntu/delivery/src/main/resources/
             echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
             echo "yml 생성 완료"
-            docker-compose up -d
+            docker-compose up -d --env-file .env
             docker system prune -af
             echo "배포 성공"
 
