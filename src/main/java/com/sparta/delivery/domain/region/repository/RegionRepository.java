@@ -15,9 +15,11 @@ public interface RegionRepository extends JpaRepository<Region, UUID> {
 
     List<Region> findByLocalityContainingAndDeletedAtIsNull(String locality);
 
-    Optional<Region> findByRegionIdAndDeletedAtIsNull(UUID id);//deletedAt이 null이아닌 가게 단건검색
+    Optional<Region> findByRegionIdAndDeletedAtIsNull(UUID id);// 가게 단건검색
 
-    Page<Region> findAllByDeletedAtIsNull(Pageable pageable);//deletedAt이 null이 아닌 가게조회
+    Page<Region> findAllByDeletedAtIsNull(Pageable pageable);
+
+    Page<Region> findAllByStores_StoreIdAndDeletedAtIsNull(UUID storeId, Pageable pageable);
 
 
 }

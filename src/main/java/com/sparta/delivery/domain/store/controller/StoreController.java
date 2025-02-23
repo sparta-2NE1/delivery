@@ -43,8 +43,9 @@ public class StoreController {
 
     @PostMapping("") // 가게 등록
     public ResponseEntity<?>
-    register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
+    register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails userDetails) {
         Map<String, String> errorSave = new HashMap<>();
+        System.out.println(userDetails.getRole() + "이닷");
         if (bindingResult.hasErrors()) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 errorSave.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
@@ -52,7 +53,7 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave);
         }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.storeCreate(storeReqDto));
+                .body(storeService.storeCreate(storeReqDto, userDetails));
     }
 
     @GetMapping("") //가게 리스트 조회
@@ -70,10 +71,7 @@ public class StoreController {
     @GetMapping("/search")
     public ResponseEntity<?> // 가게 검색
     storeSearch(@RequestParam String keyword, @RequestParam Category category, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
-        List<Integer> Size_List = List.of(10, 20, 30);//SIZE크기제한
-        if (!Size_List.contains((pageable.getPageSize()))) {//10건,20건,30건이 사이즈오면 제한하고 10건으로 고정)
-            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
-        }
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.searchStore(keyword, pageable, category));
     }
@@ -81,7 +79,7 @@ public class StoreController {
 
     @PutMapping("/{storeId}")
     public ResponseEntity<?> // 가게 업데이트
-    storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult) {
+    storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Map<String, String> errorSave2 = new HashMap<String, String>();
         if (bindingResult.hasErrors()) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
@@ -90,7 +88,7 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSave2);
         }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.updateStore(storeReqDto, storeId));
+                .body(storeService.updateStore(storeReqDto, storeId, principalDetails));
     }
 
     @DeleteMapping("/{storeId}")

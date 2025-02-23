@@ -1,11 +1,14 @@
 package com.sparta.delivery.domain.store.service;
 
+import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
+import com.sparta.delivery.domain.user.enums.UserRoles;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +33,9 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
 
-    public StoreResDto storeCreate(StoreReqDto storereqdto) {//가게 저장
-        Stores store = reqDtoToEntity(storereqdto); //entity->DTO 변환
+    public StoreResDto storeCreate(StoreReqDto storereqdto, PrincipalDetails userDetails) {//가게 저장
+        checkoutIfMaster(userDetails);
+        Stores store = reqDtoToEntity(storereqdto);
         return entityToResDto(storeRepository.save(store));
     }
 
@@ -59,6 +63,11 @@ public class StoreService {
         List<Stores> storeList = (keyword == null || keyword.trim().isEmpty()) ?
                 storeRepository.findByCategory(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);//deletedAt필터추가필요! 다른것도다점검
 
+        List<Integer> Size_List = List.of(10, 20, 30);
+        if (!Size_List.contains((pageable.getPageSize()))) {
+            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
+        }
+
         if (storeList.isEmpty()) {
             throw new StoreNotFoundException("가게가 한개도 등록되어있지 않습니다.");
         }
@@ -74,14 +83,15 @@ public class StoreService {
     }
 
     @Transactional
-    public StoreResDto updateStore(StoreReqDto storereqdto, UUID id) { //가게 업데이트
-        Stores store = storeRepository.findById(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
+    public StoreResDto updateStore(StoreReqDto storereqdto, UUID id, PrincipalDetails userDetails) { //가게 업데이트
+        checkoutIfOwner(userDetails);
+        Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
 
         store.setAddress(storereqdto.getAddress());
         store.setCategory(storereqdto.getCategory());
         store.setName(storereqdto.getName());
 
-        return entityToResDto(store);//
+        return entityToResDto(store);
     }
 
     @Transactional
@@ -108,8 +118,21 @@ public class StoreService {
                 .name(storeReqDto.getName())
                 .address(storeReqDto.getAddress())
                 .category(storeReqDto.getCategory())
-                .status(true)// 기본값 true
+                .status(true)
                 .build();
+    }
+
+
+    void checkoutIfOwner(PrincipalDetails userDetails) {
+        if (userDetails.getRole() != UserRoles.ROLE_OWNER) {
+            throw new UnauthorizedException("(가계주인)허가된 사용자가 아닙니다.");
+        }
+    }
+
+    void checkoutIfMaster(PrincipalDetails userDetails) {
+        if (userDetails.getRole() != UserRoles.ROLE_MASTER) {
+            throw new UnauthorizedException("(관리자)허가된 사용자가 아닙니다.");
+        }
     }
 
 }
