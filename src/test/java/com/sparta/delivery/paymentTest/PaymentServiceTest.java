@@ -91,15 +91,13 @@ public class PaymentServiceTest {
     void testIsRegisterPaymentSuccess() {
         RegisterPaymentDto registerPaymentDto = new RegisterPaymentDto(cardId, 10000,orderId);
 
-        when(cardRepository.findByCardIdAndDeletedAtIsNull(cardId)).thenReturn(Optional.of(testCard));
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId,"testuser")).thenReturn(Optional.of(testCard));
         when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(paymentRepository.save(any(Payment.class))).thenReturn(testPayment);
-
-        String result = paymentService.isRegisterPayment(registerPaymentDto, "testuser");
-
-        assertEquals("결제 성공", result);
+        assertDoesNotThrow(() -> paymentService.isRegisterPayment(registerPaymentDto, "testuser"));
     }
+
 
     @Test
     @DisplayName("결제 실패 : 이미 결제된 주문")
@@ -107,7 +105,7 @@ public class PaymentServiceTest {
         testOrder.setOrderStatus(OrderStatus.PAYMENT_COMPLETE);
         RegisterPaymentDto registerPaymentDto = new RegisterPaymentDto(cardId, 10000,orderId);
 
-        when(cardRepository.findByCardIdAndDeletedAtIsNull(cardId)).thenReturn(Optional.of(testCard));
+        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId,"testuser")).thenReturn(Optional.of(testCard));
         when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
 
@@ -120,7 +118,8 @@ public class PaymentServiceTest {
     @Test
     @DisplayName("결제 내역 조회 성공")
     void testGetPaymentSuccess() {
-        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,"testuser")).thenReturn(Optional.of(testPayment));
         when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
 
         PaymentDto result = paymentService.getPayment(paymentId,"testuser");
@@ -133,7 +132,7 @@ public class PaymentServiceTest {
     @DisplayName("결제 내역 조회 실패 : 결제 내역 없음")
     void testGetPaymentFailNotFound() {
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.empty());
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,"testuser")).thenReturn(Optional.empty());
 
         NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> paymentService.getPayment(paymentId,"testuser"));
@@ -146,7 +145,7 @@ public class PaymentServiceTest {
     void testGetPaymentsSuccess() {
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(paymentRepository.findByUser_UsernameAndDeletedAtIsNull("testuser")).thenReturn(List.of(testPayment));
-        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,"testuser")).thenReturn(Optional.of(testPayment));
         when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
 
         List<PaymentDto> result = paymentService.getPayments("testuser");
@@ -162,7 +161,7 @@ public class PaymentServiceTest {
     void testGetPaymentsFailNoPayments() {
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(paymentRepository.findByUser_UsernameAndDeletedAtIsNull("testuser")).thenReturn(List.of());
-        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,"testuser")).thenReturn(Optional.of(testPayment));
         when(orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(testOrder));
 
         List<PaymentDto> result = paymentService.getPayments("testuser");
@@ -195,18 +194,15 @@ public class PaymentServiceTest {
     @DisplayName("결제 내역 삭제 성공")
     void testDeletePaymentSuccess() {
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.of(testPayment));
-
-        String result = paymentService.deletePayment(paymentId, "testuser");
-
-        assertEquals("결제 내역 삭제 성공", result);
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,"testuser")).thenReturn(Optional.of(testPayment));
+        assertDoesNotThrow(() -> paymentService.deletePayment(paymentId, "testuser"));
     }
 
     @Test
     @DisplayName("결제 내역 삭제 실패 : 결제 정보 없음")
     void testDeletePaymentFailNotFound() {
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId)).thenReturn(Optional.empty());
+        when(paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,"testuser")).thenReturn(Optional.empty());
 
         NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> paymentService.deletePayment(paymentId, "testuser"));
