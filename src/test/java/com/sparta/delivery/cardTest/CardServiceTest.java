@@ -93,6 +93,7 @@ public class CardServiceTest {
     @Test
     @DisplayName("카드 단일 조회 성공")
     void testGetCardSuccess(){
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
                 .thenReturn(Optional.of(testCard));
         RegistrationCardDto registrationCardDto = cardService.getCard("testuser",cardId);
@@ -106,15 +107,17 @@ public class CardServiceTest {
     @Test
     @DisplayName("카드 단일 조회 실패 : 존재하지 않는 카드")
     void testGetCardFailNotFound(){
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId,"testuser"))
                 .thenReturn(Optional.empty());
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.getCard("testUser", cardId));
-        assertEquals("카드가 존재하지 않습니다.",exception.getMessage());
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.getCard("testuser", cardId));
+        assertEquals("해당 카드가 존재하지 않습니다.",exception.getMessage());
     }
 
     @Test
     @DisplayName("카드 리스트 조회")
     void testGetCardsSuccess(){
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.findByUser_UsernameAndDeletedAtIsNull("testuser"))
                 .thenReturn(List.of(testCard));
         List<RegistrationCardDto> list = cardService.getCards("testuser");
@@ -125,6 +128,7 @@ public class CardServiceTest {
     @Test
     @DisplayName("카드 정보 업데이트")
     void testUpdateCardSuccess() {
+        when(userRepository.findByUsernameAndDeletedAtIsNull(testUser.getUsername())).thenReturn(Optional.of(testUser));
         when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
                 .thenReturn(Optional.of(testCard));
 
@@ -141,6 +145,7 @@ public class CardServiceTest {
     @Test
     @DisplayName("카드 삭제 성공")
     void testDeleteCardSuccess() {
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
                 .thenReturn(Optional.of(testCard));
 
@@ -151,6 +156,7 @@ public class CardServiceTest {
     @Test
     @DisplayName("카드 삭제 실패 : 존재하지 않는 카드")
     void testDeleteCardFail_NotFound() {
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
                 .thenReturn(Optional.empty());
 

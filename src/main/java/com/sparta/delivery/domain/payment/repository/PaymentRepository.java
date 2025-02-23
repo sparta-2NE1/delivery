@@ -11,5 +11,5 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID>, Payment
 
     List<Payment> findByUser_UsernameAndDeletedAtIsNull(String username);
 
-    Optional<Payment> findByPaymentIdAndDeletedAtIsNull(UUID paymentId);
+    Optional<Payment> findByPaymentIdAndDeletedAtIsNullAndUser_Username(UUID paymentId, String username);
 }
