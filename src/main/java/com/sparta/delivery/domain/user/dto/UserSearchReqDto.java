@@ -1,13 +1,11 @@
 package com.sparta.delivery.domain.user.dto;
 
 import com.sparta.delivery.domain.user.enums.UserRoles;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSearchReqDto {
