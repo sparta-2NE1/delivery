@@ -5,6 +5,7 @@ import com.sparta.delivery.config.filter.JwtAuthenticationFilter;
 import com.sparta.delivery.domain.token.service.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -39,14 +40,39 @@ public class SecurityConfig {
         http.sessionManagement((sessionManagement) ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.authorizeHttpRequests(authorizationHttpRequest->
-                authorizationHttpRequest
-                        .requestMatchers("/api/user/signup").permitAll() // 회원 가입 및 로그인은 접근 허가
-                        .requestMatchers("/api/user/signin").permitAll()
-                        .requestMatchers("/api/token/reissue").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated() // 그 외 모든 요청 인증처리
-                );
+        http.authorizeHttpRequests(authorizationHttpRequest-> {
+
+            // 공용 URL (인증 없이 접근 가능)
+            authorizationHttpRequest
+                    .requestMatchers("/api/user/signup", "/api/user/signin", "/api/token/reissue", "/swagger-ui/**", "/v3/api-docs/**")
+                    .permitAll();
+
+            // GET 요청은 모두 허용
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/region/**")
+                    .permitAll();
+
+            // 결제 내역 삭제는 MASTER만 허용
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.PATCH, "/api/payment/**")
+                    .hasRole("MASTER");
+
+            // 가게 등록은 "/api/store" 경로에 대해 POST 요청일 때 MANAGER와 MASTER 권한만 허용
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.POST, "/api/store").hasAnyRole("MANAGER", "MASTER");
+
+            // POST, PUT, PATCH 요청에 대해 OWNER, MANAGER, MASTER 권한만 허용 (여러 엔드포인트 그룹화)
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.POST, "/api/store/**", "/api/products/**", "/api/ai", "/api/region/**")
+                    .hasAnyRole("OWNER", "MANAGER", "MASTER")
+                    .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/region/**")
+                    .hasAnyRole("OWNER", "MANAGER", "MASTER")
+                    .requestMatchers(HttpMethod.PATCH, "/api/products/**")
+                    .hasAnyRole("OWNER", "MANAGER", "MASTER");
+
+            // 그 외 요청은 인증된 사용자만 접근
+            authorizationHttpRequest.anyRequest().authenticated();
+                });
 
         return http.build();
     }

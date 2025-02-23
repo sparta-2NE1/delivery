@@ -114,7 +114,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException e) {
             PrintWriter writer = response.getWriter();
-            writer.print("Access token expired 22");
+            writer.print("Access token expired");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         } catch (MalformedJwtException e) {
