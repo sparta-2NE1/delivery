@@ -32,8 +32,15 @@ jobs:
           echo "${{ secrets.APPLICATION_TEST_YML }}" > src/test/resources/application.yml
           echo "yml 생성 완료"
 
+      - name: 테스트 yml 확인
+        run: cat src/test/resources/application.yml
+
+
       - name: AI API Key 환경 변수 설정
         run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
+
+      - name: AI API Key 값 확인
+        run: echo "AI API Key = $AI_API_KEY"
 
       - name: 테스트 실행
         run: ./gradlew clean test
