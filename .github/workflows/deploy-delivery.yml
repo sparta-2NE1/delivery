@@ -36,6 +36,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
             echo EC2 접속 완료
 
 
