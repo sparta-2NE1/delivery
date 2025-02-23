@@ -57,8 +57,7 @@ jobs:
 
       - name: 이미지 빌드
         run: |
-          TAG=$(date +%s)  # 버전별 관리를 위한 TAG 생성
-          docker build --no-cache -t leewon2/backend-image:$TAG .
+          docker build --no-cache -t leewon2/backend-image:${{ env.TAG }} .
           docker tag leewon2/backend-image:${{ env.TAG }} leewon2/backend-image:latest
 
       - name: 도커 허브에 새로운 이미지 push
