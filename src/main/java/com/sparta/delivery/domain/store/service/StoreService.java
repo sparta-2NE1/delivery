@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.store.service;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
+import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -99,6 +100,12 @@ public class StoreService {
         Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
         store.setDeletedBy(username);
         store.setDeletedAt(LocalDateTime.now());
+        if (store.getRegionList() != null) {//가게삭제시 지역정보들도 같이처리
+            for (Region region : store.getRegionList()) {
+                region.setDeletedBy(username);
+                region.setDeletedAt(LocalDateTime.now());
+            }
+        }
     }
 
     public StoreResDto entityToResDto(Stores stores) {

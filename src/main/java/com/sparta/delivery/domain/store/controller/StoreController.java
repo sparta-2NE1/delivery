@@ -91,7 +91,7 @@ public class StoreController {
                 .body(storeService.updateStore(storeReqDto, storeId, principalDetails));
     }
 
-    @DeleteMapping("/{storeId}")
+    @PatchMapping("/{storeId}")
     public void // 가게 삭제
     storeDelete(@PathVariable UUID storeId, @AuthenticationPrincipal PrincipalDetails principalDetails) {
         storeService.deleteStore(storeId, principalDetails.getUsername());
