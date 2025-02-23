@@ -82,6 +82,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd /home/ubuntu/delivery
             docker pull leewon2/backend-image
             docker-compose down
             mkdir -p /home/ubuntu/delivery/src/main/resources/
