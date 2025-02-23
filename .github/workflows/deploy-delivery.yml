@@ -82,12 +82,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/delivery
-            git pull origin dev
+            docker pull leewon2/backend-image
+            docker-compose down
             mkdir -p /home/ubuntu/delivery/src/main/resources/
             echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
             echo "yml 생성 완료"
-            docker-compose down
             docker-compose up -d --build
             docker system prune -af
             echo "배포 성공"
