@@ -16,13 +16,11 @@ services:
     container_name: backend-container
     depends_on:
       - postgres
-    env_file:
-      - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery
       SPRING_DATASOURCE_USERNAME: twenty1
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      SPRING_JWT_SECRET: ${JWT_SECRET}
       AI_API_KEY: ${AI_API_KEY}
     ports:
       - "8080:8080"
