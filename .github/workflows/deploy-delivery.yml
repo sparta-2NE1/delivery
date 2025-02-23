@@ -115,7 +115,7 @@ jobs:
             mkdir -p /home/ubuntu/delivery/src/main/resources/
             echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
             echo "yml 생성 완료"
-            docker-compose up -d --env-file .env
+            docker-compose up -d
             docker system prune -af
             echo "배포 성공"
 
