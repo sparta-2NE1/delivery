@@ -16,7 +16,7 @@ public class AiController {
 
     private final AiService aiService;
 
-    @GetMapping()
+    @PostMapping()
     public ResponseEntity<AiResponseDto> recommendText(@Valid @RequestBody AiRequestDto requestDto) {
         AiResponseDto aiResponseDto = aiService.recommendText(requestDto);
         return ResponseEntity.ok(aiResponseDto);
