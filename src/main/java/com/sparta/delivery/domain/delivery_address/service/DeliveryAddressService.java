@@ -159,8 +159,15 @@ public class DeliveryAddressService {
      */
     public AddressResDto updateDeliveryAddresses(UUID id, AddressReqDto addressReqDto, PrincipalDetails principalDetails) {
 
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(principalDetails.getUsername())
+                .orElseThrow(()-> new UserNotFoundException("Invalid username : " + principalDetails.getUsername()));
+
         DeliveryAddress deliveryAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new DeliveryAddressNotFoundException("DeliveryAddress Not Found By Id : "+ id));
+
+        if(addressRepository.existsByUserAndDeliveryAddressAndDeletedAtIsNull(user, addressReqDto.getDeliveryAddress())){
+            throw new IllegalArgumentException("해당 유저의 동일한 배송지가 이미 존재합니다. :" + addressReqDto.getDeliveryAddress());
+        }
 
         if (!deliveryAddress.getUser().getUsername().equals(principalDetails.getUsername()) &&
                 !principalDetails.getRole().name().equals("ROLE_MASTER")){
