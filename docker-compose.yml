@@ -26,6 +26,8 @@ services:
       AI_API_KEY: ${AI_API_KEY}
     ports:
       - "8080:8080"
+    volumes:
+      - /home/ubuntu/delivery/.env:/app/.env
 
 volumes:
   postgres_data:
