@@ -102,6 +102,7 @@ jobs:
             
             docker pull leewon2/backend-image
             sudo ./switch_nginx.sh
+            sudo systemctl restart nginx
             echo "배포 성공"
 
 
