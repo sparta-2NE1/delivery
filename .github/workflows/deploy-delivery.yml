@@ -102,7 +102,6 @@ jobs:
             
             docker pull leewon2/backend-image
             ./switch_nginx.sh
-            ./deploy.sh
             echo "배포 성공"
 
 
