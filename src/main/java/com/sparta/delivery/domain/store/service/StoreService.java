@@ -63,7 +63,7 @@ public class StoreService {
     public List<StoreResDto> searchStore(String keyword, Pageable pageable, String categorys) {//가게 검색
         Category category = Category.valueOf(categorys);
         List<Stores> storeList = (keyword == null || keyword.trim().isEmpty()) ?
-                storeRepository.findByCategory(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);
+                storeRepository.findByCategoryAndDeletedAtIsNull(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);
         List<Integer> Size_List = List.of(10, 20, 30);
         if (!Size_List.contains((pageable.getPageSize()))) {
             pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());

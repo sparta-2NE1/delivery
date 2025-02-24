@@ -50,7 +50,7 @@
     <th>본인 맡은 역할 작성</th> <!-- 원희 -->
     <th>본인 맡은 역할 작성</th> <!-- 채연 -->
     <th>본인 맡은 역할 작성</th> <!-- 서우 -->
-    <th>본인 맡은 역할 작성</th> <!-- 창근 -->
+    <th>Store<br> Region</th> <!-- 창근 -->
     <th>User<br> DeliveryAddress <br> Spring Security</th> <!-- 승현 -->
   </tr>
 </table>

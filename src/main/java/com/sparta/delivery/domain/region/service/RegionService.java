@@ -74,16 +74,19 @@ public class RegionService {
     public List<RegionResDto> searchRegion(String keyword, Pageable pageable) { //운영 지역 검색(동 기준으로만검색됨)
         List<Region> regionList = regionRepository.findByLocalityContainingAndDeletedAtIsNull(keyword);
         List<Integer> Size_List = List.of(10, 20, 30);
-        if (!Size_List.contains((pageable.getPageSize()))) {
-            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
-        }
         if (regionList.isEmpty()) {
             throw new RegionNotFoundException("지역이 한개도 등록되어있지 않습니다.");
+        }
+        if (!Size_List.contains((pageable.getPageSize()))) {
+            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
         }
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), regionList.size());
 
+        if (regionList.isEmpty() || start >= regionList.size()) {
+            throw new StoreNotFoundException("지역 검색 결과가 존재하지 않습니다.");
+        }
         return regionList.subList(start, end)
                 .stream()
                 .map(RegionResDto::new)

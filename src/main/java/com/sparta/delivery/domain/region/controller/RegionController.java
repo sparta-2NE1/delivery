@@ -61,10 +61,13 @@ public class RegionController {
     public ResponseEntity<?> regionUpdate
             (@PathVariable UUID regionId, @RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult,
              @AuthenticationPrincipal PrincipalDetails userDetails) {
-        Map<String, Object> errorsave2 = new HashMap<String, Object>();
+        Map<String, Object> errorUpdate = new HashMap<>();
 
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorsave2);
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                errorUpdate.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorUpdate);
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(regionService.updateRegion(regionReqDto, regionId, userDetails));
