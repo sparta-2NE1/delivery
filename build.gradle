@@ -36,9 +36,13 @@ sourceSets {
 clean.doLast {
     file(querydslDir).deleteDir()
 }
-
-test{
+tasks.test {
     useJUnitPlatform()
+    testLogging {
+        showExceptions = true
+        exceptionFormat "full"
+        showStackTraces true
+    }
 }
 
 //tasks.test {
