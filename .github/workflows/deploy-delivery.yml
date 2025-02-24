@@ -17,12 +17,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: DB 비밀번호 로드
-        run: echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-
-      - name: JWT 시크릿 로드
-        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-
+#      포트열기
 
       - name: PostgreSQL setup
         uses: harmon758/postgresql-action@v1
@@ -55,20 +50,19 @@ jobs:
       - name: Tag 생성
         run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
-      - name: Check TAG value
-        run: |
-          echo "Generated TAG: ${{ env.TAG }}"
-
       - name: 이미지 빌드
         run: |
-          docker build --no-cache -t leewon2/backend-image:${{ env.TAG }} .
+          docker build --no-cache \
+            --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --build-arg AI_API_KEY=${{ secrets.AI_API_KEY }} \
+            -t leewon2/backend-image:${{ env.TAG }} .
           docker tag leewon2/backend-image:${{ env.TAG }} leewon2/backend-image:latest
 
       - name: 도커 허브에 새로운 이미지 push
         run: |
           docker push leewon2/backend-image:${{ env.TAG }}
           docker push leewon2/backend-image:latest
-        
 
       - name: 테스트 yml 생성
         run: |
@@ -88,12 +82,8 @@ jobs:
           echo "      mode: always" >> src/test/resources/application-test.yml
           echo " test yml 생성 완료"
 
-      - name: AI API Key 환경 변수 설정
-        run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
-
       - name: 테스트 실행
         run: ./gradlew clean test
-
 
       - name: ssh 접속 후 배포
         uses: appleboy/ssh-action@v0.1.7
@@ -106,17 +96,13 @@ jobs:
             
             rm -f .env
             touch .env
-            echo "JWT_SECRET={{ secrets.JWT_SECRET}}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> .env
             
             docker pull leewon2/backend-image
-            docker-compose down
-            mkdir -p /home/ubuntu/delivery/src/main/resources/
-            echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
-            echo "yml 생성 완료"
-            docker-compose up -d
-            docker system prune -af
+            ./switch_nginx.sh
+            ./deploy.sh
             echo "배포 성공"
 
 

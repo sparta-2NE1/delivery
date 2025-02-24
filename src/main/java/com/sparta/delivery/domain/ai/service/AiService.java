@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.ai.dto.AiResponseDto;
 import com.sparta.delivery.domain.ai.entity.AiInfo;
 import com.sparta.delivery.domain.ai.repository.AiRepository;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,9 @@ public class AiService {
 
     private final AiRepository aiRepository;
     private final WebClient webClient;
-    private static final String API_KEY = Dotenv.load().get("AI_API_KEY");
+
+    @Value("${ai.apikey}")
+    private String API_KEY;
     private static final String BASE_URL = "https://generativelanguage.googleapis.com";
     private static final String CONSTRAINT = "답변을 최대한 간결하게 50자 이하로";
 
