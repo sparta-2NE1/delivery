@@ -22,7 +22,7 @@ public class PageableConfig {
             pageSize = defaultPageSize;
 
         String sortField = (sortBy != null) ? sortBy : this.sortBy;
-        Sort.Direction direction = (orderBy != null && orderBy.equalsIgnoreCase("asc")) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort.Direction direction = ("desc".equalsIgnoreCase(orderBy)) ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         return PageRequest.of(pageNumber, pageSize, Sort.by(direction, sortField));
     }

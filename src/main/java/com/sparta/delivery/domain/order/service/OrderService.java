@@ -56,6 +56,9 @@ public class OrderService {
 
             Order order = requestDto.toOrder(store, deliveryAddress, user);
             for(Product product : productList) {
+                if(product.getStore().getStoreId() != store.getStoreId()) {
+                    throw new NotStoreProductException("해당 가게의 상품이 아닙니다.");
+                }
                 //주문 상품 수량 -1
                 productService.updateProductQuantity(product, -1);
                 orderProductList.add(new OrderProduct(order, product));
@@ -121,7 +124,7 @@ public class OrderService {
             Stores store = getStores(storeId);
 
             if(owner.getRole() == UserRoles.ROLE_OWNER && !owner.getUserId().equals(store.getUser().getUserId())) {
-                throw new OrderNotFoundException("해당 가게의 주인이 아니므로 가게 주문을 조회할 수 없습니다.");
+                throw new NotStoreOwnerException("해당 가게의 주인이 아니므로 가게 주문을 조회할 수 없습니다.");
             }
             Page<Order> storeOrderList = orderRepository.findAllByStoresAndDeletedAtIsNull(store, pageable);
 
@@ -187,6 +190,10 @@ public class OrderService {
                 //주문 상품 수량 -1
                 List<OrderProduct> orderProductList = new ArrayList<>();
                 for(Product product : productList) {
+                    if(product.getStore().getStoreId() != store.getStoreId()) {
+                        throw new NotStoreProductException("해당 가게의 상품이 아닙니다.");
+                    }
+
                     productService.updateProductQuantity(product, -1);
                     orderProductList.add(new OrderProduct(order, product));
                 }

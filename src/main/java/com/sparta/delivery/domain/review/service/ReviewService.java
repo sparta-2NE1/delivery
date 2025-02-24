@@ -1,7 +1,6 @@
 package com.sparta.delivery.domain.review.service;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.delivery.config.global.exception.custom.*;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -46,6 +46,11 @@ public class ReviewService {
             User user = getUser(username);
             Order order = getOrder(requestDto.getOrderId(), user);
             Stores stores = getStores(order.getStores().getStoreId());
+
+            Optional<Review> existReview = reviewRepository.findByOrder(order);
+            if(existReview.isPresent()) {
+                throw new ReviewAlreadyExistsException("이미 리뷰 작성을 완료한 주문입니다.");
+            }
 
             if(!order.getOrderStatus().equals(OrderStatus.ORDER_COMPLETE)) {
                 throw new ReviewNotAllowedException("주문이 모두 완료되었을 경우 리뷰 작성이 가능합니다.");

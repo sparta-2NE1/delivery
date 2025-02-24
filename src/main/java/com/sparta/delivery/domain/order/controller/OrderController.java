@@ -2,10 +2,10 @@ package com.sparta.delivery.domain.order.controller;
 
 import com.sparta.delivery.config.PageableConfig;
 import com.sparta.delivery.config.auth.PrincipalDetails;
-import com.sparta.delivery.config.global.exception.custom.OrderNotFoundException;
 import com.sparta.delivery.domain.order.dto.OrderRequestDto;
 import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.service.OrderService;
+import com.sparta.delivery.domain.order.swagger.OrderSwaggerDocs;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +28,7 @@ public class OrderController {
 
     private final PageableConfig pageableConfig;
 
+    @OrderSwaggerDocs.addOrder
     @Operation(summary = "주문 등록")
     @PostMapping("")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
@@ -35,6 +36,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @OrderSwaggerDocs.getOrder
     @Operation(summary = "단일 주문 검색")
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrder(@PathVariable("orderId") UUID orderId) {
@@ -42,12 +44,13 @@ public class OrderController {
                 .body(orderService.getOrder(orderId));
     }
 
+    @OrderSwaggerDocs.getUserOrder
     @Operation(summary = "유저 주문 검색 - 가게, 배달지 조건 / 유저 주문 전체 검색")
     @GetMapping("/getUserOrder")
     public ResponseEntity<?> getUserOrderList(@RequestParam(name = "page", required = false) Integer page,
                                               @RequestParam(name = "size", required = false) Integer  size,
                                               @RequestParam(name = "sortBy", required = false) String sortBy,
-                                              @RequestParam(name = "orderBy") String orderBy,
+                                              @RequestParam(name = "orderBy", required = false) String orderBy,
                                               @RequestParam(name = "storeIdList", required = false) List<UUID> storeIdList,
                                               @RequestParam(name = "deliveryAddressIdList", required = false) List<UUID> deliveryAddressIdList,
                                               @AuthenticationPrincipal PrincipalDetails userDetails) {
@@ -62,19 +65,21 @@ public class OrderController {
                 .body(orderService.getUserOrderList(userDetails.getUsername(), pageable, storeIdList, deliveryAddressIdList));
     }
 
+    @OrderSwaggerDocs.getStoreOrder
     @Operation(summary = "가게 주문 조회")
     @GetMapping("/getStoreOrder/{storeId}")
     public ResponseEntity<?> getStoreOrderList(@PathVariable("storeId") UUID storeId,
                                                @RequestParam(name = "page", required = false) Integer page,
                                                @RequestParam(name = "size", required = false) Integer  size,
                                                @RequestParam(name = "sortBy", required = false) String sortBy,
-                                               @RequestParam(name = "orderBy") String orderBy,
+                                               @RequestParam(name = "orderBy", required = false) String orderBy,
                                                @AuthenticationPrincipal PrincipalDetails userDetails) {
         Pageable pageable = pageableConfig.createPageRequest(page, size, sortBy, orderBy);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderService.getStoreOrderList(storeId, pageable, userDetails.getUsername()));
     }
 
+    @OrderSwaggerDocs.deleteOrder
     @Operation(summary = "주문 삭제")
     @DeleteMapping("/{orderId}")
     public ResponseEntity<?> deleteOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
@@ -82,6 +87,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @OrderSwaggerDocs.updateOrder
     @Operation(summary = "주문 수정")
     @PutMapping("/{orderId}")
     public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
@@ -89,8 +95,9 @@ public class OrderController {
                 .body(orderService.updateOrder(requestDto, orderId, userDetails.getUsername()));
     }
 
+    @OrderSwaggerDocs.updateOrderStatus
     @Operation(summary = "주문 상태 수정 - 사장님만 가능")
-    @PostMapping("/updateOrderStatus/{orderId}")
+    @PutMapping("/updateOrderStatus/{orderId}")
     public ResponseEntity<?> updateOrderStatus(@RequestBody OrderStatusRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderService.updateOrderStatus(orderId, userDetails.getUsername(), requestDto));
