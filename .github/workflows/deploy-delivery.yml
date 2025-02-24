@@ -17,17 +17,83 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: DB 비밀번호 로드
+        run: echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: JWT 시크릿 로드
+        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+
+
+      - name: PostgreSQL setup
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '16'
+          postgresql db: 'delivery'
+          postgresql user: 'twenty1'
+          postgresql password: 'twenty1'
+
+      - name: install PostgreSQL
+        run: sudo apt-get install -y postgresql-client
+
+      - name: connection
+        run: PGPASSWORD=twenty1 psql -h 127.0.0.1 -U twenty1 -d delivery -c "\l"
+
       - name: java 17 version setup
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: gradle 실행 권한 부여
-        run: chmod +x ./gradlew
+      - name: gradle 실행 권한 부여 및 빌드
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build
+
+      - name: 도커 허브 로그인
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Tag 생성
+        run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      - name: Check TAG value
+        run: |
+          echo "Generated TAG: ${{ env.TAG }}"
+
+      - name: 이미지 빌드
+        run: |
+          docker build --no-cache -t leewon2/backend-image:${{ env.TAG }} .
+          docker tag leewon2/backend-image:${{ env.TAG }} leewon2/backend-image:latest
+
+      - name: 도커 허브에 새로운 이미지 push
+        run: |
+          docker push leewon2/backend-image:${{ env.TAG }}
+          docker push leewon2/backend-image:latest
+        
+
+      - name: 테스트 yml 생성
+        run: |
+          mkdir -p src/test/resources/
+          echo "spring:" > src/test/resources/application-test.yml
+          echo "  datasource:" >> src/test/resources/application-test.yml
+          echo "    url: jdbc:postgresql://127.0.0.1:5432/delivery" >> src/test/resources/application-test.yml
+          echo "    driver-class-name: org.postgresql.Driver" >> src/test/resources/application-test.yml
+          echo "    username: twenty1" >> src/test/resources/application-test.yml
+          echo "    password: twenty1" >> src/test/resources/application-test.yml
+          echo "  jpa:" >> src/test/resources/application-test.yml
+          echo "    database-platform: org.hibernate.dialect.PostgreSQLDialect" >> src/test/resources/application-test.yml
+          echo "    hibernate:" >> src/test/resources/application-test.yml
+          echo "      ddl-auto: update" >> src/test/resources/application-test.yml
+          echo "  sql:" >> src/test/resources/application-test.yml
+          echo "    init:" >> src/test/resources/application-test.yml
+          echo "      mode: always" >> src/test/resources/application-test.yml
+          echo " test yml 생성 완료"
+
+      - name: AI API Key 환경 변수 설정
+        run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
       - name: 테스트 실행
         run: ./gradlew clean test
+
 
       - name: ssh 접속 후 배포
         uses: appleboy/ssh-action@v0.1.7
@@ -36,13 +102,24 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo EC2 접속 완료
+            cd /home/ubuntu/delivery
+            
+            rm -f .env
+            touch .env
+            echo "JWT_SECRET={{ secrets.JWT_SECRET}}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> .env
+            
+            docker pull leewon2/backend-image
+            docker-compose down
+            mkdir -p /home/ubuntu/delivery/src/main/resources/
+            echo "${{ secrets.APPLICATION_YML }}" > /home/ubuntu/delivery/src/main/resources/application.yml
+            echo "yml 생성 완료"
+            docker-compose up -d
+            docker system prune -af
+            echo "배포 성공"
 
 
 
 
-
-      
-
-      
 
