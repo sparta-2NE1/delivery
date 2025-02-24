@@ -72,7 +72,11 @@ jobs:
 
       - name: 이미지 빌드
         run: |
-          docker build --no-cache -t leewon2/backend-image:${{ env.TAG }} .
+          docker build --no-cache \
+            --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --build-arg AI_API_KEY=${{ secrets.AI_API_KEY }} \
+            -t leewon2/backend-image:${{ env.TAG }} .
           docker tag leewon2/backend-image:${{ env.TAG }} leewon2/backend-image:latest
 
       - name: 도커 허브에 새로운 이미지 push
