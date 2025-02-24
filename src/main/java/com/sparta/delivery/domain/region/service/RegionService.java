@@ -103,8 +103,8 @@ public class RegionService {
         checkoutIfOwner(userDetails);
         Region region = regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(() -> new RegionNotFoundException("존재하지 않는 지역입니다."));
 
-        region.setProvince(regionReqDto.getProvince());
-        region.setCity(regionReqDto.getCity());
+        region.setProvince("도시");
+        region.setCity("서울");
         region.setLocality(regionReqDto.getLocality());
         return entityToResDto(region);
     }
