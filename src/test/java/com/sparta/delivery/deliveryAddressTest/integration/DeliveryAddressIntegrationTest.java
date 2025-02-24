@@ -45,7 +45,6 @@ public class DeliveryAddressIntegrationTest {
     private UserRepository userRepository;
 
     private User testUser;
-    private UUID userId;
 
     private DeliveryAddress testDeliveryAddress;
     private UUID addressId;
@@ -63,7 +62,6 @@ public class DeliveryAddressIntegrationTest {
                 .build();
 
         testUser = userRepository.save(testUser);
-        userId = testUser.getUserId();
 
         testDeliveryAddress = DeliveryAddress.builder()
                 .deliveryAddressId(UUID.randomUUID())
@@ -80,14 +78,18 @@ public class DeliveryAddressIntegrationTest {
     @Test
     @DisplayName("배송지 등록 성공")
     void testAddAddressSuccess() {
+
+        // Given
         AddressReqDto addressReqDto = new AddressReqDto("home", "Gwanghwamun", "101");
 
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
         when(principalDetails.getUsername()).thenReturn("testuser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
+        // When
         AddressResDto result = deliveryAddressService.addAddress(addressReqDto, principalDetails);
 
+        // Then
         assertNotNull(result);
         assertEquals("home", result.getDeliveryAddress());
         assertEquals("Gwanghwamun", result.getDeliveryAddressInfo());
@@ -96,16 +98,20 @@ public class DeliveryAddressIntegrationTest {
     @Test
     @DisplayName("배송지 등록 삭제 - 유저의 중복된 배송지명 이 존재할 때")
     void testAddAddressFailsWhenDuplicateAddressExists(){
+
+        // Given
         AddressReqDto addressReqDto = new AddressReqDto("testHome", "Gwanghwamun", "101");
 
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
         when(principalDetails.getUsername()).thenReturn("testuser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
+        // When
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()-> {
             deliveryAddressService.addAddress(addressReqDto,principalDetails);
         });
 
+        // Then
         assertEquals("해당 유저의 동일한 배송지가 이미 존재합니다. :" + addressReqDto.getDeliveryAddress(), exception.getMessage());
     }
 
@@ -113,6 +119,7 @@ public class DeliveryAddressIntegrationTest {
     @DisplayName("배송지 등록 실패 - 유저가 가진 배송지주소가 3개 이상일 때")
     void testAddAddressFailsWhenUserHasThreeOrMoreAddresses(){
 
+        // Given
         for (int i = 0; i < 2; i++) {
             AddressReqDto addressReqDto = new AddressReqDto("testHome"+ i + 1, "Gwanghwamun", "101");
 
@@ -123,12 +130,14 @@ public class DeliveryAddressIntegrationTest {
             deliveryAddressService.addAddress(addressReqDto,principalDetails);
         }
 
+        // When
         AddressReqDto addressReqDto = new AddressReqDto("testHome3" , "Gwanghwamun", "101");
 
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
         when(principalDetails.getUsername()).thenReturn("testuser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
+        // Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()-> {
             deliveryAddressService.addAddress(addressReqDto,principalDetails);
         });
@@ -150,12 +159,16 @@ public class DeliveryAddressIntegrationTest {
     @Test
     @DisplayName("배송지 단일 조회 실패 - 존재하지 않는 ID")
     void testGetAddressFail() {
+
+        // Given
         UUID invalidAddressId = UUID.randomUUID();
 
+        // When
         DeliveryAddressNotFoundException exception = assertThrows(DeliveryAddressNotFoundException.class, () ->{
                     deliveryAddressService.getDeliveryAddressById(invalidAddressId);
         });
 
+        // Then
         assertEquals("DeliveryAddress Not Found By Id : " + invalidAddressId, exception.getMessage());
     }
 
@@ -182,8 +195,10 @@ public class DeliveryAddressIntegrationTest {
             addressRepository.save(testDeliveryAddress);
         }
 
+        // When
         Page<AddressResDto> result = deliveryAddressService.getDeliveryAddresses(addressSearchDto);
 
+        // Then
         assertNotNull(result);
         assertEquals(11 , result.getTotalElements());
         assertEquals("testHome0", result.getContent().get(1).getDeliveryAddress());
@@ -202,11 +217,12 @@ public class DeliveryAddressIntegrationTest {
         addressSearchDto.setOrder("asc");
         addressSearchDto.setDeliveryAddress("dummyHome");
 
-
+        // When
         DeliveryAddressNotFoundException exception = assertThrows(DeliveryAddressNotFoundException.class, () ->{
             deliveryAddressService.getDeliveryAddresses(addressSearchDto);
         });
 
+        // Then
         assertEquals("deliveryAddress Not Found" , exception.getMessage());
     }
 
@@ -254,7 +270,8 @@ public class DeliveryAddressIntegrationTest {
     @Test
     @DisplayName("배송지 정보 수정 실패 - 권한 없음")
     void testUpdateDeliveryAddressFailNoPermission(){
-        
+
+        // Given
         User updateTestUser = userRepository.save(User.builder()
                 .userId(UUID.randomUUID())
                 .email("test@example.com")
@@ -280,7 +297,6 @@ public class DeliveryAddressIntegrationTest {
         
         UUID updateTestAddressId = updateTestAddress.getDeliveryAddressId();
 
-        // Given
         AddressReqDto addressReqDto = new AddressReqDto("updateTestHome", "new info", "202");
 
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
@@ -301,13 +317,16 @@ public class DeliveryAddressIntegrationTest {
     @DisplayName("배송지 삭제 성공")
     void testDeleteDeliveryAddressesSuccess() {
 
+        // Given
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
 
         when(principalDetails.getUsername()).thenReturn("testuser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
+        // When
         deliveryAddressService.deleteDeliveryAddresses(addressId, principalDetails);
 
+        // Then
         Optional<DeliveryAddress> deleteAddress = addressRepository.findByDeliveryAddressIdAndDeletedAtIsNull(addressId);
         assertTrue(deleteAddress.isEmpty());
     }
@@ -317,6 +336,7 @@ public class DeliveryAddressIntegrationTest {
     @DisplayName("배송지 삭제 실패 - 권한 없음")
     void testDeleteDeliveryAddressesFail() {
 
+        // Given
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
 
         when(principalDetails.getUsername()).thenReturn("dummyUser");
