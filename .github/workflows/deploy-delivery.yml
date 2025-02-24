@@ -102,8 +102,6 @@ jobs:
             
             docker pull leewon2/backend-image
             sudo ./switch_nginx.sh
-            docker system prune -af
-            sudo systemctl restart nginx.service
             echo "배포 성공"
 
 
