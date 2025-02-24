@@ -129,7 +129,7 @@ public class UserServiceTest {
         when(jwtService.createRefreshToken(any(User.class))).thenReturn("refreshToken");
 
         // When
-        JwtResponseDto response = userService.authenticateUser(loginRequestDto);
+        AuthTokenData response = userService.authenticateUser(loginRequestDto);
 
         // Then
         assertNotNull(response);
