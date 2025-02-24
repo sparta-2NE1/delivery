@@ -126,11 +126,11 @@ public class UserService {
     }
 
     /**
-     * 로그아웃 기능
+     * 사용자 단일 조회 기능
      *
-     * 로그아웃 요청(refreshToken)을 받아 다음 절차를 수행합니다:
+     * 사용자 단일 조회 요청(refreshToken)을 받아 다음 절차를 수행합니다:
      * 1. id를 기준으로 논리적 삭제 하지않은 user를 찾는다.
-     *    - 해당 id의 유저가 논리적 삭제되었거나 존재하지않을 시 예외처리 발생
+     *    - id를 기준으로 논리적으로 삭제되지 않은 user를 찾는다.
      * 2. 존재 할시 User 의 객체를 받아와 UserResDto로 변환하여 반환
      *
      * @param id 단일 조회할 유저의 ID
@@ -186,11 +186,11 @@ public class UserService {
      * 사용자 정보 수정 기능
      *
      * 주어진 사용자 ID(id)와 수정 요청 정보(userUpdateReqDto)를 받아 다음 절차를 수행합니다:
-     * 1. 해당 ID의 사용자가 존재하며 논리적으로 삭제되지 않았는지 확인합
+     * 1. 해당 ID의 사용자가 존재하며 논리적으로 삭제되지 않았는지 확인
      *    - 존재하지 않을 경우 UserNotFoundException을 발생
      * 2. 현재 로그인한 사용자가 본인인지 또는 관리자(ROLE_MASTER)인지 검증
      *    - 본인이 아니고, 관리자 권한도 없을 경우 ForbiddenException을 발생
-     * 3. 입력된 현재 비밀번호(currentPassword)가 저장된 비밀번호와 일치하는지 확인
+     * 3. 현재 비밀번호(currentPassword)가 저장된 비밀번호와 일치하는지 확인
      *    - 일치하지 않으면 ForbiddenException을 발생
      * 4. 새로운 비밀번호를 암호화하여 저장하고, 이메일과 닉네임을 업데이트합니다.
      * 5. 수정된 사용자 정보를 UserResDto 형태로 변환하여 반환
@@ -227,10 +227,10 @@ public class UserService {
      * 사용자 정보 수정 기능
      *
      * 주어진 사용자 ID(id)와 수정 요청 정보(userRoleUpdateReqDto)를 받아 다음 절차를 수행합니다:
-     * 1. 현재 로그인한 사용자가 관리자(ROLE_MASTER) 인지 검증합니다.
-     *    - 권리자 권한이 없을 경우 ForbiddenException을 발생시킵니다.
-     * 2. 해당 ID의 사용자가 존재하며 논리적으로 삭제되지 않았는지 확인합니다.
-     *    - 존재하지 않을 경우 UserNotFoundException을 발생시킵니다.
+     * 1. 현재 로그인한 사용자가 관리자(ROLE_MASTER)인지 검증
+     *    - 권리자 권한이 없을 경우 ForbiddenException을 발생
+     * 2. 해당 ID의 사용자가 존재하며 논리적으로 삭제되지 않았는지 확인
+     *    - 존재하지 않을 경우 UserNotFoundException을 발생
      * 4. 새로운 권한을 업데이트합니다.
      * 5. 수정된 사용자 정보를 UserResDto 형태로 변환하여 반환합니다.
      *
@@ -259,11 +259,11 @@ public class UserService {
      * 사용자 논리적 삭제 기능
      *
      * 주어진 사용자 ID(id)를 받아 다음 절차를 수행합니다:
-     * 1. 해당 ID의 사용자가 존재하며 논리적으로 삭제되지 않았는지 확인합니다.
-     *    - 존재하지 않을 경우 UserNotFoundException을 발생시킵니다.
-     * 2. 현재 로그인한 사용자가 본인인지 또는 매니저(ROLE_MANAGER)이거나 최고 관리자(ROLE_MASTER)인지 검증합니다.
-     *    - 본인이 아니고, 관리자 권한도 없을 경우 ForbiddenException을 발생시킵니다.
-     * 4. 논리적 삭제 정보를 업데이트합니다.
+     * 1. 해당 ID의 사용자가 존재하며 논리적으로 삭제되지 않았는지 확인
+     *    - 존재하지 않을 경우 UserNotFoundException을 발생
+     * 2. 현재 로그인한 사용자가 본인인지 또는 매니저(ROLE_MANAGER)이거나 최고 관리자(ROLE_MASTER)인지 검증
+     *    - 본인이 아니고, 관리자 권한도 없을 경우 ForbiddenException을 발생
+     * 3. 논리적 삭제 정보를 업데이트합니다.
      *
      * @param id 수정할 사용자의 ID
      * @param principalDetails 현재 인증된 사용자 정보 (로그인한 사용자)
@@ -299,7 +299,7 @@ public class UserService {
 
         // email 조건
         if (userSearchReqDto.getEmail() != null && !userSearchReqDto.getEmail().isEmpty()){
-            builder.and(qUser.username.containsIgnoreCase(userSearchReqDto.getEmail()));
+            builder.and(qUser.email.containsIgnoreCase(userSearchReqDto.getEmail()));
         }
 
         // role 조건
