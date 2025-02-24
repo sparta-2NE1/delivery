@@ -11,9 +11,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  backend:
+  backend-v1:
     image: leewon2/backend-image
-    container_name: backend-container
+    container_name: backend-container1
     depends_on:
       - postgres
     env_file:
@@ -26,6 +26,24 @@ services:
       AI_API_KEY: ${AI_API_KEY}
     ports:
       - "8080:8080"
+    volumes:
+      - /home/ubuntu/delivery/.env:/app/.env
+
+  backend-v2:
+    image: leewon2/backend-image
+    container_name: backend-container2
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery
+      SPRING_DATASOURCE_USERNAME: twenty1
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AI_API_KEY: ${AI_API_KEY}
+    ports:
+      - "8081:8081"
     volumes:
       - /home/ubuntu/delivery/.env:/app/.env
 
