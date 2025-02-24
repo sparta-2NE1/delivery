@@ -136,4 +136,13 @@ public class ProductService {
 
         return productRepository.findAllByNameContainingAndDeletedAtIsNullAndHiddenFalse(productName, pageable).map(ProductResponseDto::from);
     }
+
+    public void updateProductQuantity(Product product, int count) {
+        if(product.getQuantity() == 0 && count == -1)
+            throw new IllegalArgumentException("주문하신 상품이 품절되었습니다.");
+        else {
+            product.setQuantity(product.getQuantity() + count);
+            productRepository.save(product);
+        }
+    }
 }
