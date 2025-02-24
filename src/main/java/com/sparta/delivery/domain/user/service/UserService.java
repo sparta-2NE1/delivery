@@ -47,13 +47,11 @@ public class UserService {
                 .nickname(signupReqDto.getNickname())
                 .role(UserRoles.ROLE_CUSTOMER)
                 .build();
-        // 권한은 관리자 검증 후 관리자가 권한을 변경하는 방법으로 하겠습니다.
-        // 최초의 MASTER 는 DB에서 직접 설정
 
         return userRepository.save(user).toResponseDto();
     }
 
-    public JwtResponseDto authenticateUser(LoginRequestDto loginRequestDto) {
+    public AuthTokenData authenticateUser(LoginRequestDto loginRequestDto) {
 
         User user = userRepository.findByUsernameAndDeletedAtIsNull(loginRequestDto.getUsername())
                 .orElseThrow(()-> new IllegalArgumentException("Invalid username : " + loginRequestDto.getUsername()));
@@ -67,7 +65,7 @@ public class UserService {
 
         refreshTokenService.addRefreshTokenEntity(user,refreshToken);
 
-        return new JwtResponseDto(accessToken,refreshToken);
+        return new AuthTokenData(accessToken,refreshToken);
     }
 
     public void removeRefreshToken(String refreshToken) {
@@ -164,9 +162,6 @@ public class UserService {
 
         userRepository.save(user);
     }
-
-
-
 
     private BooleanBuilder buildSearchConditions(UserSearchReqDto userSearchReqDto, QUser qUser) {
         BooleanBuilder builder = new BooleanBuilder();
