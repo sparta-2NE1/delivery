@@ -72,8 +72,8 @@ public class RegionService {
 
     }
 
-    public List<RegionResDto> searchRegion(String keyword, Pageable pageable) { //운영 지역 검색(동 기준으로만검색됨)
-        List<Region> regionList = regionRepository.findByLocalityContainingAndDeletedAtIsNull(keyword);
+    public List<RegionResDto> searchRegion(String keyword, Pageable pageable, String sortBy, String order) { //운영 지역 검색(동 기준으로만검색됨)
+        List<Region> regionList = regionRepository.findByLocalityContainingAndDeletedAtIsNull(keyword, sortBy, order);
         List<Integer> Size_List = List.of(10, 20, 30);
         if (regionList.isEmpty()) {
             throw new RegionNotFoundException("지역이 한개도 등록되어있지 않습니다.");

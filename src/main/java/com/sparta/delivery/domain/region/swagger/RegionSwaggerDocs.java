@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.region.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -52,7 +53,12 @@ public @interface RegionSwaggerDocs {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "운영 지역 검색", description = "키워드를 통해 운영 지역을 검색합니다.")
-    @Parameter(name = "keyword", description = "검색 키워드")
+    @Parameters({
+            @Parameter(name = "keyword", description = "검색 키워드"),
+            @Parameter(name = "category", required = true, description = "검색할 카테고리"),
+            @Parameter(name = "sortBy", description = "정렬 기준 필드명 (예: createdAt, updatedAt)", example = "createdAt"),
+            @Parameter(name = "order", description = "정렬 방향 (asc: 오름차순, desc: 내림차순)", example = "asc")
+    })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공"),
             @ApiResponse(responseCode = "404", description = "지역이 존재하지 않음"),

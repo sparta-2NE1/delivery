@@ -57,13 +57,13 @@ public class StoreController {
                 .body(storeService.getStoreOne(storeId));
     }
 
-    @StoreSwaggerDocs.StoreSearch
     @GetMapping("/search")
-    public ResponseEntity<?>
-    storeSearch(@RequestParam String keyword, @RequestParam @Pattern(regexp = "한식|중식|분식|치킨|피자", message = "유효하지 않은 카테고리입니다.") String category,
-                @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
+    public ResponseEntity<?> // 가게 검색
+    storeSearch(@RequestParam(required = false) String keyword, @RequestParam @Pattern(regexp = "한식|중식|분식|치킨|피자", message = "유효하지 않은 카테고리입니다.") String category,
+                @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String order, @PageableDefault(page = 0, size = 10) Pageable pageable) {
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(storeService.searchStore(keyword, pageable, category));
+                .body(storeService.searchStore(keyword, pageable, category, sortBy, order));
     }
 
     @StoreSwaggerDocs.StoreUpdate

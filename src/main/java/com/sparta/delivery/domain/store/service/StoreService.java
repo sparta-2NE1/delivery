@@ -54,10 +54,10 @@ public class StoreService {
         return storeRepository.save(store);//
     }
 
-    public List<StoreResDto> searchStore(String keyword, Pageable pageable, String categorys) {//가게 검색
+    public List<StoreResDto> searchStore(String keyword, Pageable pageable, String categorys, String sortBy, String order) {//가게 검색
         Category category = Category.valueOf(categorys);
         List<Stores> storeList = (keyword == null || keyword.trim().isEmpty()) ?
-                storeRepository.findByCategoryAndDeletedAtIsNull(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);
+                storeRepository.findByCategoryAndDeletedAtIsNull(category, sortBy, order) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category, sortBy, order);
         List<Integer> Size_List = List.of(10, 20, 30);
         if (!Size_List.contains((pageable.getPageSize()))) {
             pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
