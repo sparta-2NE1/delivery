@@ -9,6 +9,7 @@ import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.service.StoreService;
+import com.sparta.delivery.domain.store.swagger.StoreSwaggerDocs;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -45,7 +46,7 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @Operation(summary = "가게 등록")
+    @StoreSwaggerDocs.Register
     @PostMapping("")
     public ResponseEntity<?>
     register(@RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails userDetails) {
@@ -59,19 +60,22 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.storeCreate(storeReqDto, userDetails));
     }
-    @Operation(summary = "가게 리스트 조회")
+
+    @StoreSwaggerDocs.StoreList
     @GetMapping("")
     public ResponseEntity<?> storeList(@PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreList(pageable));
     }
-    @Operation(summary = "가게 단일 조회")
+
+    @StoreSwaggerDocs.StoreOne
     @GetMapping("/{storeId}")
     public ResponseEntity<?> storeOne(@PathVariable UUID storeId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.getStoreOne(storeId));
     }
-    @Operation(summary = "가게 검색")
+
+    @StoreSwaggerDocs.StoreSearch
     @GetMapping("/search")
     public ResponseEntity<?>
     storeSearch(@RequestParam String keyword, @RequestParam @Pattern(regexp = "한식|중식|분식|치킨|피자", message = "유효하지 않은 카테고리입니다.") String category,
@@ -80,7 +84,7 @@ public class StoreController {
                 .body(storeService.searchStore(keyword, pageable, category));
     }
 
-    @Operation(summary = "가게 업데이트")
+    @StoreSwaggerDocs.StoreUpdate
     @PutMapping("/{storeId}")
     public ResponseEntity<?>
     storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -94,11 +98,12 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(storeService.updateStore(storeReqDto, storeId, principalDetails));
     }
-    @Operation(summary = "가게 삭제")
+
+    @StoreSwaggerDocs.StoreDelete
     @PatchMapping("/{storeId}")
-    public void
-    storeDelete(@PathVariable UUID storeId, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        storeService.deleteStore(storeId, principalDetails.getUsername());
+    public void // 가게 삭제
+    storeDelete(@PathVariable UUID storeId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        storeService.deleteStore(storeId, userDetails);
     }
 
 

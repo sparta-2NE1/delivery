@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.region.service;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.RegionNotFoundException;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
@@ -85,7 +86,7 @@ public class RegionService {
         int end = Math.min((start + pageable.getPageSize()), regionList.size());
 
         if (regionList.isEmpty() || start >= regionList.size()) {
-            throw new StoreNotFoundException("지역 검색 결과가 존재하지 않습니다.");
+            throw new RegionNotFoundException("지역 검색 결과가 존재하지 않습니다.");
         }
         return regionList.subList(start, end)
                 .stream()
@@ -105,9 +106,10 @@ public class RegionService {
     }
 
     @Transactional
-    public void deleteRegion(UUID id, String username) {//운영 지역 삭제
+    public void deleteRegion(UUID id,PrincipalDetails userDetails) {//운영 지역 삭제
+        checkoutIfOwner(userDetails);
         Region region = regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(() -> new RegionNotFoundException("존재하지 않는 지역입니다."));
-        region.setDeletedBy(username);
+        region.setDeletedBy(userDetails.getUsername());
         region.setDeletedAt(LocalDateTime.now());
 
     }
@@ -128,7 +130,7 @@ public class RegionService {
 
     void checkoutIfOwner(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_OWNER) {
-            throw new UnauthorizedException("(가계주인)허가된 사용자가 아닙니다.");
+            throw new ForbiddenException("(가계주인)허가된 사용자가 아닙니다.");
         }
     }
 

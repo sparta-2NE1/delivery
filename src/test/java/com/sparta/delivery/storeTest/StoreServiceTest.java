@@ -177,12 +177,15 @@ public class StoreServiceTest {
     @DisplayName("가게 삭제 테스트")
     void testDeleteSuccess() {
         // Given
-        String username = "Tom";//실제로그인하지 않으므로 임의의 아이디값
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_OWNER);
+        when(principalDetails.getUsername()).thenReturn("test");
         Stores testStore = Stores.builder().name("본죽").address("종로동").category(Category.한식).storeId(storeId).build();
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.of(testStore));
 
         // When - 가게를 저장했을때
-        storeService.deleteStore(storeId, username);//여기서 result는 set까지완료한 객체
+        storeService.deleteStore(storeId, principalDetails);//여기서 result는 set까지완료한 객체
         Stores result = testStore;
 
         // Then - 더미데이터와 일치하는지 검사
@@ -197,11 +200,14 @@ public class StoreServiceTest {
     @DisplayName("가게 삭제 실패 테스트")
     void testDeleteFail() {
         // Given
-        String username = "Tom";//실제로그인하지 않으므로 임의의 아이디값
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_OWNER);
+        when(principalDetails.getUsername()).thenReturn("test");
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.empty());
 
         //When && Then - 예외발생 여부 테스트
-        assertThrows(StoreNotFoundException.class, () -> storeService.deleteStore(storeId, username));
+        assertThrows(StoreNotFoundException.class, () -> storeService.deleteStore(storeId, principalDetails));
 
     }
 
