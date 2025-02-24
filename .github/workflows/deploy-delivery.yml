@@ -106,7 +106,7 @@ jobs:
             
             rm -f .env
             touch .env
-            echo "JWT_SECRET={{ secrets.JWT_SECRET}}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> .env
             
