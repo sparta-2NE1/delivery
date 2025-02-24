@@ -49,7 +49,7 @@ jobs:
           echo "  jpa:" >> src/test/resources/application-test.yml
           echo "    database-platform: org.hibernate.dialect.PostgreSQLDialect" >> src/test/resources/application-test.yml
           echo "    hibernate:" >> src/test/resources/application-test.yml
-          echo "      ddl-auto: update" >> src/test/resources/application-test.yml
+          echo "      ddl-auto: create" >> src/test/resources/application-test.yml
           echo "  sql:" >> src/test/resources/application-test.yml
           echo "    init:" >> src/test/resources/application-test.yml
           echo "      mode: always" >> src/test/resources/application-test.yml
