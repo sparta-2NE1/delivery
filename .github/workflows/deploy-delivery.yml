@@ -17,17 +17,14 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: DB 비밀번호 로드
-        run: |
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-          echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
+#      - name: DB 비밀번호 로드
+#        run: |
+#          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+#          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+#          echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
 #      포트열기
-      #            mkdir -p /home/ubuntu/delivery/src/main/resources/
-      #            cat << 'EOF' > /home/ubuntu/delivery/src/main/resources/application.yml
-      #            ${{ secrets.APPLICATION_YML }}
-      #            EOF
+
       - name: PostgreSQL setup
         uses: harmon758/postgresql-action@v1
         with:
@@ -52,23 +49,19 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew clean build
-        env:
-          DB_PASSWORD: ${{ env.DB_PASSWORD }}
-          JWT_SECRET: ${{ env.JWT_SECRET }}
-          AI_API_KEY: ${{ env.AI_API_KEY }}
+#        env:
+#          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+#          JWT_SECRET: ${{ env.JWT_SECRET }}
+#          AI_API_KEY: ${{ env.AI_API_KEY }}
 
-      - name: 환경변수 확인
-        run: env | grep -E 'DB_PASSWORD|JWT_SECRET|AI_API_KEY'
+#      - name: 환경변수 확인
+#        run: env | grep -E 'DB_PASSWORD|JWT_SECRET|AI_API_KEY'
 
       - name: 도커 허브 로그인
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Tag 생성
         run: echo "TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
-      - name: Check TAG value
-        run: |
-          echo "Generated TAG: ${{ env.TAG }}"
 
       - name: 이미지 빌드
         run: |
@@ -102,8 +95,8 @@ jobs:
           echo "      mode: always" >> src/test/resources/application-test.yml
           echo " test yml 생성 완료"
 
-      - name: AI API Key 환경 변수 설정
-        run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
+#      - name: AI API Key 환경 변수 설정
+#        run: echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
       - name: 테스트 실행
         run: ./gradlew clean test
@@ -127,7 +120,6 @@ jobs:
             docker pull leewon2/backend-image
             docker-compose down
 
-            echo "yml 생성 완료"
             docker-compose up -d
             docker system prune -af
             echo "배포 성공"
