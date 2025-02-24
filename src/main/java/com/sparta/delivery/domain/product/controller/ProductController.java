@@ -41,8 +41,8 @@ public class ProductController {
 
     @ProductSwaggerDocs.AllProductList
     @GetMapping
-    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String order) {
-        Page<ProductResponseDto> allProducts = productService.getAllProducts(page, size, sortBy, order);
+    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String order, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        Page<ProductResponseDto> allProducts = productService.getAllProducts(page, size, sortBy, order, userDetails);
         return ResponseEntity.ok(allProducts);
     }
 
