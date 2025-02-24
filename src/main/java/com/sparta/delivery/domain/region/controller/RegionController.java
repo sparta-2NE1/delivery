@@ -57,11 +57,12 @@ public class RegionController {
         return ResponseEntity.status(HttpStatus.OK).body(regionService.getAllRegionList(pageable));
     }
 
-    @RegionSwaggerDocs.Search
-    @GetMapping("/search")
-    public ResponseEntity<List<RegionResDto>> regionSearch(@RequestParam String keyword, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
+    @GetMapping("/search")//운영 지역 검색
+    public ResponseEntity<List<RegionResDto>> regionSearch
+            (@RequestParam String keyword, @RequestParam(defaultValue = "createdAt") String sortBy,
+             @RequestParam(defaultValue = "desc") String order, @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(regionService.searchRegion(keyword, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(regionService.searchRegion(keyword, pageable, sortBy, order));
     }
 
     @RegionSwaggerDocs.Update

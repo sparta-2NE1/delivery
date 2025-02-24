@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface RegionRepository extends JpaRepository<Region, UUID> {
+public interface RegionRepository extends JpaRepository<Region, UUID>, RegionRepositoryCustom {
 
 
     List<Region> findByLocalityContainingAndDeletedAtIsNull(String locality);
