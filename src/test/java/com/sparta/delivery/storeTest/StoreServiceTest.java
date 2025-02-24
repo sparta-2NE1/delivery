@@ -11,7 +11,9 @@ import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.store.service.StoreService;
 
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
+import com.sparta.delivery.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,9 @@ public class StoreServiceTest {
     @Mock
     private StoreRepository storeRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     private Stores testStore;
     private UUID storeId;
 
@@ -55,8 +60,9 @@ public class StoreServiceTest {
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);//권한설정
         StoreReqDto storeReqDto = new StoreReqDto("본죽", Category.한식, "종로동");
+        User testUser = User.builder().username("tom").build();
         when(storeRepository.save(any(Stores.class))).thenReturn(testStore);
-
+        when(userRepository.findByUsernameAndDeletedAtIsNull(principalDetails.getUsername())).thenReturn(Optional.of(testUser));
         // When - 가게를 저장했을때
         StoreResDto result = storeService.storeCreate(storeReqDto, principalDetails);
 

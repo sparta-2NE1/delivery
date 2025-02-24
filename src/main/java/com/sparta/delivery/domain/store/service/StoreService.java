@@ -3,6 +3,7 @@ package com.sparta.delivery.domain.store.service;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.UserNotFoundException;
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.store.dto.StoreRegionResDto;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
@@ -10,7 +11,9 @@ import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
+import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,9 +31,13 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
 
+    @Transactional
     public StoreResDto storeCreate(StoreReqDto storereqdto, PrincipalDetails userDetails) {//가게 저장
         Stores store = reqDtoToEntity(storereqdto);
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(userDetails.getUsername()).orElseThrow(() -> new UserNotFoundException("해당 유저가 존재하지 않습니다"));
+        store.setUser(user);
         return entityToResDto(storeRepository.save(store));
     }
 
@@ -106,7 +113,6 @@ public class StoreService {
                 .name(stores.getName())
                 .address(stores.getAddress())
                 .status(stores.isStatus())
-                //.regionList(stores.getRegionList())
                 .category(stores.getCategory())
                 .build();
     }
