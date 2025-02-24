@@ -80,12 +80,11 @@ class UserServiceIntegrationTest {
         // Given
         SignupReqDto signupReqDto = new SignupReqDto("testuser", "password", "new@example.com", "newnick");
 
-        // When
+        // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.signup(signupReqDto);
         });
 
-        // Then
         assertEquals("username already exists : testuser", exception.getMessage());
     }
 
@@ -109,12 +108,11 @@ class UserServiceIntegrationTest {
         // Given
         LoginRequestDto loginRequestDto = new LoginRequestDto("testuser", "1234");
 
-        // When
+        // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->{
            userService.authenticateUser(loginRequestDto);
         });
 
-        // Then
         assertEquals("Invalid password : 1234" , exception.getMessage());
     }
 
@@ -135,12 +133,11 @@ class UserServiceIntegrationTest {
         // Given
         UUID failUserId = UUID.randomUUID(); // 임의의 UUID 생성
 
-        // When
+        // When & Then
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () ->{
             userService.getUserById(failUserId);
         });
 
-        // Then
         assertEquals("User Not Found By Id : " + failUserId, exception.getMessage());
 
     }
@@ -180,6 +177,7 @@ class UserServiceIntegrationTest {
     @DisplayName("모든 유저 조회 실패 - 결과 없음")
     void testGetUsersFail(){
 
+        // Given
         UserSearchReqDto userSearchReqDto = new UserSearchReqDto();
         userSearchReqDto.setPage(0);
         userSearchReqDto.setSize(10);
@@ -206,7 +204,6 @@ class UserServiceIntegrationTest {
         UserUpdateReqDto updateReqDto = new UserUpdateReqDto("password", "newPassword", "new@example.com", "newNick");
 
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
-
         when(principalDetails.getUsername()).thenReturn("testuser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
@@ -226,16 +223,14 @@ class UserServiceIntegrationTest {
         UserUpdateReqDto updateReqDto = new UserUpdateReqDto("password", "newPassword", "new@example.com", "newNick");
 
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
-
         when(principalDetails.getUsername()).thenReturn("dummyUser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
-        // When
+        // When & Then
         ForbiddenException exception = assertThrows(ForbiddenException.class, () ->{
           userService.updateUser(userId,principalDetails,updateReqDto);
         });
 
-        // Then
         assertEquals("Access denied.", exception.getMessage());
     }
 
@@ -268,12 +263,11 @@ class UserServiceIntegrationTest {
 
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
-        // When
+        // When & Then
         ForbiddenException exception = assertThrows(ForbiddenException.class, () ->{
             userService.updateRole(userId,principalDetails,userRoleUpdateReqDto);
         });
 
-         //Then
         assertEquals("Access denied.", exception.getMessage());
     }
 
@@ -305,12 +299,11 @@ class UserServiceIntegrationTest {
         when(principalDetails.getUsername()).thenReturn("dummyUser");
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
 
-        // When
+        // When & Then
         ForbiddenException exception = assertThrows(ForbiddenException.class, () ->{
             userService.deleteUser(userId,principalDetails);
         });
 
-        //Then
         assertEquals("Access denied.", exception.getMessage());
     }
 }
