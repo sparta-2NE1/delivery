@@ -70,7 +70,7 @@ public class RegionController {
                 .body(regionService.updateRegion(regionReqDto, regionId, userDetails));
     }
 
-    @DeleteMapping("/{regionId}")//운영 지역 삭제
+    @PatchMapping("/{regionId}")//운영 지역 삭제
     public void regionDelete(@PathVariable UUID regionId, @AuthenticationPrincipal PrincipalDetails principalDetails) {
         regionService.deleteRegion(regionId, principalDetails.getUsername());
     }

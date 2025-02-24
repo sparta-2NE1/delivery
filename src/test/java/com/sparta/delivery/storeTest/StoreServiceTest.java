@@ -3,6 +3,7 @@ package com.sparta.delivery.storeTest;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
+import com.sparta.delivery.domain.store.dto.StoreRegionResDto;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -79,7 +80,7 @@ public class StoreServiceTest {
         when(storeRepository.findAllByDeletedAtIsNull(any(Pageable.class))).thenReturn(storeList);
 
         // When - 가게를 저장했을때
-        Page<StoreResDto> result = storeService.getStoreList(pageable);
+        Page<StoreRegionResDto> result = storeService.getStoreList(pageable);
 
         // Then - 더미데이터와 일치하는지 검사
         assertNotNull(result);
@@ -113,7 +114,7 @@ public class StoreServiceTest {
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.of(testStore));
 
         // When - 가게를 저장했을때
-        StoreResDto result = storeService.getStoreOne(storeId);
+        StoreRegionResDto result = storeService.getStoreOne(storeId);
 
         // Then - 더미데이터와 일치하는지 검사
         assertNotNull(result);
