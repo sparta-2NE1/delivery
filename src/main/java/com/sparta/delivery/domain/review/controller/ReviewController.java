@@ -8,6 +8,7 @@ import com.sparta.delivery.domain.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,7 @@ public class ReviewController {
         if (starList == null)
             starList = Collections.emptyList();
 
-        Pageable pageable = pageableConfig.createPageRequest(page, size, sortBy, orderBy);
+        PageRequest pageable = pageableConfig.createPageRequest(page, size, sortBy, orderBy);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(reviewService.getStoreReviewSearch(storeId, starList, pageable));
     }

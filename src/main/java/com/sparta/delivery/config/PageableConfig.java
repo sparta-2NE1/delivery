@@ -14,7 +14,7 @@ public class PageableConfig {
 
     private static final String sortBy = "createdAt"; // 기본 정렬 필드
 
-    public Pageable createPageRequest(Integer page, Integer size, String sortBy, String orderBy) {
+    public PageRequest createPageRequest(Integer page, Integer size, String sortBy, String orderBy) {
         int pageNumber = (page != null) ? page : 0;
         int pageSize = (size != null) ? size : defaultPageSize;
 
