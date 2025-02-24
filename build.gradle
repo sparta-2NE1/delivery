@@ -37,6 +37,14 @@ clean.doLast {
     file(querydslDir).deleteDir()
 }
 
+tasks.test {
+    testLogging {
+        showExceptions = true
+        exceptionFormat "full"
+        showStackTraces true
+    }
+}
+
 
 
 dependencies {
@@ -68,6 +76,3 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
