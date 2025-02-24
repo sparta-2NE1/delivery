@@ -1,4 +1,4 @@
-package com.sparta.delivery.aiTest.integration;
+package com.sparta.delivery.util;
 
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import io.jsonwebtoken.Jwts;
