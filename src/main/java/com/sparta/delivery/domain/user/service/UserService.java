@@ -211,7 +211,7 @@ public class UserService {
         }
 
         if (!passwordEncoder.matches(userUpdateReqDto.getCurrentPassword(),user.getPassword())){
-            throw new ForbiddenException("Incorrect password.");
+            throw new IllegalArgumentException("Incorrect password.");
         }
 
         User updateUser = user.toBuilder()
