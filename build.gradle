@@ -38,6 +38,7 @@ clean.doLast {
 }
 
 tasks.test {
+    useJUnitPlatform()
     testLogging {
         showExceptions = true
         exceptionFormat "full"
