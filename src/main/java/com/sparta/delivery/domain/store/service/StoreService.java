@@ -1,8 +1,8 @@
 package com.sparta.delivery.domain.store.service;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
-import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.store.dto.StoreRegionResDto;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
@@ -11,21 +11,15 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.user.enums.UserRoles;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,7 +44,7 @@ public class StoreService {
     }
 
     public StoreRegionResDto getStoreOne(UUID id) {//가게 단일 조회
-        return new StoreRegionResDto(storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("가계를 등록할 수 없습니다")));
+        return new StoreRegionResDto(storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("해당 가게가 존재하지 않습니다")));
     }
 
     public Stores updateStoreReview(UUID id, int star, int cnt) { //별점, 개수여부(+1 or -1)
@@ -63,7 +57,7 @@ public class StoreService {
     public List<StoreResDto> searchStore(String keyword, Pageable pageable, String categorys) {//가게 검색
         Category category = Category.valueOf(categorys);
         List<Stores> storeList = (keyword == null || keyword.trim().isEmpty()) ?
-                storeRepository.findByCategory(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);
+                storeRepository.findByCategoryAndDeletedAtIsNull(category) : storeRepository.findByNameContainingAndCategoryAndDeletedAtIsNull(keyword, category);
         List<Integer> Size_List = List.of(10, 20, 30);
         if (!Size_List.contains((pageable.getPageSize()))) {
             pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
@@ -93,13 +87,14 @@ public class StoreService {
     }
 
     @Transactional
-    public void deleteStore(UUID id, String username) {//가게 삭제
+    public void deleteStore(UUID id, PrincipalDetails userDetails) {//가게 삭제
+        checkoutIfOwner(userDetails);
         Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
-        store.setDeletedBy(username);
+        store.setDeletedBy(userDetails.getUsername());
         store.setDeletedAt(LocalDateTime.now());
-        if (store.getRegionList() != null) {//가게삭제시 지역정보들도 같이처리
+        if (store.getRegionList() != null) {
             for (Region region : store.getRegionList()) {
-                region.setDeletedBy(username);
+                region.setDeletedBy(userDetails.getUsername());
                 region.setDeletedAt(LocalDateTime.now());
             }
         }
@@ -129,18 +124,19 @@ public class StoreService {
 
     void checkoutIfOwner(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_OWNER) {
-            throw new UnauthorizedException("(가계주인)허가된 사용자가 아닙니다.");
+            throw new ForbiddenException("(가계주인)허가된 사용자가 아닙니다.");
         }
     }
+
     void checkoutIfManager(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_MANAGER) {
-            throw new UnauthorizedException("(관리자)허가된 사용자가 아닙니다.");
+            throw new ForbiddenException("(관리자)허가된 사용자가 아닙니다.");
         }
     }
 
     void checkoutIfMaster(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_MASTER) {
-            throw new UnauthorizedException("(최고관리자)허가된 사용자가 아닙니다.");
+            throw new ForbiddenException("(최고관리자)허가된 사용자가 아닙니다.");
         }
     }
 

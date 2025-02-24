@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.region.service;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
+import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.RegionNotFoundException;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
@@ -74,16 +75,19 @@ public class RegionService {
     public List<RegionResDto> searchRegion(String keyword, Pageable pageable) { //운영 지역 검색(동 기준으로만검색됨)
         List<Region> regionList = regionRepository.findByLocalityContainingAndDeletedAtIsNull(keyword);
         List<Integer> Size_List = List.of(10, 20, 30);
-        if (!Size_List.contains((pageable.getPageSize()))) {
-            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
-        }
         if (regionList.isEmpty()) {
             throw new RegionNotFoundException("지역이 한개도 등록되어있지 않습니다.");
+        }
+        if (!Size_List.contains((pageable.getPageSize()))) {
+            pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
         }
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), regionList.size());
 
+        if (regionList.isEmpty() || start >= regionList.size()) {
+            throw new RegionNotFoundException("지역 검색 결과가 존재하지 않습니다.");
+        }
         return regionList.subList(start, end)
                 .stream()
                 .map(RegionResDto::new)
@@ -102,9 +106,10 @@ public class RegionService {
     }
 
     @Transactional
-    public void deleteRegion(UUID id, String username) {//운영 지역 삭제
+    public void deleteRegion(UUID id, PrincipalDetails userDetails) {//운영 지역 삭제
+        checkoutIfOwner(userDetails);
         Region region = regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(() -> new RegionNotFoundException("존재하지 않는 지역입니다."));
-        region.setDeletedBy(username);
+        region.setDeletedBy(userDetails.getUsername());
         region.setDeletedAt(LocalDateTime.now());
 
     }
@@ -118,14 +123,14 @@ public class RegionService {
 
     public RegionResDto entityToResDto(Region region) {
 
-        return RegionResDto.builder().province(region.getProvince()).city(region.getCity()).
+        return RegionResDto.builder().province("수도").city("서울").
                 locality(region.getLocality()).build();
 
     }
 
     void checkoutIfOwner(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_OWNER) {
-            throw new UnauthorizedException("(가계주인)허가된 사용자가 아닙니다.");
+            throw new ForbiddenException("(가계주인)허가된 사용자가 아닙니다.");
         }
     }
 
