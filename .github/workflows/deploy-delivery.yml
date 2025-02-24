@@ -24,7 +24,10 @@ jobs:
           echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
 #      포트열기
-
+      #            mkdir -p /home/ubuntu/delivery/src/main/resources/
+      #            cat << 'EOF' > /home/ubuntu/delivery/src/main/resources/application.yml
+      #            ${{ secrets.APPLICATION_YML }}
+      #            EOF
       - name: PostgreSQL setup
         uses: harmon758/postgresql-action@v1
         with:
@@ -119,10 +122,7 @@ jobs:
             
             docker pull leewon2/backend-image
             docker-compose down
-#            mkdir -p /home/ubuntu/delivery/src/main/resources/
-#            cat << 'EOF' > /home/ubuntu/delivery/src/main/resources/application.yml
-#            ${{ secrets.APPLICATION_YML }}
-#            EOF
+
             echo "yml 생성 완료"
             docker-compose up -d
             docker system prune -af
