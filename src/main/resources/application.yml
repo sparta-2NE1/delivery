@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: delivery
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres:5432/delivery
+    username: twenty1
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  jwt:
+    secret: ${JWT_SECRET}
+    accessTokenValidityInMilliseconds: 3600000  # 1시간 (3600000 밀리초)
+    refreshTokenValidityInMilliseconds: 86400000  # 24시간 (1일 = 86400000 밀리초)
+
+server:
+  port: 8080
+
