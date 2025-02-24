@@ -101,8 +101,7 @@ jobs:
             echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> .env
             
             docker pull leewon2/backend-image
-            ./switch_nginx.sh
-            ./deploy.sh
+            sudo ./switch_nginx.sh
             echo "배포 성공"
 
 
