@@ -1,10 +1,7 @@
 package com.sparta.delivery.domain.product.service;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
-import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
-import com.sparta.delivery.config.global.exception.custom.ProductAlreadyDeletedException;
-import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
-import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
+import com.sparta.delivery.config.global.exception.custom.*;
 import com.sparta.delivery.domain.product.dto.ProductRequestDto;
 import com.sparta.delivery.domain.product.dto.ProductResponseDto;
 import com.sparta.delivery.domain.product.dto.ProductUpdateRequestDto;
@@ -139,7 +136,7 @@ public class ProductService {
 
     public void updateProductQuantity(Product product, int count) {
         if(product.getQuantity() == 0 && count == -1)
-            throw new IllegalArgumentException("주문하신 상품이 품절되었습니다.");
+            throw new ProductQuantityNotAllowedException("주문하신 상품이 품절되었습니다.");
         else {
             product.setQuantity(product.getQuantity() + count);
             productRepository.save(product);
