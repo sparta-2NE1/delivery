@@ -18,6 +18,9 @@ spring:
     accessTokenValidityInMilliseconds: 3600000  # 1시간 (3600000 밀리초)
     refreshTokenValidityInMilliseconds: 86400000  # 24시간 (1일 = 86400000 밀리초)
 
+ai:
+  apikey: ${AI_API_KEY}
+
 server:
   port: 8080
 
