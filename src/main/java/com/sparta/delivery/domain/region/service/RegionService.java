@@ -42,6 +42,10 @@ public class RegionService {
     public RegionResDto regionCreate(RegionReqDto regionReqDto, PrincipalDetails userDetails) { //운영 지역 생성
         checkoutIfOwner(userDetails);
         Region region = reqDtoToEntity(regionReqDto);
+        // 지역 중복 체크
+        if (regionRepository.existsByLocalityAndDeletedAtIsNull(regionReqDto.getLocality())) {
+            throw new IllegalArgumentException("이미 존재하는 지역입니다.");
+        }
         if (regionReqDto.getStoreId() == null) {
             throw new StoreNotFoundException("유효하지 않은 가게ID 입니다.");
         }
@@ -99,8 +103,8 @@ public class RegionService {
         checkoutIfOwner(userDetails);
         Region region = regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(() -> new RegionNotFoundException("존재하지 않는 지역입니다."));
 
-        region.setProvince(regionReqDto.getProvince());
-        region.setCity(regionReqDto.getCity());
+        region.setProvince("도시");
+        region.setCity("서울");
         region.setLocality(regionReqDto.getLocality());
         return entityToResDto(region);
     }

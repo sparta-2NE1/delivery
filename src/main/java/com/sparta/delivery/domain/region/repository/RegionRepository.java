@@ -12,6 +12,7 @@ import java.util.UUID;
 
 public interface RegionRepository extends JpaRepository<Region, UUID>, RegionRepositoryCustom {
 
+    boolean existsByLocalityAndDeletedAtIsNull(String locality);
 
     List<Region> findByLocalityContainingAndDeletedAtIsNull(String locality);
 
