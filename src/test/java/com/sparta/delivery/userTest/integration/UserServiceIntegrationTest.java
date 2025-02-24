@@ -103,6 +103,20 @@ class UserServiceIntegrationTest {
     }
 
     @Test
+    @DisplayName("로그인 실패 - username을 기반으로 user를 찾지못한 경우")
+    void testAuthenticateUserFailUsername(){
+        // Given
+        LoginRequestDto loginRequestDto = new LoginRequestDto("dummyUser", "1234");
+
+        // When & Then
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, ()->{
+            userService.authenticateUser(loginRequestDto);
+        });
+
+        assertEquals("Invalid username : dummyUser" , exception.getMessage());
+    }
+
+    @Test
     @DisplayName("로그인 실패 - 잘못된 비밀번호")
     void testAuthenticateUserFailPassword(){
         // Given
@@ -234,6 +248,27 @@ class UserServiceIntegrationTest {
         assertEquals("Access denied.", exception.getMessage());
     }
 
+
+    @Test
+    @DisplayName("회원정보 수정 실패 - 비밀번호 불일치")
+    void testUpdateUserFailPassword(){
+
+        // Given
+        UserUpdateReqDto updateReqDto = new UserUpdateReqDto("1234", "newPassword", "new@example.com", "newNick");
+
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getUsername()).thenReturn("testuser");
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
+
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->{
+            userService.updateUser(userId,principalDetails,updateReqDto);
+        });
+
+        assertEquals("Incorrect password.", exception.getMessage());
+    }
+    
+    
     @Test
     @DisplayName("회원 권한 수정 성공")
     void testUpdateRoleSuccess() {
@@ -272,6 +307,27 @@ class UserServiceIntegrationTest {
     }
 
     @Test
+    @DisplayName("회원 권한 수정 실패 - 사용자를 찾을 수 없음")
+    void testUpdateRoleFailUserNotFound(){
+
+        // Given
+
+        UUID failUUID = UUID.randomUUID();
+        UserRoleUpdateReqDto userRoleUpdateReqDto = new UserRoleUpdateReqDto(UserRoles.ROLE_OWNER);
+
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);
+
+        // When & Then
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () ->{
+            userService.updateRole(failUUID,principalDetails,userRoleUpdateReqDto);
+        });
+
+        assertEquals("User Not Found By Id : "+failUUID, exception.getMessage());
+    }
+
+    @Test
     @DisplayName("User 논리적 삭제 성공 - 본인 계정")
     void testDeleteUserSuccess() {
 
@@ -290,7 +346,26 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("회원 권한 수정 실패 - 권한 없음")
+    @DisplayName("User 논리적 삭제 실패 - 사용자를 찾을 수 없음")
+    void testDeleteUserFailUserNotFoundException(){
+
+        // Given
+        UUID failUUID = UUID.randomUUID();
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+
+        when(principalDetails.getUsername()).thenReturn("dummyUser");
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);
+
+        // When & Then
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () ->{
+            userService.deleteUser(failUUID,principalDetails);
+        });
+
+        assertEquals("User Not Found By Id : "+failUUID, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("User 논리적 삭제 실패 - 권한 없음")
     void testDeleteUserFailForbidden(){
 
         // Given
