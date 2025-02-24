@@ -19,9 +19,9 @@ jobs:
 
       - name: DB 비밀번호 로드
         run: |
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "AI_API_KEY=${{ secrets.AI_API_KEY }}" >> $GITHUB_ENV
 
 
       - name: PostgreSQL setup
@@ -48,6 +48,13 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew clean build
+        env:
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          JWT_SECRET: ${{ env.JWT_SECRET }}
+          AI_API_KEY: ${{ env.AI_API_KEY }}
+
+      - name: 환경변수 확인
+        run: env | grep -E 'DB_PASSWORD|JWT_SECRET|AI_API_KEY'
 
       - name: 도커 허브 로그인
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
