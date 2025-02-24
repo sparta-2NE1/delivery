@@ -55,6 +55,17 @@ jobs:
           echo "      mode: always" >> src/test/resources/application-test.yml
           echo " test yml 생성 완료"
 
+      - name: Check PostgreSQL Running
+        run: |
+          sudo systemctl status postgresql
+          ps aux | grep postgres
+          netstat -an | grep 5432
+
+      - name: Debug PostgreSQL Connection
+        run: |
+          PGPASSWORD=twenty1 psql -h 127.0.0.1 -U twenty1 -d delivery -c "SELECT current_database();"
+
+
       - name: Verify application-test.yml contents
         run: cat src/test/resources/application-test.yml
 
