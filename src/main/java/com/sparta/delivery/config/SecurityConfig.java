@@ -49,23 +49,32 @@ public class SecurityConfig {
 
             // GET 요청은 모두 허용
             authorizationHttpRequest
-                    .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/region/**")
+                    .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/region/**" , "/api/order/getUserOrder")
                     .permitAll();
+
+            // 특정 가게 주문 조회
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.GET, "/api/order/getStoreOrder/**")
+                    .hasAnyRole("OWNER", "MANAGER", "MASTER");
+
+            // 단일 주문 조회
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.GET,"/api/order/**")
+                    .hasAnyRole("MANAGER", "MASTER");
+
+            // 가게 등록은 "/api/store" 경로에 대해 POST 요청일 때 MANAGER와 MASTER 권한만 허용
+            authorizationHttpRequest
+                    .requestMatchers(HttpMethod.POST, "/api/store")
+                    .hasAnyRole("MANAGER", "MASTER");
 
             // 결제 내역 삭제는 MASTER만 허용
             authorizationHttpRequest
                     .requestMatchers(HttpMethod.PATCH, "/api/payment/**")
                     .hasRole("MASTER");
 
-            // 가게 등록은 "/api/store" 경로에 대해 POST 요청일 때 MANAGER와 MASTER 권한만 허용
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.POST, "/api/store").hasAnyRole("MANAGER", "MASTER");
-
             // POST, PUT, PATCH 요청에 대해 OWNER, MANAGER, MASTER 권한만 허용 (여러 엔드포인트 그룹화)
             authorizationHttpRequest
-                    .requestMatchers(HttpMethod.POST, "/api/store/**", "/api/products/**", "/api/ai", "/api/region/**")
-                    .hasAnyRole("OWNER", "MANAGER", "MASTER")
-                    .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/region/**")
+                    .requestMatchers(HttpMethod.POST,  "/api/order/updateOrderStatus/**","/api/store/**", "/api/products/**", "/api/ai", "/api/region/**")
                     .hasAnyRole("OWNER", "MANAGER", "MASTER")
                     .requestMatchers(HttpMethod.PATCH, "/api/products/**")
                     .hasAnyRole("OWNER", "MANAGER", "MASTER");
