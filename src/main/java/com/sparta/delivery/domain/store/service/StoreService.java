@@ -3,7 +3,6 @@ package com.sparta.delivery.domain.store.service;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.ForbiddenException;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
-import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
 import com.sparta.delivery.domain.region.entity.Region;
 import com.sparta.delivery.domain.store.dto.StoreRegionResDto;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
@@ -12,21 +11,15 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.user.enums.UserRoles;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -134,6 +127,7 @@ public class StoreService {
             throw new ForbiddenException("(가계주인)허가된 사용자가 아닙니다.");
         }
     }
+
     void checkoutIfManager(PrincipalDetails userDetails) {
         if (userDetails.getRole() != UserRoles.ROLE_MANAGER) {
             throw new ForbiddenException("(관리자)허가된 사용자가 아닙니다.");

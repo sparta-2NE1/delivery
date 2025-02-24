@@ -3,7 +3,6 @@ package com.sparta.delivery.domain.region.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -24,18 +23,20 @@ public @interface RegionSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "가게가 존재하지 않거나 ID가 적절하지않은값"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @interface Register {}
+    @interface Register {
+    }
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "특정 가게 운영 지역 리스트 조회", description = "특정 가게의 운영 지역 리스트를 조회합니다.")
-    @Parameter(name = "storeId", description = "가게의 UUID", example = "af2a560c-1512-4912-97ce-02f9afce72aa")
+    @Parameter(name = "storeId", description = "가게의 UUID",  required = true,  example = "af2a560c-1512-4912-97ce-02f9afce72aa")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 정보(가게 혹은 지역)"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @interface RegionList {}
+    @interface RegionList {
+    }
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -45,7 +46,8 @@ public @interface RegionSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "지역이 존재하지 않음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @interface AllRegionList {}
+    @interface AllRegionList {
+    }
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -56,7 +58,8 @@ public @interface RegionSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "지역이 존재하지 않음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @interface Search {}
+    @interface Search {
+    }
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -69,7 +72,8 @@ public @interface RegionSwaggerDocs {
             @ApiResponse(responseCode = "404", description = "지역이 존재하지 않음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @interface Update {}
+    @interface Update {
+    }
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -81,6 +85,7 @@ public @interface RegionSwaggerDocs {
             @ApiResponse(responseCode = "403", description = "지역 삭제 권한 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @interface Delete {}
+    @interface Delete {
+    }
 
 }

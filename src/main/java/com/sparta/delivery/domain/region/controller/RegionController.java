@@ -44,6 +44,7 @@ public class RegionController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(regionService.regionCreate(regionReqDto, userDetails));
     }
+
     @RegionSwaggerDocs.RegionList
     @GetMapping("/{storeId}")
     public ResponseEntity<?> regionList(@PathVariable UUID storeId, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
@@ -62,6 +63,7 @@ public class RegionController {
 
         return ResponseEntity.status(HttpStatus.OK).body(regionService.searchRegion(keyword, pageable));
     }
+
     @RegionSwaggerDocs.Update
     @PutMapping("/{regionId}")
     public ResponseEntity<?> regionUpdate
@@ -84,7 +86,6 @@ public class RegionController {
     public void regionDelete(@PathVariable UUID regionId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         regionService.deleteRegion(regionId, userDetails);
     }
-
 
 
 }

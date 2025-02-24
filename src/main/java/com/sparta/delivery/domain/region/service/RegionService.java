@@ -106,7 +106,7 @@ public class RegionService {
     }
 
     @Transactional
-    public void deleteRegion(UUID id,PrincipalDetails userDetails) {//운영 지역 삭제
+    public void deleteRegion(UUID id, PrincipalDetails userDetails) {//운영 지역 삭제
         checkoutIfOwner(userDetails);
         Region region = regionRepository.findByRegionIdAndDeletedAtIsNull(id).orElseThrow(() -> new RegionNotFoundException("존재하지 않는 지역입니다."));
         region.setDeletedBy(userDetails.getUsername());
@@ -123,7 +123,7 @@ public class RegionService {
 
     public RegionResDto entityToResDto(Region region) {
 
-        return RegionResDto.builder().province(region.getProvince()).city(region.getCity()).
+        return RegionResDto.builder().province("수도").city("서울").
                 locality(region.getLocality()).build();
 
     }
