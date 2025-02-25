@@ -11,7 +11,7 @@
 하고, 실생활의 주문 및 관리 프로세스를 개발하는 것이 이번 프로젝트의 핵심 목표입니다.
 특히,  2주라는 짧은 기간 내에 기획, 설계, 개발, 테스트, 배포까지 전 과정을 경험하며, 모든 요구사항을 완수해야 하는 일정 속에서 협업과 프로젝트 관리의 중요성을 체감하는 것 또한 중요한 목표입니다.
 
-----
+<br>
 
 ## 🏗 서비스 구성 및 실행 방법
 ### 💾 환경 설정
@@ -20,7 +20,8 @@ git clone https://github.com/사용자명/레포명.git
 cd 레포명
 ```
 
-----
+
+<br>
 
 ## 🎯 팀원 역할분담
 <table>
@@ -78,21 +79,19 @@ cd 레포명
   </tr>
 </table>
 
-
-------
+<br>
 
 ## ☁️ 인프라 설계서
 ![Image](https://github.com/user-attachments/assets/30111de9-b5b7-47f3-9a0d-b9e71399e04c)
 
------
+<br>
 
 ## 📌 ERD
 
 ![Image](https://github.com/user-attachments/assets/f144479b-b3e2-47f8-8ca2-6c9f0beb9f0f)
 
+<br>
 
-
-------
 ## 🛠 기술 스택
 ## Backend
 - **Framework**: Spring Boot 3.x
