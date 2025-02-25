@@ -10,9 +10,6 @@ import com.sparta.delivery.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -52,6 +49,8 @@ public class CardServiceIntegrationTest {
                 .username("testuser")
                 .build();
 
+        testUser = userRepository.save(testUser);
+
         cardId = UUID.randomUUID();
         testCard = Card.builder()
                 .cardId(cardId)
@@ -68,6 +67,7 @@ public class CardServiceIntegrationTest {
     @DisplayName("카드 등록 성공")
     void testRegisterCardSuccess(){
         RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름","1234");
+
         when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         when(cardRepository.save(any(Card.class))).thenReturn(testCard);
 
