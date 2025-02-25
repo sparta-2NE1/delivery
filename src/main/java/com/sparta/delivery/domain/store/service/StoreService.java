@@ -83,7 +83,6 @@ public class StoreService {
 
     @Transactional
     public StoreResDto updateStore(StoreReqDto storereqdto, UUID id, PrincipalDetails userDetails) { //가게 업데이트
-        checkoutIfOwner(userDetails);
         Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
 
         store.setAddress(storereqdto.getAddress());
@@ -95,7 +94,6 @@ public class StoreService {
 
     @Transactional
     public void deleteStore(UUID id, PrincipalDetails userDetails) {//가게 삭제
-        checkoutIfOwner(userDetails);
         Stores store = storeRepository.findByStoreIdAndDeletedAtIsNull(id).orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
         store.setDeletedBy(userDetails.getUsername());
         store.setDeletedAt(LocalDateTime.now());
@@ -128,22 +126,5 @@ public class StoreService {
     }
 
 
-    void checkoutIfOwner(PrincipalDetails userDetails) {
-        if (userDetails.getRole() != UserRoles.ROLE_OWNER) {
-            throw new ForbiddenException("(가계주인)허가된 사용자가 아닙니다.");
-        }
-    }
-
-    void checkoutIfManager(PrincipalDetails userDetails) {
-        if (userDetails.getRole() != UserRoles.ROLE_MANAGER) {
-            throw new ForbiddenException("(관리자)허가된 사용자가 아닙니다.");
-        }
-    }
-
-    void checkoutIfMaster(PrincipalDetails userDetails) {
-        if (userDetails.getRole() != UserRoles.ROLE_MASTER) {
-            throw new ForbiddenException("(최고관리자)허가된 사용자가 아닙니다.");
-        }
-    }
 
 }
