@@ -315,4 +315,35 @@ public class ProductServiceTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("상품 검색")
+    class SearchProductTest {
+
+        @Nested
+        @DisplayName("성공")
+        class Success {
+            @Test
+            @DisplayName("마스터 또는 매니저는 숨김 및 삭제 상품을 포함한 모든 상품을 검색할 수 있다.")
+            void searchProductSuccessForMasterOrManager() {
+                when(productRepository.findAllByNameContaining(anyString(), any(Pageable.class))).thenReturn(Page.empty());
+                when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);
+
+                productService.searchProducts(PRODUCT_NAME, 0, 10, "createdAt", "desc", principalDetails);
+
+                verify(productRepository, times(1)).findAllByNameContaining(anyString(), any(Pageable.class));
+            }
+
+            @Test
+            @DisplayName("고객은 삭제되지 않은 상품 중 숨김 처리되지 않은 상품을 검색할 수 있다.")
+            void searchProductSuccessForCustomer() {
+                when(productRepository.findAllByNameContainingAndDeletedAtIsNullAndHiddenFalse(anyString(), any(Pageable.class))).thenReturn(Page.empty());
+                when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
+
+                productService.searchProducts(PRODUCT_NAME, 0, 10, "createdAt", "desc", principalDetails);
+
+                verify(productRepository, times(1)).findAllByNameContainingAndDeletedAtIsNullAndHiddenFalse(anyString(), any(Pageable.class));
+            }
+        }
+    }
 }
