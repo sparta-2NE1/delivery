@@ -22,6 +22,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,16 @@ public class deliveryAddressServiceTest {
 
     private DeliveryAddress testDeliveryAddress;
     private UUID addressId;
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5432/delivery");
+        registry.add("spring.datasource.username", () -> "twenty1");
+        registry.add("spring.datasource.password", () -> "twenty1");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create");
+        registry.add("spring.jwt.secret", () -> "test_secret_key");
+        registry.add("ai.apikey", () -> "test_api_key");
+    }
 
     @BeforeEach
     void setUp() {
