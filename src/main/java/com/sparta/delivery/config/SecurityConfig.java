@@ -52,6 +52,10 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/region/**" , "/api/order/getUserOrder")
                     .permitAll();
 
+            /**
+             * order
+             */
+
             // 특정 가게 주문 조회
             authorizationHttpRequest
                     .requestMatchers(HttpMethod.GET, "/api/order/getStoreOrder/**")
@@ -62,12 +66,16 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET,"/api/order/**")
                     .hasAnyRole("MANAGER", "MASTER");
 
+
             // 가게 등록은 "/api/store" 경로에 대해 POST 요청일 때 MANAGER와 MASTER 권한만 허용
             authorizationHttpRequest
                     .requestMatchers(HttpMethod.POST, "/api/store")
                     .hasAnyRole("MANAGER", "MASTER");
 
-            // 결제 내역 삭제는 MASTER만 허용
+
+            /**
+             * 결제 내역
+             */
             authorizationHttpRequest
                     .requestMatchers(HttpMethod.PATCH, "/api/payment/**")
                     .hasRole("MASTER");
