@@ -4,6 +4,7 @@ package com.sparta.delivery.domain.store.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -52,10 +53,10 @@ public @interface StoreSwaggerDocs {
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "가게 검색", description = "키워드와 카테고리로 가게를 검색합니다.")
     @Parameters({
-            @Parameter(name = "keyword", required = true, description = "검색 키워드"),
-            @Parameter(name = "category", description = "검색할 카테고리"),
-            @Parameter(name = "sortBy", description = "정렬 기준 필드명 (예: createdAt, updatedAt)", example = "createdAt"),
-            @Parameter(name = "order", description = "정렬 방향 (asc: 오름차순, desc: 내림차순)", example = "asc")
+            @Parameter(name = "keyword", schema = @Schema(type = "string"), required = true, description = "검색 키워드"),
+            @Parameter(name = "category", schema = @Schema(type = "string"), description = "검색할 카테고리"),
+            @Parameter(name = "sortBy", schema = @Schema(type = "string"), description = "정렬 기준 필드명 (예: createdAt, updatedAt)", example = "createdAt"),
+            @Parameter(name = "order", schema = @Schema(type = "string"), description = "정렬 방향 (asc: 오름차순, desc: 내림차순)", example = "asc")
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공"),

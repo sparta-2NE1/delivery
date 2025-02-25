@@ -67,7 +67,7 @@ public class StoreController {
     }
 
     @StoreSwaggerDocs.StoreUpdate
-    @PutMapping("/{storeId}")
+    @PatchMapping("/{storeId}")
     public ResponseEntity<?>
     storeUpdate(@PathVariable UUID storeId, @RequestBody @Valid StoreReqDto storeReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Map<String, String> errorUpdate = new HashMap<String, String>();
@@ -82,7 +82,7 @@ public class StoreController {
     }
 
     @StoreSwaggerDocs.StoreDelete
-    @PatchMapping("/{storeId}")
+    @PatchMapping("/{storeId}/delete")
     public void // 가게 삭제
     storeDelete(@PathVariable UUID storeId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         storeService.deleteStore(storeId, userDetails);

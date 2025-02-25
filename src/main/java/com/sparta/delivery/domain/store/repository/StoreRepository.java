@@ -16,6 +16,8 @@ public interface StoreRepository extends JpaRepository<Stores, UUID>, StoreRepos
 
     List<Stores> findByCategoryAndDeletedAtIsNull(Category category, String sortBy, String order);
 
+    boolean existsByStoreIdAndDeletedAtIsNull(UUID storeId);
+
     List<Stores> findByCategory(Category category);
 
     Optional<Stores> findByStoreIdAndDeletedAtIsNull(UUID id);// 가게 단건검색

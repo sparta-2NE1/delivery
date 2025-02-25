@@ -43,7 +43,7 @@ public class RegionService {
         checkoutIfOwner(userDetails);
         Region region = reqDtoToEntity(regionReqDto);
         // 지역 중복 체크
-        if (regionRepository.existsByLocalityAndDeletedAtIsNull(regionReqDto.getLocality())) {
+        if (regionRepository.existsByLocalityAndStores_StoreIdAndDeletedAtIsNull(regionReqDto.getLocality(),regionReqDto.getStoreId())) {
             throw new IllegalArgumentException("이미 존재하는 지역입니다.");
         }
         if (regionReqDto.getStoreId() == null) {
