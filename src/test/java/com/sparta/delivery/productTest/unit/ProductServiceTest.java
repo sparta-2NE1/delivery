@@ -202,6 +202,37 @@ public class ProductServiceTest {
     }
 
     @Nested
+    @DisplayName("전체 상품 리스트 조회")
+    class GetAllProductsTest {
+
+        @Nested
+        @DisplayName("성공")
+        class Success {
+            @Test
+            @DisplayName("마스터 또는 매니저는 숨김 및 삭제 상품을 포함한 모든 상품을 조회할 수 있다.")
+            void getAllProductsSuccessForMasterOrManager() {
+                when(productRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
+                when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);
+
+                productService.getAllProducts(0, 10, "createdAt", "desc", principalDetails);
+
+                verify(productRepository, times(1)).findAll(any(Pageable.class));
+            }
+
+            @Test
+            @DisplayName("고객은 삭제되지 않은 상품 중 숨김 처리되지 않은 상품을 조회할 수 있다.")
+            void getAllProductsSuccessForCustomer() {
+                when(productRepository.findByDeletedAtIsNullAndHiddenFalse(any(Pageable.class))).thenReturn(Page.empty());
+                when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
+
+                productService.getAllProducts(0, 10, "createdAt", "desc", principalDetails);
+
+                verify(productRepository, times(1)).findByDeletedAtIsNullAndHiddenFalse(any(Pageable.class));
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("스토어 상품 리스트 조회")
     class GetStoreProductsTest {
 
