@@ -53,7 +53,7 @@ public class Order extends Timestamped {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "deliveryAddressId", nullable = false)
+    @JoinColumn(name = "deliveryAddressId")
     private DeliveryAddress deliveryAddress;
 
     //주문상품 테이블과의 연관관계 매핑. 필요 시 사용
@@ -83,7 +83,7 @@ public class Order extends Timestamped {
                 this.requirements,
                 this.stores.getStoreId(),
                 this.user.getUserId(),
-                this.deliveryAddress.getDeliveryAddressId()
+                this.deliveryAddress != null ? this.deliveryAddress.getDeliveryAddressId() : null
         );
     }
 
@@ -96,7 +96,7 @@ public class Order extends Timestamped {
                 this.requirements,
                 this.stores.getStoreId(),
                 this.user.getUserId(),
-                this.deliveryAddress.getDeliveryAddressId(),
+                this.deliveryAddress != null ? this.deliveryAddress.getDeliveryAddressId() : null,
                 getProductIdList()
         );
     }

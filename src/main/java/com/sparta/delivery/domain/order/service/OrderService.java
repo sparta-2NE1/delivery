@@ -12,6 +12,7 @@ import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.entity.QOrder;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
+import com.sparta.delivery.domain.order.enums.OrderType;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
 import com.sparta.delivery.domain.orderProduct.entity.OrderProduct;
 import com.sparta.delivery.domain.product.entity.Product;
@@ -46,10 +47,13 @@ public class OrderService {
 
     private final ProductService productService;
 
-    public void createOrder(OrderRequestDto requestDto, String username) {
+    public Order createOrder(OrderRequestDto requestDto, String username) {
         try {
             User user = getUser(username);
-            DeliveryAddress deliveryAddress = getDeliveryAddress(requestDto.getDeliveryAddressId());
+            DeliveryAddress deliveryAddress = null;
+            if(requestDto.getOrderType() == OrderType.DELIVERY) {
+                deliveryAddress = getDeliveryAddress(requestDto.getDeliveryAddressId());
+            }
             Stores store = getStores(requestDto.getStoreId());
             List<Product> productList = getProductList(requestDto.getProductId());
             List<OrderProduct> orderProductList = new ArrayList<>();
@@ -64,14 +68,14 @@ public class OrderService {
                 orderProductList.add(new OrderProduct(order, product));
             }
             order.setOrderProductList(orderProductList);
-            orderRepository.save(order);
+            return orderRepository.save(order);
         }
         catch (Exception e) {
             throw e;
         }
     }
 
-    public OrderResponseDto getOrder(UUID orderId) {
+    public OrderResponseDto getSingleOrder(UUID orderId) {
         Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("존재하지 않거나 취소된 주문입니다."));
 
@@ -138,7 +142,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void deleteOrder(UUID orderId, String username) {
+    public Order deleteOrder(UUID orderId, String username) {
         try {
             User user = getUser(username);
             Order order = getUserOrder(orderId, user);
@@ -155,7 +159,7 @@ public class OrderService {
                 order.setDeletedAt(now);
                 order.setDeletedBy(username);
 
-                orderRepository.save(order);
+                return orderRepository.save(order);
             }
             else {
                 throw new OrderModificationNotAllowedException("주문 취소 가능 시간이 지났습니다.");
@@ -169,7 +173,10 @@ public class OrderService {
     public OrderResponseDto updateOrder(OrderRequestDto requestDto, UUID orderId, String username) {
         try {
             User user = getUser(username);
-            DeliveryAddress deliveryAddress = getDeliveryAddress(requestDto.getDeliveryAddressId());
+            DeliveryAddress deliveryAddress = null;
+            if(requestDto.getOrderType() == OrderType.DELIVERY) {
+                deliveryAddress = getDeliveryAddress(requestDto.getDeliveryAddressId());
+            }
             Stores store = getStores(requestDto.getStoreId());
             List<Product> productList = getProductList(requestDto.getProductId());
             Order order = getUserOrder(orderId, user);
@@ -214,8 +221,13 @@ public class OrderService {
     @Transactional
     public OrderResponseDto updateOrderStatus(UUID orderId, String username, OrderStatusRequestDto requestDto) {
         try {
-            User user = getUser(username);
-            Order order = getUserOrder(orderId, user);
+            User owner = getUser(username);
+            Order order = getOrder(orderId);
+            Stores store = getStores(order.getStores().getStoreId());
+
+            if(owner.getRole() == UserRoles.ROLE_OWNER && !owner.getUserId().equals(store.getUser().getUserId())) {
+                throw new NotStoreOwnerException("해당 가게의 주인이 아니므로 주문 상태를 수정할 수 없습니다.");
+            }
 
             order.setOrderStatus(requestDto.getUpdateStatus());
             orderRepository.save(order);
@@ -230,6 +242,11 @@ public class OrderService {
     private Order getUserOrder(UUID orderId, User user) {
         return orderRepository.findByOrderIdAndUserAndDeletedAtIsNull(orderId, user)
                 .orElseThrow(() -> new UserOrderNotFoundException("해당 유저에 존재하지 않거나 취소된 주문입니다."));
+    }
+
+    private Order getOrder(UUID orderId) {
+        return orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)
+                .orElseThrow(() -> new UserOrderNotFoundException("존재하지 않는 주문입니다."));
     }
 
     private User getUser(String username) {
