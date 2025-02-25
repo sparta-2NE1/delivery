@@ -42,5 +42,6 @@ out/
 !.github/workflows/*.yml
 !docker-compose.yml
 !application.yml
+!application-test.yml
 ### env ###
 .env

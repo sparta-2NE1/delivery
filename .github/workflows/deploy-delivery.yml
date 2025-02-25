@@ -13,31 +13,67 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: testdb
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+
     steps:
       - name: checkout
         uses: actions/checkout@v4
 
-#      포트열기
-
-      - name: PostgreSQL setup
-        uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: '16'
-          postgresql db: 'delivery'
-          postgresql user: 'twenty1'
-          postgresql password: 'twenty1'
-
-      - name: install PostgreSQL
-        run: sudo apt-get install -y postgresql-client
-
-      - name: connection
-        run: PGPASSWORD=twenty1 psql -h 127.0.0.1 -U twenty1 -d delivery -c "\l"
+#      - name: install PostgreSQL
+#        run: sudo apt-get install -y postgresql-client
 
       - name: java 17 version setup
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+
+
+#  echo "  application:" >> src/test/resources/application-test.yml
+#echo "    name: delivery" >> src/test/resources/application-test.yml
+
+#      - name: 테스트 yml 생성
+#        run: |
+#          mkdir -p src/test/resources/
+#          echo "spring:" > src/test/resources/application-test.yml
+#          echo "  datasource:" >> src/test/resources/application-test.yml
+#          echo "    url: jdbc:h2:mem:testdb" >> src/test/resources/application-test.yml
+#          echo "    driver-class-name: org.h2.Driver" >> src/test/resources/application-test.yml
+#          echo "    username: sa" >> src/test/resources/application-test.yml
+#          echo "    password: " >> src/test/resources/application-test.yml
+#          echo "  jpa:" >> src/test/resources/application-test.yml
+#          echo "    database-platform: org.hibernate.dialect.H2Dialect" >> src/test/resources/application-test.yml
+#          echo "    hibernate:" >> src/test/resources/application-test.yml
+#          echo "      ddl-auto: create" >> src/test/resources/application-test.yml
+#          echo "  jwt:" >> src/test/resources/application-test.yml
+#          echo "    secret: ${SPRING_JWT_SECRET}" >> src/test/resources/application-test.yml
+#          echo "    accessTokenValidityInMilliseconds: 3600000" >> src/test/resources/application-test.yml
+#          echo "    refreshTokenValidityInMilliseconds: 86400000" >> src/test/resources/application-test.yml
+#          echo "  sql:" >> src/test/resources/application-test.yml
+#          echo "    init:" >> src/test/resources/application-test.yml
+#          echo "      mode: always" >> src/test/resources/application-test.yml
+#          echo "ai:" >> src/test/resources/application-test.yml
+#          echo "  apikey: ${SPRING_AI_API_KEY}" >> src/test/resources/application-test.yml
+#          echo " test yml 생성 완료"
+
+#      - name: Debug AI_API_KEY
+#        run: |
+#          echo "AI_API_KEY: ${{ secrets.AI_API_KEY }}"
+#
+#
+#      - name: Verify application-test.yml contents
+#        run: cat src/test/resources/application-test.yml
+      - name: Check JWT_SECRET
+        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
+
 
       - name: gradle 실행 권한 부여 및 빌드
         run: |
@@ -63,27 +99,6 @@ jobs:
         run: |
           docker push leewon2/backend-image:${{ env.TAG }}
           docker push leewon2/backend-image:latest
-
-      - name: 테스트 yml 생성
-        run: |
-          mkdir -p src/test/resources/
-          echo "spring:" > src/test/resources/application-test.yml
-          echo "  datasource:" >> src/test/resources/application-test.yml
-          echo "    url: jdbc:postgresql://127.0.0.1:5432/delivery" >> src/test/resources/application-test.yml
-          echo "    driver-class-name: org.postgresql.Driver" >> src/test/resources/application-test.yml
-          echo "    username: twenty1" >> src/test/resources/application-test.yml
-          echo "    password: twenty1" >> src/test/resources/application-test.yml
-          echo "  jpa:" >> src/test/resources/application-test.yml
-          echo "    database-platform: org.hibernate.dialect.PostgreSQLDialect" >> src/test/resources/application-test.yml
-          echo "    hibernate:" >> src/test/resources/application-test.yml
-          echo "      ddl-auto: update" >> src/test/resources/application-test.yml
-          echo "  sql:" >> src/test/resources/application-test.yml
-          echo "    init:" >> src/test/resources/application-test.yml
-          echo "      mode: always" >> src/test/resources/application-test.yml
-          echo " test yml 생성 완료"
-
-      - name: 테스트 실행
-        run: ./gradlew clean test
 
       - name: ssh 접속 후 배포
         uses: appleboy/ssh-action@v0.1.7

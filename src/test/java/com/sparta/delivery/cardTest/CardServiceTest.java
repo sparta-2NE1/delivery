@@ -7,7 +7,6 @@ import com.sparta.delivery.domain.card.repository.CardRepository;
 import com.sparta.delivery.domain.card.service.CardService;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
-import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

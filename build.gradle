@@ -36,16 +36,14 @@ sourceSets {
 clean.doLast {
     file(querydslDir).deleteDir()
 }
-
 tasks.test {
+    useJUnitPlatform()
     testLogging {
         showExceptions = true
         exceptionFormat "full"
         showStackTraces true
     }
 }
-
-
 
 dependencies {
     implementation('io.github.cdimascio:java-dotenv:5.2.2')
