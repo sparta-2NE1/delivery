@@ -15,6 +15,7 @@ import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.store.service.StoreService;
 import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,7 +42,7 @@ public class ReviewService {
     private final int REVIEW_MINUS = -1;
     private final int REVIEW_UPDATE = 0;
 
-    public void createReview(ReviewRequestDto requestDto, String username) {
+    public Review createReview(ReviewRequestDto requestDto, String username) {
         try {
             User user = getUser(username);
             Order order = getOrder(requestDto.getOrderId(), user);
@@ -58,7 +59,7 @@ public class ReviewService {
 
             Review review = requestDto.toReview(order, user, stores);
             storeService.updateStoreReview(order.getStores().getStoreId(), review.getStar(), REVIEW_PLUS);
-            reviewRepository.save(review);
+            return reviewRepository.save(review);
 
         } catch (Exception e) {
             throw e;
@@ -108,10 +109,15 @@ public class ReviewService {
         }
     }
 
-    public void deleteReview(UUID reviewId, String username) {
+    public Review deleteReview(UUID reviewId, String username) {
         try {
             User user = getUser(username);
-            Review review = getReview(reviewId, user);
+            Review review;
+            //유저의 권한이 고객이면 본인의 리뷰만 가져오도록
+            if(user.getRole() == UserRoles.ROLE_CUSTOMER)
+                review = getUserReview(reviewId, user);
+            else
+                review = getSingleReview(reviewId);
 
             review.setDeletedAt(LocalDateTime.now());
             review.setDeletedBy(username);
@@ -119,7 +125,7 @@ public class ReviewService {
             int deleteStar = review.getStar() * -1;
             storeService.updateStoreReview(review.getStores().getStoreId(), deleteStar, REVIEW_MINUS);
 
-            reviewRepository.save(review);
+            return reviewRepository.save(review);
 
         } catch (Exception e) {
             throw e;
@@ -129,7 +135,12 @@ public class ReviewService {
     public ReviewResponseDto updateReview(UUID reviewId, ReviewUpdateRequestDto requestDto, String username) {
         try {
             User user = getUser(username);
-            Review review = getReview(reviewId, user);
+            Review review;
+            //유저의 권한이 고객이면 본인의 리뷰만 가져오도록
+            if(user.getRole() == UserRoles.ROLE_CUSTOMER)
+                review = getUserReview(reviewId, user);
+            else
+                review = getSingleReview(reviewId);
 
             //새 별점 - 기존 별점
             int updateStar = requestDto.getStar() - review.getStar();
@@ -155,9 +166,14 @@ public class ReviewService {
                 .orElseThrow(() -> new UserOrderNotFoundException("존재하지 않거나 현재 로그인한 사용자의 주문이 아닙니다."));
     }
 
-    private Review getReview(UUID reviewId, User user) {
+    private Review getUserReview(UUID reviewId, User user) {
         return reviewRepository.findByReviewIdAndUserAndDeletedAtIsNull(reviewId, user)
                 .orElseThrow(() -> new ReviewNotFoundException("존재하지 않거나 현재 로그인한 사용자의 리뷰가 아닙니다."));
+    }
+
+    private Review getSingleReview(UUID reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("존재하지 않는 리뷰입니다."));
     }
 
     private Stores getStores(UUID storeId) {
