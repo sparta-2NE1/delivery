@@ -47,6 +47,7 @@
     </td>
   </tr>
   <tr>
+
     <th>Payment <br> Card <br> 배포  <!-- 원희 -->
     <th>Order <br> Review</th> <!-- 채연 -->
     <th>Gemini AI <br> Product</th> <!-- 서우 -->

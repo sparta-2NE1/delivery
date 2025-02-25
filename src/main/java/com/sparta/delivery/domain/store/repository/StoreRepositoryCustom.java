@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface StoreRepositoryCustom {
 
-    List<Stores> findByNameContainingAndCategoryAndDeletedAtIsNull(String name, Category category);
+    List<Stores> findByNameContainingAndCategoryAndDeletedAtIsNull(String name, Category category, String sortBy, String order);
 
-    List<Stores> findByCategory(Category category);
+    List<Stores> findByCategoryAndDeletedAtIsNull(Category category, String sortBy, String order);
 }

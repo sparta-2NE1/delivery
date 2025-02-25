@@ -9,8 +9,6 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User , UUID> , QuerydslPredicateExecutor<User> {
 
-    Optional<User> findByUsername(String username);
-
     // username 존재 유무 확인 (존재 : true , 없을 시 : false)
     boolean existsByUsername(String username);
 

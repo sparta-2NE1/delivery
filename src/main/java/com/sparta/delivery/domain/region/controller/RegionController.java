@@ -4,6 +4,10 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.region.dto.RegionReqDto;
 import com.sparta.delivery.domain.region.dto.RegionResDto;
 import com.sparta.delivery.domain.region.service.RegionService;
+import com.sparta.delivery.domain.region.swagger.RegionSwaggerDocs;
+import com.sparta.delivery.domain.store.swagger.StoreSwaggerDocs;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Tag(name ="Region API", description = "운영지역 관련 API")
 @RequestMapping("/api/region")
 @RequiredArgsConstructor
 @RestController
@@ -27,8 +32,9 @@ public class RegionController {
 
     private final RegionService regionService;
 
+    @RegionSwaggerDocs.Register
     @PostMapping("")
-    public ResponseEntity<?> // 운영 지역 등록
+    public ResponseEntity<?>
     register(@RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult, @AuthenticationPrincipal PrincipalDetails userDetails) {
         Map<String, Object> errorSave = new HashMap<>();
         if (bindingResult.hasErrors()) {
@@ -41,40 +47,48 @@ public class RegionController {
                 .body(regionService.regionCreate(regionReqDto, userDetails));
     }
 
-    @GetMapping("/{storeId}")//특정 가게 운영 지역 리스트 조회
+    @RegionSwaggerDocs.RegionList
+    @GetMapping("/{storeId}")
     public ResponseEntity<?> regionList(@PathVariable UUID storeId, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(regionService.getRegionList(pageable, storeId));
     }
 
-    @GetMapping("")//운영 지역 리스트 조회
+    @RegionSwaggerDocs.AllRegionList
+    @GetMapping("")
     public ResponseEntity<?> regionList(@PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(regionService.getAllRegionList(pageable));
     }
 
     @GetMapping("/search")//운영 지역 검색
-    public ResponseEntity<List<RegionResDto>> regionSearch(@RequestParam String keyword, @PageableDefault(page = 0, size = 10, sort = {"createdAt", "updatedAt"}) Pageable pageable) {
+    public ResponseEntity<List<RegionResDto>> regionSearch
+            (@RequestParam String keyword, @RequestParam(defaultValue = "createdAt") String sortBy,
+             @RequestParam(defaultValue = "desc") String order, @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(regionService.searchRegion(keyword, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(regionService.searchRegion(keyword, pageable, sortBy, order));
     }
 
-    @PutMapping("/{regionId}")//운영 지역 수정
+    @RegionSwaggerDocs.Update
+    @PatchMapping("/{regionId}")
     public ResponseEntity<?> regionUpdate
             (@PathVariable UUID regionId, @RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult,
              @AuthenticationPrincipal PrincipalDetails userDetails) {
-        Map<String, Object> errorsave2 = new HashMap<String, Object>();
+        Map<String, Object> errorUpdate = new HashMap<>();
 
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorsave2);
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                errorUpdate.put("error-field : " + fieldError.getField(), "message : " + fieldError.getDefaultMessage());
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorUpdate);
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(regionService.updateRegion(regionReqDto, regionId, userDetails));
     }
 
-    @DeleteMapping("/{regionId}")//운영 지역 삭제
-    public void regionDelete(@PathVariable UUID regionId, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        regionService.deleteRegion(regionId, principalDetails.getUsername());
+    @RegionSwaggerDocs.Delete
+    @PatchMapping("/{regionId}/delete")//운영 지역 삭제
+    public void regionDelete(@PathVariable UUID regionId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        regionService.deleteRegion(regionId, userDetails);
     }
-
 
 
 }
