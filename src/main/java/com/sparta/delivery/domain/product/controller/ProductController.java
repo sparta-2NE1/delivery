@@ -46,6 +46,13 @@ public class ProductController {
         return ResponseEntity.ok(allProducts);
     }
 
+    @ProductSwaggerDocs.GetStoreProducts
+    @GetMapping("/stores/{storeId}")
+    public ResponseEntity<Page<ProductResponseDto>> getStoreProducts(@PathVariable UUID storeId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String order, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        Page<ProductResponseDto> storeProducts = productService.getStoreProducts(storeId, page, size, sortBy, order, userDetails);
+        return ResponseEntity.ok(storeProducts);
+    }
+
     @ProductSwaggerDocs.UpdateProduct
     @PatchMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable UUID productId, @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
