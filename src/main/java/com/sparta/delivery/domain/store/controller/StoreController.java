@@ -4,6 +4,7 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.service.StoreService;
 import com.sparta.delivery.domain.store.swagger.StoreSwaggerDocs;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name ="Store API", description = "상점 관련 API")
 @RequestMapping("/api/store")
 @RequiredArgsConstructor
 @RestController

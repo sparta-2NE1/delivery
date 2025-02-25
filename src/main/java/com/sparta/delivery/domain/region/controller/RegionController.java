@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.region.service.RegionService;
 import com.sparta.delivery.domain.region.swagger.RegionSwaggerDocs;
 import com.sparta.delivery.domain.store.swagger.StoreSwaggerDocs;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Tag(name ="Region API", description = "운영지역 관련 API")
 @RequestMapping("/api/region")
 @RequiredArgsConstructor
 @RestController
