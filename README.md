@@ -61,24 +61,22 @@
 git clone https://github.com/사용자명/레포명.git
 cd 레포명
 ```
+
 ------
 ## 📖 프로젝트 목적/상세
-프로젝트의 목적과 목표를 간략히 설명합니다.
-- 프로젝트의 주요 기능을 설명합니다.
-- 프로젝트가 해결하려는 문제와 기대 효과를 기술합니다.
+
+개발 주문 관리 플랫폼을 스프링 부트 기반의 모놀리식 어플케이션을 개발합니다.
 
 
 ------
 ## 📌 ERD
 
-
-완성본 ERD 이미지
-<!-- 위 URL을 실제 ERD 이미지 URL로 교체 -->
+![Image](https://github.com/user-attachments/assets/f144479b-b3e2-47f8-8ca2-6c9f0beb9f0f)
 
 ------
 
 ## ☁️ 인프라 설계서
-
+![Image](https://github.com/user-attachments/assets/30111de9-b5b7-47f3-9a0d-b9e71399e04c)
 
 ------
 ## 🛠 기술 스택
