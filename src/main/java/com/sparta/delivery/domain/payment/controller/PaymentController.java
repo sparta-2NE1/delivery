@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/payment")
-@Tag(name = "Payment API")
+@Tag(name = "Payment API",description = "결제 관련 API")
 public class PaymentController {
 
     private final PaymentService paymentService;

@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/card")
-@Tag(name = "Card API")
+@Tag(name = "Card API", description = "카드 관련 API")
 public class CardController {
 
     private final CardService cardService;
