@@ -4,6 +4,7 @@ package com.sparta.delivery.domain.region.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -30,7 +31,7 @@ public @interface RegionSwaggerDocs {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "특정 가게 운영 지역 리스트 조회", description = "특정 가게의 운영 지역 리스트를 조회합니다.")
-    @Parameter(name = "storeId", description = "가게의 UUID",  required = true,  example = "af2a560c-1512-4912-97ce-02f9afce72aa")
+    @Parameter(name = "storeId", description = "가게의 UUID", schema = @Schema(type = "string"), required = true, example = "af2a560c-1512-4912-97ce-02f9afce72aa")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않은 정보(가게 혹은 지역)"),
@@ -54,10 +55,10 @@ public @interface RegionSwaggerDocs {
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "운영 지역 검색", description = "키워드를 통해 운영 지역을 검색합니다.")
     @Parameters({
-            @Parameter(name = "keyword", description = "검색 키워드"),
-            @Parameter(name = "category", required = true, description = "검색할 카테고리"),
-            @Parameter(name = "sortBy", description = "정렬 기준 필드명 (예: createdAt, updatedAt)", example = "createdAt"),
-            @Parameter(name = "order", description = "정렬 방향 (asc: 오름차순, desc: 내림차순)", example = "asc")
+            @Parameter(name = "keyword", schema = @Schema(type = "string"), description = "검색 키워드"),
+            @Parameter(name = "category", schema = @Schema(type = "string"), required = true, description = "검색할 카테고리"),
+            @Parameter(name = "sortBy", schema = @Schema(type = "string"), description = "정렬 기준 필드명 (예: createdAt, updatedAt)", example = "createdAt"),
+            @Parameter(name = "order", schema = @Schema(type = "string"), description = "정렬 방향 (asc: 오름차순, desc: 내림차순)", example = "asc")
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공"),
@@ -70,7 +71,7 @@ public @interface RegionSwaggerDocs {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "운영 지역 수정", description = "운영 지역 정보를 수정합니다.")
-    @Parameter(name = "regionId", description = "수정할 운영 지역의 UUID", example = "af2a560c-1512-4912-97ce-02f9afce72aa")
+    @Parameter(name = "regionId", schema = @Schema(type = "string"), description = "수정할 운영 지역의 UUID", example = "af2a560c-1512-4912-97ce-02f9afce72aa")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "400", description = "유효하지 않은 동주소:도렴동, 적선동, 중학동"),
@@ -84,7 +85,7 @@ public @interface RegionSwaggerDocs {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "운영 지역 삭제", description = "운영 지역을 삭제합니다.")
-    @Parameter(name = "regionId", description = "삭제할 운영 지역의 UUID", example = "af2a560c-1512-4912-97ce-02f9afce72aa")
+    @Parameter(name = "regionId", schema = @Schema(type = "string"), description = "삭제할 운영 지역의 UUID", example = "af2a560c-1512-4912-97ce-02f9afce72aa")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "삭제 성공"),
             @ApiResponse(responseCode = "404", description = "지역이 존재하지 않음"),

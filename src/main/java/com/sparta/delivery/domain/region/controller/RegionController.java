@@ -66,7 +66,7 @@ public class RegionController {
     }
 
     @RegionSwaggerDocs.Update
-    @PutMapping("/{regionId}")
+    @PatchMapping("/{regionId}")
     public ResponseEntity<?> regionUpdate
             (@PathVariable UUID regionId, @RequestBody @Valid RegionReqDto regionReqDto, BindingResult bindingResult,
              @AuthenticationPrincipal PrincipalDetails userDetails) {
@@ -83,7 +83,7 @@ public class RegionController {
     }
 
     @RegionSwaggerDocs.Delete
-    @PatchMapping("/{regionId}")//운영 지역 삭제
+    @PatchMapping("/{regionId}/delete")//운영 지역 삭제
     public void regionDelete(@PathVariable UUID regionId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         regionService.deleteRegion(regionId, userDetails);
     }

@@ -110,7 +110,7 @@ public class StoreService {
     public StoreResDto entityToResDto(Stores stores) {
 
         return StoreResDto.builder()
-                .name(stores.getName())
+                .name(stores.getName()).storeId(stores.getStoreId())
                 .address(stores.getAddress())
                 .status(stores.isStatus())
                 .category(stores.getCategory())

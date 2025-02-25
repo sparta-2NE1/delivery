@@ -14,6 +14,8 @@ public interface RegionRepository extends JpaRepository<Region, UUID>, RegionRep
 
     boolean existsByLocalityAndDeletedAtIsNull(String locality);
 
+    boolean existsByLocalityAndStores_StoreIdAndDeletedAtIsNull(String locality, UUID storeId);
+
     List<Region> findByLocalityContainingAndDeletedAtIsNull(String locality);
 
     Optional<Region> findByRegionIdAndDeletedAtIsNull(UUID id);// 가게 단건검색
