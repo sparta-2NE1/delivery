@@ -69,7 +69,7 @@ public class ReviewController {
 
     @ReviewSwaggerDocs.deleteReview
     @Operation(summary = "리뷰 삭제")
-    @DeleteMapping("/{reviewId}")
+    @PatchMapping("/deleteReview/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         reviewService.deleteReview(reviewId, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -77,7 +77,7 @@ public class ReviewController {
 
     @ReviewSwaggerDocs.updateReview
     @Operation(summary = "리뷰 수정")
-    @PutMapping("/{reviewId}")
+    @PatchMapping("/updateReview/{reviewId}")
     public ResponseEntity<?> updateReview(@PathVariable("reviewId") UUID reviewId, @RequestBody ReviewUpdateRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
         reviewService.updateReview(reviewId, requestDto, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();

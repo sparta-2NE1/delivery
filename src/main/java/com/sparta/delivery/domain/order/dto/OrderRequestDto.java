@@ -6,6 +6,9 @@ import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,10 +22,21 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderRequestDto {
     private UUID deliveryAddressId;
+    @NotBlank(message = "가게Id를 입력해주세요")
     private UUID storeId;
     private List<UUID> productId;
+    @NotBlank(message = "주문 유형을 입력해주세요")
     private OrderType orderType;
     private String requirements;
+
+    @AssertTrue(message = "배달 주문일 경우 배송 주소 ID가 필요합니다.")
+    public boolean isValidDeliveryAddress() {
+        if (orderType == OrderType.DELIVERY) {
+            return deliveryAddressId != null;
+        }
+        // 배달이 아닌 경우 deliveryAddressId는 null이어야 함
+        return deliveryAddressId == null;
+    }
 
     public Order toOrder(Stores store, DeliveryAddress deliveryAddress, User user) {
         return Order.builder()

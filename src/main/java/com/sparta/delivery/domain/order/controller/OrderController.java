@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.service.OrderService;
 import com.sparta.delivery.domain.order.swagger.OrderSwaggerDocs;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class OrderController {
     @OrderSwaggerDocs.addOrder
     @Operation(summary = "주문 등록")
     @PostMapping("")
-    public ResponseEntity<?> createOrder(@RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        requestDto.isValidDeliveryAddress();
         orderService.createOrder(requestDto, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -41,7 +43,7 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrder(@PathVariable("orderId") UUID orderId) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(orderService.getOrder(orderId));
+                .body(orderService.getSingleOrder(orderId));
     }
 
     @OrderSwaggerDocs.getUserOrder
@@ -81,7 +83,7 @@ public class OrderController {
 
     @OrderSwaggerDocs.deleteOrder
     @Operation(summary = "주문 삭제")
-    @DeleteMapping("/{orderId}")
+    @PatchMapping("/deleteOrder/{orderId}")
     public ResponseEntity<?> deleteOrder(@PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         orderService.deleteOrder(orderId, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -89,16 +91,16 @@ public class OrderController {
 
     @OrderSwaggerDocs.updateOrder
     @Operation(summary = "주문 수정")
-    @PutMapping("/{orderId}")
-    public ResponseEntity<?> updateOrder(@RequestBody OrderRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+    @PatchMapping("/updateOrder/{orderId}")
+    public ResponseEntity<?> updateOrder(@Valid @RequestBody OrderRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderService.updateOrder(requestDto, orderId, userDetails.getUsername()));
     }
 
     @OrderSwaggerDocs.updateOrderStatus
     @Operation(summary = "주문 상태 수정 - 사장님만 가능")
-    @PutMapping("/updateOrderStatus/{orderId}")
-    public ResponseEntity<?> updateOrderStatus(@RequestBody OrderStatusRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
+    @PatchMapping("/updateOrderStatus/{orderId}")
+    public ResponseEntity<?> updateOrderStatus(@Valid @RequestBody OrderStatusRequestDto requestDto, @PathVariable("orderId") UUID orderId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderService.updateOrderStatus(orderId, userDetails.getUsername(), requestDto));
     }
