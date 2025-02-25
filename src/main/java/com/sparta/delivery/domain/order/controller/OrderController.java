@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.delivery.domain.order.service.OrderService;
 import com.sparta.delivery.domain.order.swagger.OrderSwaggerDocs;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name ="Order API", description = "주문 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/order")

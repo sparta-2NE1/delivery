@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.review.dto.ReviewUpdateRequestDto;
 import com.sparta.delivery.domain.review.service.ReviewService;
 import com.sparta.delivery.domain.review.swagger.ReviewSwaggerDocs;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name ="Review API", description = "리뷰 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/review")
