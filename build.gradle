@@ -37,7 +37,7 @@ clean.doLast {
     file(querydslDir).deleteDir()
 }
 tasks.test {
-//    useJUnitPlatform()
+    useJUnitPlatform()
     testLogging {
         showExceptions = true
         exceptionFormat "full"
