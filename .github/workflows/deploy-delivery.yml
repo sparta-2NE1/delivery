@@ -13,15 +13,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-#    env:
-#      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
-#      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
-#      SPRING_DATASOURCE_USERNAME: sa
-#      SPRING_DATASOURCE_PASSWORD:
-#      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
-#      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
-#      SPRING_JWT_SECRET: ${{ secrets.JWT_SECRET }}
-#      SPRING_AI_API_KEY: ${{ secrets.AI_API_KEY }}
+    env:
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: testdb
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
 
     steps:
       - name: checkout
