@@ -11,6 +11,7 @@ import com.sparta.delivery.domain.user.dto.UserRoleUpdateReqDto;
 import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Disabled
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

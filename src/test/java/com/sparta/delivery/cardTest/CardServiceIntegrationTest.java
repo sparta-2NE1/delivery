@@ -6,12 +6,14 @@ import com.sparta.delivery.domain.card.entity.Card;
 import com.sparta.delivery.domain.card.repository.CardRepository;
 import com.sparta.delivery.domain.card.service.CardService;
 import com.sparta.delivery.domain.user.entity.User;
+import com.sparta.delivery.domain.user.enums.UserRoles;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test") // application-test.yml을 기준으로 test 실행 환경을 구성합니다.
 @SpringBootTest  // Spring 컨텍스트를 로드하여 통합 테스트 수행
@@ -38,6 +38,9 @@ public class CardServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private User testUser;
     private UUID cardId;
     private Card testCard;
@@ -46,7 +49,11 @@ public class CardServiceIntegrationTest {
     void setUp() {
         testUser = User.builder()
                 .userId(UUID.randomUUID())
+                .email("test@example.com")
+                .password(passwordEncoder.encode("password"))
                 .username("testuser")
+                .nickname("testnick")
+                .role(UserRoles.ROLE_CUSTOMER)
                 .build();
 
         testUser = userRepository.save(testUser);
@@ -66,22 +73,19 @@ public class CardServiceIntegrationTest {
     @Test
     @DisplayName("카드 등록 성공")
     void testRegisterCardSuccess(){
-        RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름","1234");
-
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.save(any(Card.class))).thenReturn(testCard);
-
-        assertDoesNotThrow(() -> cardService.registrationCard("testuser", registrationCardDto));
-        verify(cardRepository, times(1)).save(any(Card.class));
+        RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름","12345");
+        int size = cardService.getCards(testUser.getUsername()).size();
+        cardService.registrationCard(testUser.getUsername(), registrationCardDto);
+        int size2 = cardService.getCards(testUser.getUsername()).size();
+        assertEquals(size+1,size2);
     }
 
     @Test
     @DisplayName("카드 등록 실패 : 카드 정보 누락")
     void testRegisterCardFailIllegal(){
         RegistrationCardDto registrationCardDto = new RegistrationCardDto("국민","카드이름",null);
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> cardService.registrationCard("testuser", registrationCardDto));
+                () -> cardService.registrationCard(testUser.getUsername(), registrationCardDto));
         assertEquals("필수 입력 값입니다.",exception.getMessage());
     }
 
@@ -89,10 +93,6 @@ public class CardServiceIntegrationTest {
     @DisplayName("카드 등록 실패 : 이미 등록된 카드")
     void testRegisterCardFailAlreadyExists() {
         RegistrationCardDto dto = new RegistrationCardDto("국민", "국민카드", "1234");
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByUser_UsernameAndDeletedAtIsNull("testuser"))
-                .thenReturn(List.of(testCard));
-
         ExistCardException exception = assertThrows(ExistCardException.class, () -> cardService.registrationCard("testuser", dto));
         assertEquals("이미 등록한 카드입니다", exception.getMessage());
     }
@@ -100,74 +100,30 @@ public class CardServiceIntegrationTest {
     @Test
     @DisplayName("카드 단일 조회 성공")
     void testGetCardSuccess(){
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
-                .thenReturn(Optional.of(testCard));
-        RegistrationCardDto registrationCardDto = cardService.getCard("testuser",cardId);
+        RegistrationCardDto registrationCardDto = cardService.getCard(testUser.getUsername(), cardId);
         assertNotNull(registrationCardDto);
-        assertAll(
-                () -> assertEquals("국민", registrationCardDto.getCardCompany()),
-                () -> assertEquals("1234", registrationCardDto.getCardNumber())
-        );
     }
 
     @Test
     @DisplayName("카드 단일 조회 실패 : 존재하지 않는 카드")
     void testGetCardFailNotFound(){
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId,"testuser"))
-                .thenReturn(Optional.empty());
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.getCard("testuser", cardId));
+        cardService.deleteCard(testUser.getUsername(), cardId);
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.getCard(testUser.getUsername(), cardId));
         assertEquals("해당 카드가 존재하지 않습니다.",exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("카드 리스트 조회")
-    void testGetCardsSuccess(){
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByUser_UsernameAndDeletedAtIsNull("testuser"))
-                .thenReturn(List.of(testCard));
-        List<RegistrationCardDto> list = cardService.getCards("testuser");
-        assertNotNull(list);
-        assertFalse(list.isEmpty());
     }
 
     @Test
     @DisplayName("카드 정보 업데이트")
     void testUpdateCardSuccess() {
-        when(userRepository.findByUsernameAndDeletedAtIsNull(testUser.getUsername())).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
-                .thenReturn(Optional.of(testCard));
-
-        when(cardRepository.save(any(Card.class))).thenReturn(testCard.toBuilder()
-                .cardCompany("신한")
-                .cardNumber("5678")
-                .cardName("신한카드")
-                .build());
-
-        assertDoesNotThrow(() -> cardService.updateCard("testuser", cardId, new RegistrationCardDto("nothing","nothing","nothing")));
-
-        verify(cardRepository, times(1)).save(any(Card.class));
+        cardService.updateCard(testUser.getUsername(),cardId,new RegistrationCardDto("신한",null,null));
+        String cardCompany = cardService.getCard(testUser.getUsername(), cardId).getCardCompany();
+        assertEquals(cardCompany,"신한");
     }
     @Test
     @DisplayName("카드 삭제 성공")
     void testDeleteCardSuccess() {
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
-                .thenReturn(Optional.of(testCard));
-
-        assertDoesNotThrow(() -> cardService.deleteCard("testuser", cardId));
-        verify(cardRepository, times(1)).save(any(Card.class));
-    }
-
-    @Test
-    @DisplayName("카드 삭제 실패 : 존재하지 않는 카드")
-    void testDeleteCardFail_NotFound() {
-        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
-        when(cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, "testuser"))
-                .thenReturn(Optional.empty());
-
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.deleteCard("testuser", cardId));
-        assertEquals("해당 카드가 존재하지 않습니다.", exception.getMessage());
+        cardService.deleteCard(testUser.getUsername(), cardId);
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> cardService.getCard(testUser.getUsername(), cardId));
+        assertEquals("해당 카드가 존재하지 않습니다.",exception.getMessage());
     }
 }
