@@ -28,9 +28,9 @@ public class DeliveryAddressController {
 
     @DeliveryAddressSwaggerDocs.addAddress
     @PostMapping
-    public ResponseEntity<?> addAddress(@Valid @RequestBody AddressReqDto addressReqDto,
-                                        BindingResult bindingResult ,
-                                        @AuthenticationPrincipal PrincipalDetails principalDetails){
+    public ResponseEntity<?> addAddress(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                        @Valid @RequestBody AddressReqDto addressReqDto,
+                                        BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

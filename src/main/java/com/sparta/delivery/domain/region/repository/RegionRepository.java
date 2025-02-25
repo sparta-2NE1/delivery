@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface RegionRepository extends JpaRepository<Region, UUID> {
+public interface RegionRepository extends JpaRepository<Region, UUID>, RegionRepositoryCustom {
 
+    boolean existsByLocalityAndDeletedAtIsNull(String locality);
+
+    boolean existsByLocalityAndStores_StoreIdAndDeletedAtIsNull(String locality, UUID storeId);
 
     List<Region> findByLocalityContainingAndDeletedAtIsNull(String locality);
 

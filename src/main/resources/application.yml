@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/delivery
+    url: jdbc:postgresql://localhost:5432/delivery
     username: twenty1
-    password: ${DB_PASSWORD}
+    password: twenty1
 
   jpa:
     hibernate:
@@ -14,7 +14,7 @@ spring:
     show-sql: true
 
   jwt:
-    secret: ${JWT_SECRET}
+    secret: cQKwuLVQ8o_Fbn7ZW8QOM-ynheGAF7zcoQkZOZJfkq8HA3CdSXfa2wzcYemucsXUgzKUdDq0JuNXTDfIhzSoZw==
     accessTokenValidityInMilliseconds: 3600000  # 1시간 (3600000 밀리초)
     refreshTokenValidityInMilliseconds: 86400000  # 24시간 (1일 = 86400000 밀리초)
 

@@ -141,7 +141,7 @@ public class UserServiceTest {
         when(jwtService.createRefreshToken(any(User.class))).thenReturn("refreshToken");
 
         // When
-        JwtResponseDto response = userService.authenticateUser(loginRequestDto);
+        AuthTokenData response = userService.authenticateUser(loginRequestDto);
 
         // Then
         assertNotNull(response);
@@ -314,7 +314,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("ROLE 변경 성공 - ROLE_MASTER 사용자")
+    @DisplayName("회원 권한 수정 변경 성공 - ROLE_MASTER 사용자")
     void testUpdateRoleSuccess(){
         // ROLE_CUSTOMER -> ROLE_MANAGER 로 변경
 
@@ -335,7 +335,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("role 변경 실패 - 권한 없음")
+    @DisplayName("회원 권한 수정 변경 실패 - 권한 없음")
     void testUpdateRoleFail(){
         // ROLE_CUSTOMER -> ROLE_MANAGER 로 변경
 
@@ -352,7 +352,7 @@ public class UserServiceTest {
 
 
     @Test
-    @DisplayName("User 삭제 성공 - 본인 계정")
+    @DisplayName("User 논리적 삭제 성공 - 본인 계정")
     void testDeleteUserSuccess(){
 
         // Given

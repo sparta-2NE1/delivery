@@ -3,6 +3,7 @@ package com.sparta.delivery.storeTest;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
+import com.sparta.delivery.domain.store.dto.StoreRegionResDto;
 import com.sparta.delivery.domain.store.dto.StoreReqDto;
 import com.sparta.delivery.domain.store.dto.StoreResDto;
 import com.sparta.delivery.domain.store.entity.Stores;
@@ -10,7 +11,9 @@ import com.sparta.delivery.domain.store.enums.Category;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.store.service.StoreService;
 
+import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.enums.UserRoles;
+import com.sparta.delivery.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,9 @@ public class StoreServiceTest {
     @Mock
     private StoreRepository storeRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     private Stores testStore;
     private UUID storeId;
 
@@ -54,8 +60,9 @@ public class StoreServiceTest {
         PrincipalDetails principalDetails = mock(PrincipalDetails.class);
         when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);//권한설정
         StoreReqDto storeReqDto = new StoreReqDto("본죽", Category.한식, "종로동");
+        User testUser = User.builder().username("tom").build();
         when(storeRepository.save(any(Stores.class))).thenReturn(testStore);
-
+        when(userRepository.findByUsernameAndDeletedAtIsNull(principalDetails.getUsername())).thenReturn(Optional.of(testUser));
         // When - 가게를 저장했을때
         StoreResDto result = storeService.storeCreate(storeReqDto, principalDetails);
 
@@ -79,7 +86,7 @@ public class StoreServiceTest {
         when(storeRepository.findAllByDeletedAtIsNull(any(Pageable.class))).thenReturn(storeList);
 
         // When - 가게를 저장했을때
-        Page<StoreResDto> result = storeService.getStoreList(pageable);
+        Page<StoreRegionResDto> result = storeService.getStoreList(pageable);
 
         // Then - 더미데이터와 일치하는지 검사
         assertNotNull(result);
@@ -113,7 +120,7 @@ public class StoreServiceTest {
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.of(testStore));
 
         // When - 가게를 저장했을때
-        StoreResDto result = storeService.getStoreOne(storeId);
+        StoreRegionResDto result = storeService.getStoreOne(storeId);
 
         // Then - 더미데이터와 일치하는지 검사
         assertNotNull(result);
@@ -176,12 +183,15 @@ public class StoreServiceTest {
     @DisplayName("가게 삭제 테스트")
     void testDeleteSuccess() {
         // Given
-        String username = "Tom";//실제로그인하지 않으므로 임의의 아이디값
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_OWNER);
+        when(principalDetails.getUsername()).thenReturn("test");
         Stores testStore = Stores.builder().name("본죽").address("종로동").category(Category.한식).storeId(storeId).build();
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.of(testStore));
 
         // When - 가게를 저장했을때
-        storeService.deleteStore(storeId, username);//여기서 result는 set까지완료한 객체
+        storeService.deleteStore(storeId, principalDetails);//여기서 result는 set까지완료한 객체
         Stores result = testStore;
 
         // Then - 더미데이터와 일치하는지 검사
@@ -196,11 +206,14 @@ public class StoreServiceTest {
     @DisplayName("가게 삭제 실패 테스트")
     void testDeleteFail() {
         // Given
-        String username = "Tom";//실제로그인하지 않으므로 임의의 아이디값
+        // PrincipalDetails mock 객체 생성
+        PrincipalDetails principalDetails = mock(PrincipalDetails.class);
+        when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_OWNER);
+        when(principalDetails.getUsername()).thenReturn("test");
         when(storeRepository.findByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(Optional.empty());
 
         //When && Then - 예외발생 여부 테스트
-        assertThrows(StoreNotFoundException.class, () -> storeService.deleteStore(storeId, username));
+        assertThrows(StoreNotFoundException.class, () -> storeService.deleteStore(storeId, principalDetails));
 
     }
 

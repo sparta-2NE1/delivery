@@ -130,12 +130,83 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> OrderNotFoundException(OrderNotFoundException ex) {
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        ExceptionResponse response = new ExceptionResponse("ORDER_NOT_FOUND", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> ReviewNotFoundException(ReviewNotFoundException ex) {
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        ExceptionResponse response = new ExceptionResponse("REVIEW_NOT_FOUND", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(UserOrderNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> UserOrderNotFoundException(UserOrderNotFoundException ex) {
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        ExceptionResponse response = new ExceptionResponse("USER_ORDER_NOT_FOUND", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ReviewNotAllowedException.class)
+    public ResponseEntity<ExceptionResponse> ReviewNotAllowedException(ReviewNotAllowedException ex) {
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("REVIEW_NOT_ALLOWED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ProductSelectionRequiredException.class)
+    public ResponseEntity<ExceptionResponse> ProductSelectionRequiredException(ProductSelectionRequiredException ex) {
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("SELECT_MIN_ONE_PRODUCT", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(OrderModificationNotAllowedException.class)
+    public ResponseEntity<ExceptionResponse> OrderModificationNotAllowedException(OrderModificationNotAllowedException ex) {
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("ORDER_MODIFICATION_NOT_ALLOWED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ProductQuantityNotAllowedException.class)
+    public ResponseEntity<ExceptionResponse> ProductQuantityNotAllowedException(ProductQuantityNotAllowedException ex) {
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("PRODUCT_QUANTITY_NOT_ALLOWED", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(NotStoreOwnerException.class)
+    public ResponseEntity<ExceptionResponse> NotStoreOwnerException(NotStoreOwnerException ex) {
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("NOT_STORE_OWNER", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(NotStoreProductException.class)
+    public ResponseEntity<ExceptionResponse> NotStoreProductException(NotStoreProductException ex) {
+        int status = HttpServletResponse.SC_FORBIDDEN;
+        ExceptionResponse response = new ExceptionResponse("NOT_STORE_PRODUCT", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ReviewAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponse> ReviewAlreadyExistsException(ReviewAlreadyExistsException ex) {
+        int status = HttpServletResponse.SC_CONFLICT;
+        ExceptionResponse response = new ExceptionResponse("CONFLICT", ex.getMessage(), status);
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ExceptionResponse> AuthorizationDeniedException(AuthorizationDeniedException ex) {
         int status = HttpServletResponse.SC_FORBIDDEN;
         ExceptionResponse response = new ExceptionResponse("Access Denied", ex.getMessage(), status);
         return ResponseEntity.status(status).body(response);
     }
+
 
     @ExceptionHandler(InvalidApiResponseException.class)
     public ResponseEntity<ExceptionResponse> InvalidApiResponseException(InvalidApiResponseException ex){

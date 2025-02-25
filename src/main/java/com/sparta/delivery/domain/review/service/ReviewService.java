@@ -1,6 +1,7 @@
 package com.sparta.delivery.domain.review.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.core.BooleanBuilder;
+import com.sparta.delivery.config.global.exception.custom.*;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.repository.OrderRepository;
@@ -17,12 +18,13 @@ import com.sparta.delivery.domain.user.entity.User;
 import com.sparta.delivery.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,8 +37,6 @@ public class ReviewService {
 
     private final StoreService storeService;
 
-    private final JPAQueryFactory queryFactory;
-
     private final int REVIEW_PLUS = 1;
     private final int REVIEW_MINUS = -1;
     private final int REVIEW_UPDATE = 0;
@@ -47,19 +47,21 @@ public class ReviewService {
             Order order = getOrder(requestDto.getOrderId(), user);
             Stores stores = getStores(order.getStores().getStoreId());
 
+            Optional<Review> existReview = reviewRepository.findByOrder(order);
+            if(existReview.isPresent()) {
+                throw new ReviewAlreadyExistsException("이미 리뷰 작성을 완료한 주문입니다.");
+            }
+
             if(!order.getOrderStatus().equals(OrderStatus.ORDER_COMPLETE)) {
-                throw new IllegalArgumentException("주문이 모두 완료되었을 경우 리뷰 작성이 가능합니다.");
+                throw new ReviewNotAllowedException("주문이 모두 완료되었을 경우 리뷰 작성이 가능합니다.");
             }
 
             Review review = requestDto.toReview(order, user, stores);
             storeService.updateStoreReview(order.getStores().getStoreId(), review.getStar(), REVIEW_PLUS);
             reviewRepository.save(review);
 
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-        catch (Exception e) {
-            throw new RuntimeException("리뷰 등록 중 알 수 없는 오류가 발생했습니다.");
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -69,49 +71,40 @@ public class ReviewService {
             Page<Review> reviewList = reviewRepository.findAllByUserAndDeletedAtIsNull(user, pageable);
 
             if(reviewList.isEmpty()) {
-                throw new IllegalArgumentException("로그인한 사용자가 작성한 리뷰가 존재하지 않습니다.");
+                throw new ReviewNotFoundException("로그인한 사용자가 작성한 리뷰가 존재하지 않습니다.");
             }
 
-            System.out.println(reviewList.getSize());
             return reviewList.map(Review::toResponseDto);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("유저 리뷰 조회 중 알 수 없는 오류가 발생했습니다.");
+            throw e;
         }
     }
 
-    public Page<ReviewResponseDto> getStoreReviewSearch(UUID storeId, List<Integer> starList, Pageable pageable) {
+    public Page<ReviewResponseDto> getStoreReviewSearch(UUID storeId, List<Integer> starList, PageRequest pageable) {
         try {
             Stores store = getStores(storeId);
 
             QReview qReview = QReview.review;
-            List<Review> reviewList = queryFactory.selectFrom(qReview)
-                    .where(
-                            qReview.stores.eq(store),
-                            qReview.deletedAt.isNull(),
-                            (starList != null && !starList.isEmpty()) ? qReview.star.in(starList) : null
-                    )
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
-                    .orderBy(qReview.star.asc())
-                    .fetch();
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(qReview.stores.eq(store));
+            builder.and(qReview.deletedAt.isNull());
+
+            if(!starList.isEmpty() && starList != null) {
+                builder.and(qReview.star.in(starList));
+            }
+
+            Page<Review> reviewList = reviewRepository.findAll(builder, pageable);
 
             if(reviewList.isEmpty()) {
                 if(starList.isEmpty())
-                    throw new IllegalArgumentException("해당 가게에 작성된 리뷰가 존재하지 않습니다.");
-                else
-                    throw new IllegalArgumentException("해당 가게에 선택한 별점의 리뷰가 존재하지 않습니다.");
+                    throw new ReviewNotFoundException("해당 가게에 작성된 리뷰가 존재하지 않습니다.");
+
+                throw new ReviewNotFoundException("해당 가게에 조건에 맞는 리뷰가 존재하지 않습니다.");
             }
 
-            long total = reviewList.size();
-            List<ReviewResponseDto> responseList = reviewList.stream().map(review -> review.toResponseDto()).toList();
-            return PageableExecutionUtils.getPage(responseList, pageable, () -> total);
-
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            return reviewList.map(Review::toResponseDto);
         } catch (Exception e) {
-            throw new RuntimeException("가게 리뷰 조회 중 알 수 없는 오류가 발생했습니다.");
+            throw e;
         }
     }
 
@@ -128,10 +121,8 @@ public class ReviewService {
 
             reviewRepository.save(review);
 
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("리뷰 삭제 중 알 수 없는 오류가 발생했습니다.");
+            throw e;
         }
     }
 
@@ -149,30 +140,28 @@ public class ReviewService {
             storeService.updateStoreReview(review.getStores().getStoreId(), updateStar, REVIEW_UPDATE);
             return reviewRepository.save(review).toResponseDto();
 
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("리뷰 수정 중 알 수 없는 오류가 발생했습니다.");
+            throw e;
         }
     }
 
     private User getUser(String username) {
         return userRepository.findByUsernameAndDeletedAtIsNull(username)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 탈퇴한 유저입니다."));
+                .orElseThrow(() -> new UserNotFoundException("존재하지 않거나 탈퇴한 유저입니다."));
     }
 
     private Order getOrder(UUID orderId, User user) {
         return orderRepository.findByOrderIdAndUserAndDeletedAtIsNull(orderId, user)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 현재 로그인한 사용자의 주문이 아닙니다."));
+                .orElseThrow(() -> new UserOrderNotFoundException("존재하지 않거나 현재 로그인한 사용자의 주문이 아닙니다."));
     }
 
     private Review getReview(UUID reviewId, User user) {
         return reviewRepository.findByReviewIdAndUserAndDeletedAtIsNull(reviewId, user)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 현재 로그인한 사용자의 리뷰가 아닙니다."));
+                .orElseThrow(() -> new ReviewNotFoundException("존재하지 않거나 현재 로그인한 사용자의 리뷰가 아닙니다."));
     }
 
     private Stores getStores(UUID storeId) {
        return storeRepository.findByStoreIdAndDeletedAtIsNull(storeId)
-               .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 가게입니다."));
+               .orElseThrow(() -> new StoreNotFoundException("존재하지 않는 가게입니다."));
     }
 }
