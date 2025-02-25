@@ -47,10 +47,10 @@
     </td>
   </tr>
   <tr>
-    <th>본인 맡은 역할 작성</th> <!-- 원희 -->
-    <th>본인 맡은 역할 작성</th> <!-- 채연 -->
-    <th>본인 맡은 역할 작성</th> <!-- 서우 -->
-    <th>본인 맡은 역할 작성</th> <!-- 창근 -->
+    <th>Payment <br> Card <br> 배포  <!-- 원희 -->
+    <th>Order <br> Review</th> <!-- 채연 -->
+    <th>Gemini AI <br> Product</th> <!-- 서우 -->
+    <th>Region <br> Store</th> <!-- 창근 -->
     <th>User<br> DeliveryAddress <br> Spring Security</th> <!-- 승현 -->
   </tr>
 </table>
@@ -65,18 +65,27 @@ cd 레포명
 ------
 ## 📖 프로젝트 목적/상세
 
-개발 주문 관리 플랫폼을 스프링 부트 기반의 모놀리식 어플케이션을 개발합니다.
+## AI 활용 주문 관리 자동화 시스템 개발
 
+**OO의 민족과 같은 주문 관리 플랫폼을 Spring Boot 기반의 모놀리식 애플리케이션으로 개발하는 것입니다.**
 
-------
-## 📌 ERD
-
-![Image](https://github.com/user-attachments/assets/f144479b-b3e2-47f8-8ca2-6c9f0beb9f0f)
+기존의 전화 주문 및 종이 기록 방식에서 벗어나, 앱을 통해 주문을 받고, 기록, 결제 및 처리까지
+자동화 하는 시스템을 구축합니다. 이를 통해 반복적이고 인력이 많이 소요되는 효율적으로 자동화
+하고, 실생활의 주문 및 관리 프로세스를 개발하는 것이 이번 프로젝트의 핵심 목표입니다.
+특히,  2주라는 짧은 기간 내에 기획, 설계, 개발, 테스트, 배포까지 전 과정을 경험하며, 모든 요구사항을 완수해야 하는 일정 속에서 협업과 프로젝트 관리의 중요성을 체감하는 것 또한 중요한 목표입니다.
 
 ------
 
 ## ☁️ 인프라 설계서
 ![Image](https://github.com/user-attachments/assets/30111de9-b5b7-47f3-9a0d-b9e71399e04c)
+
+-----
+
+## 📌 ERD
+
+![Image](https://github.com/user-attachments/assets/f144479b-b3e2-47f8-8ca2-6c9f0beb9f0f)
+
+
 
 ------
 ## 🛠 기술 스택
@@ -110,7 +119,5 @@ cd 레포명
 
 ## Etc
 - **외부 API 연동**
-    - 사용한 외부 API 리스트 (예: 결제, 지도, SNS 로그인 등)
-    - 예: **Google OAuth2**, **Kakao API**, **PayPal API** 등
-  <!-- 프로젝트에서 연동한 외부 API에 대한 설명 -->
+    - - **‎Gemini API** : 상품 설명 문구 추천을 위한 외부 AI API 연동.
 
