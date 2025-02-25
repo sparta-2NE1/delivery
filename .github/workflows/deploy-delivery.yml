@@ -71,6 +71,8 @@ jobs:
 #
 #      - name: Verify application-test.yml contents
 #        run: cat src/test/resources/application-test.yml
+      - name: Check JWT_SECRET
+        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
 
 
       - name: gradle 실행 권한 부여 및 빌드
