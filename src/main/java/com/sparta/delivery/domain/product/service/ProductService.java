@@ -1,15 +1,13 @@
 package com.sparta.delivery.domain.product.service;
 
 import com.sparta.delivery.config.auth.PrincipalDetails;
-import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
-import com.sparta.delivery.config.global.exception.custom.ProductAlreadyDeletedException;
-import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
-import com.sparta.delivery.config.global.exception.custom.UnauthorizedException;
+import com.sparta.delivery.config.global.exception.custom.*;
 import com.sparta.delivery.domain.product.dto.ProductRequestDto;
 import com.sparta.delivery.domain.product.dto.ProductResponseDto;
 import com.sparta.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.product.repository.ProductRepository;
+import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +25,7 @@ import java.util.UUID;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final StoreRepository storeRepository;
     private static final List<Integer> ALLOWED_PAGE_SIZES = List.of(10, 30, 50);
     private static final int DEFAULT_PAGE_SIZE = 10;
 
@@ -42,7 +41,7 @@ public class ProductService {
             Product savedProduct = productRepository.save(product);
             return ProductResponseDto.from(savedProduct);
         } catch (Exception e) {
-            throw new RuntimeException("상품 등록 중 알 수 없는 오류가 발생했습니다.");
+            throw new RuntimeException("상품 등록 중 알 수 없는 오류가 발생했습니다.", e);
         }
     }
 
@@ -61,7 +60,7 @@ public class ProductService {
         return ProductResponseDto.from(product);
     }
 
-    public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String order) {
+    public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String order, PrincipalDetails userDetails) {
         if (!ALLOWED_PAGE_SIZES.contains(size)) {   // 허용된 페이지 사이즈가 아닌 경우, 기본 페이지 사이즈로 설정
             size = DEFAULT_PAGE_SIZE;
         }
@@ -70,7 +69,32 @@ public class ProductService {
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        return productRepository.findAll(pageable).map(ProductResponseDto::from);
+        if (userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER)) {
+            return productRepository.findAll(pageable).map(ProductResponseDto::from);
+        }
+
+        return productRepository.findByDeletedAtIsNullAndHiddenFalse(pageable).map(ProductResponseDto::from);
+    }
+
+    public Page<ProductResponseDto> getStoreProducts(UUID storeId, int page, int size, String sortBy, String order, PrincipalDetails userDetails) {
+        if (!storeRepository.existsByStoreIdAndDeletedAtIsNull(storeId)) {
+            throw new StoreNotFoundException("해당 스토어를 찾을 수 없습니다.");
+        }
+
+        if (!ALLOWED_PAGE_SIZES.contains(size)) {   // 허용된 페이지 사이즈가 아닌 경우, 기본 페이지 사이즈로 설정
+            size = DEFAULT_PAGE_SIZE;
+        }
+
+        Sort.Direction direction = order.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+
+        if (userDetails.getRole().equals(UserRoles.ROLE_MASTER) || userDetails.getRole().equals(UserRoles.ROLE_MANAGER)) {
+            return productRepository.findAllByStore_StoreId(storeId, pageable).map(ProductResponseDto::from);
+        }
+
+        return productRepository.findAllByStore_StoreIdAndDeletedAtIsNullAndHiddenFalse(storeId, pageable).map(ProductResponseDto::from);
     }
 
     @Transactional
@@ -135,5 +159,14 @@ public class ProductService {
         }
 
         return productRepository.findAllByNameContainingAndDeletedAtIsNullAndHiddenFalse(productName, pageable).map(ProductResponseDto::from);
+    }
+
+    public void updateProductQuantity(Product product, int count) {
+        if(product.getQuantity() == 0 && count == -1)
+            throw new ProductQuantityNotAllowedException("주문하신 상품이 품절되었습니다.");
+        else {
+            product.setQuantity(product.getQuantity() + count);
+            productRepository.save(product);
+        }
     }
 }

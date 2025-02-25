@@ -24,18 +24,17 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @Operation(summary = "임시 결제")
+    @Operation(summary = "결제")
     @PostMapping
     public ResponseEntity<?> requestPayment(@RequestBody RegisterPaymentDto registerPaymentDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-
-        String username = principalDetails.getUsername();
-        return ResponseEntity.ok().body(paymentService.isRegisterPayment(registerPaymentDto, username));
+        paymentService.isRegisterPayment(registerPaymentDto, principalDetails.getUsername());
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "결제 내역 조회")
     @GetMapping("/{payment_id}")
     public ResponseEntity<?> getPayment(@PathVariable UUID payment_id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ResponseEntity.ok().body(paymentService.getPayment(payment_id,principalDetails.getUsername()));
+        return ResponseEntity.ok().body(paymentService.getPayment(payment_id, principalDetails.getUsername()));
     }
 
     @Operation(summary = "결제 내역 리스트 조회")
@@ -56,13 +55,14 @@ public class PaymentController {
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         SearchDto searchDto = new SearchDto(minAmount, maxAmount, orderStatus, orderType, paymentTime, cardCompany);
-        return ResponseEntity.ok().body(paymentService.searchPayments(searchDto,principalDetails.getUsername()));
+        return ResponseEntity.ok().body(paymentService.searchPayments(searchDto, principalDetails.getUsername()));
     }
 
     @Operation(summary = "결제 내역 삭제")
     @PatchMapping("/{payment_id}")
     public ResponseEntity<?> deletePayment(@PathVariable UUID payment_id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ResponseEntity.ok().body(paymentService.deletePayment(payment_id, principalDetails.getUsername()));
+        paymentService.deletePayment(payment_id, principalDetails.getUsername());
+        return ResponseEntity.ok().build();
     }
 
 }

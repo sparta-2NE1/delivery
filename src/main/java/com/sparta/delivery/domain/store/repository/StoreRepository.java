@@ -14,6 +14,9 @@ import java.util.UUID;
 
 public interface StoreRepository extends JpaRepository<Stores, UUID>, StoreRepositoryCustom {
 
+    List<Stores> findByCategoryAndDeletedAtIsNull(Category category, String sortBy, String order);
+
+    boolean existsByStoreIdAndDeletedAtIsNull(UUID storeId);
 
     List<Stores> findByCategory(Category category);
 

@@ -31,22 +31,13 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
 
-
-    private User undeletedUser(String username){
-        return userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
-                new NullPointerException("유저가 존재하지 않습니다."));
-    }
-
     @Transactional
-    public String isRegisterPayment(RegisterPaymentDto registerPaymentDto, String username) {
-        // 결제 내역만 관리하므로 직접 결제는 필요 없지만, 데이터 저장을 위해 생성
-        Card card = cardRepository.findByCardIdAndDeletedAtIsNull(registerPaymentDto.getCardId())
-                .orElseThrow(() -> new NullPointerException("카드가 존재하지 않습니다"));
-        Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(registerPaymentDto.getOrderId())
-                .orElseThrow(() -> new NullPointerException("주문이 존재하지 않습니다"));
+    public void isRegisterPayment(RegisterPaymentDto registerPaymentDto, String username) {
+        Card card = getCard(registerPaymentDto.getCardId(), username);
+        Order order = getOrder(registerPaymentDto.getOrderId());
         User user = undeletedUser(username);
 
-        if(order.getOrderStatus().equals(OrderStatus.PAYMENT_COMPLETE)){
+        if(!order.getOrderStatus().equals(OrderStatus.PAYMENT_WAIT)){
             throw new PaymentAlreadyCompletedException("이미 결제된 주문입니다.");
         }
         order.setOrderStatus(OrderStatus.PAYMENT_COMPLETE);
@@ -57,19 +48,16 @@ public class PaymentService {
                     .order(order)
                     .amount(registerPaymentDto.getAmount())
                     .build());
-        } catch (Exception e) {
-            return "결제 실패 " + e.getMessage();
+        } catch (Exception ignored) {
+
         }
-        return "결제 성공";
     }
 
     public PaymentDto getPayment(UUID paymentId,String username) {
-
-        User user = undeletedUser(username);
-        Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId).orElseThrow(()
+        Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,username).orElseThrow(()
                 -> new NullPointerException("결제 내역이 존재하지 않습니다."));
-        Order order = orderRepository.findByOrderIdAndDeletedAtIsNull(payment.getOrder().getOrderId()).orElseThrow(()
-                -> new NullPointerException("주문이 존재하지 않습니다."));
+        Order order = getOrder(payment.getOrder().getOrderId());
+        User user = undeletedUser(username);
 
         PaymentDto paymentDto = PaymentDto.builder()
                 .paymentId(paymentId)
@@ -87,10 +75,6 @@ public class PaymentService {
         User user = undeletedUser(username);
         List<PaymentDto> paymentDtos = new ArrayList<>();
 
-        // TODO User에 List<Payment> 생기면 작업
-        //  List<Payment> payments = user.getPayments();
-
-        // 만들지 않은 경우
         List<Payment> payments = paymentRepository.findByUser_UsernameAndDeletedAtIsNull(username);
         for (Payment payment : payments) {
             paymentDtos.add(getPayment(payment.getPaymentId(),username));
@@ -115,17 +99,29 @@ public class PaymentService {
 
 
     @Transactional
-    public String deletePayment(UUID paymentId, String username) {
+    public void deletePayment(UUID paymentId, String username) {
         User user = undeletedUser(username);
-        Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNull(paymentId).orElseThrow(() ->
+        Payment payment = paymentRepository.findByPaymentIdAndDeletedAtIsNullAndUser_Username(paymentId,username).orElseThrow(() ->
                 new NullPointerException("결제 정보가 존재하지 않습니다."));
         try {
             payment.setDeletedAt(LocalDateTime.now());
             payment.setDeletedBy(username);
             paymentRepository.save(payment);
-        } catch (Exception e) {
-            return "결제 내역 삭제 실패 " + e.getMessage();
+        } catch (Exception ignored) {
         }
-        return "결제 내역 삭제 성공";
+    }
+
+    private User undeletedUser(String username){
+        return userRepository.findByUsernameAndDeletedAtIsNull(username).orElseThrow(() ->
+                new NullPointerException("유저가 존재하지 않습니다."));
+    }
+
+    private Card getCard(UUID cardId, String username){
+        return cardRepository.findByCardIdAndDeletedAtIsNullAndUser_Username(cardId, username)
+                .orElseThrow(() -> new NullPointerException("카드가 존재하지 않습니다"));
+    }
+    private Order getOrder(UUID orderId){
+        return orderRepository.findByOrderIdAndDeletedAtIsNull(orderId)
+                .orElseThrow(() -> new NullPointerException("주문이 존재하지 않습니다"));
     }
 }

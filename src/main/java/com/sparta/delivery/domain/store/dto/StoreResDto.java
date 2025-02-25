@@ -10,12 +10,15 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 public class StoreResDto {
+
+    private UUID storeId;
 
     private String name;
 

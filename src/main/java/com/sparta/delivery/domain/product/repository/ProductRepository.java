@@ -21,4 +21,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> findAllByNameContainingAndDeletedAtIsNull(String productName, Pageable pageable);
 
     Page<Product> findAllByNameContainingAndDeletedAtIsNullAndHiddenFalse(String productName, Pageable pageable);
+
+    Page<Product> findByDeletedAtIsNullAndHiddenFalse(Pageable pageable);
+
+    Page<Product> findAllByStore_StoreId(UUID storeId, Pageable pageable);
+
+    Page<Product> findAllByStore_StoreIdAndDeletedAtIsNullAndHiddenFalse(UUID storeId, Pageable pageable);
 }

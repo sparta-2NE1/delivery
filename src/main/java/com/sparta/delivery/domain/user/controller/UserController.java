@@ -30,7 +30,7 @@ public class UserController {
 
     @UserSwaggerDocs.SignUp
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody @Valid SignupReqDto signupReqDto, BindingResult bindingResult){
+    public ResponseEntity<?> signup(@Valid @RequestBody SignupReqDto signupReqDto, BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -44,7 +44,7 @@ public class UserController {
 
     @UserSwaggerDocs.SignIn
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser (@RequestBody @Valid LoginRequestDto loginRequestDto,
+    public ResponseEntity<?> authenticateUser (@Valid @RequestBody LoginRequestDto loginRequestDto,
                                                BindingResult bindingResult,
                                                HttpServletResponse response){
 
@@ -52,15 +52,12 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ValidationErrorResponse(bindingResult));
         }
-        JwtResponseDto jwtResponseDto = userService.authenticateUser(loginRequestDto);
+        AuthTokenData authTokenData = userService.authenticateUser(loginRequestDto);
 
-        String accessToken = jwtResponseDto.getAccessToken();
-        String refreshToken = jwtResponseDto.getRefreshToken();
-
-        response.addCookie(createCookie("refresh", refreshToken));
+        response.addCookie(createCookie("refresh", authTokenData.getRefreshToken()));
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header(HttpHeaders.AUTHORIZATION, authTokenData.getAccessToken())
                 .build();
     }
 
@@ -98,7 +95,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails,
-                                        @RequestBody @Valid UserUpdateReqDto userUpdateReqDto,
+                                        @Valid @RequestBody UserUpdateReqDto userUpdateReqDto,
                                         BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){
@@ -114,7 +111,7 @@ public class UserController {
     @PatchMapping("/{id}/role")
     public ResponseEntity<?> updateRole(@PathVariable("id") UUID id,
                                         @AuthenticationPrincipal PrincipalDetails principalDetails,
-                                        @RequestBody @Valid UserRoleUpdateReqDto userRoleUpdateReqDto,
+                                        @Valid @RequestBody UserRoleUpdateReqDto userRoleUpdateReqDto,
                                         BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){

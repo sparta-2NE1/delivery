@@ -3,14 +3,12 @@ package com.sparta.delivery.domain.orderProduct.entity;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.product.entity.Product;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
