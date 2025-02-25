@@ -27,6 +27,10 @@ public class StoreRegionResDto {
 
     private Category category;
 
+    int starsum;
+
+    int reviewsum;
+
 
     public StoreRegionResDto(Stores store) {
         this.name = store.getName();
@@ -34,6 +38,8 @@ public class StoreRegionResDto {
         this.status = store.isStatus();
         this.regionList = store.getRegionList() != null ? store.getRegionList().stream().map(RegionListDto::new).
                 collect(Collectors.toList()) : new ArrayList<>();
+        this.starsum=store.getStarSum();
+        this.reviewsum=store.getReviewSum();
         this.category = store.getCategory();
     }
 
