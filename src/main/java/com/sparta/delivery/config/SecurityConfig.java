@@ -40,56 +40,87 @@ public class SecurityConfig {
         http.sessionManagement((sessionManagement) ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.authorizeHttpRequests(authorizationHttpRequest-> {
+        http.authorizeHttpRequests(authorization -> {
 
             // 공용 URL (인증 없이 접근 가능)
-            authorizationHttpRequest
-                    .requestMatchers("/api/user/signup", "/api/user/signin", "/api/token/reissue", "/swagger-ui/**", "/v3/api-docs/**")
-                    .permitAll();
+            authorization.requestMatchers(
+                    "/api/user/signup",
+                    "/api/user/signin",
+                    "/api/token/reissue",
+                    "/api/user/logout",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**"
+            ).permitAll();
 
-            // GET 요청은 모두 허용
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/region/**" , "/api/order/getUserOrder")
-                    .permitAll();
+            // 주문 관련
+            // 특정 가게 주문 조회: OWNER, MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.GET,
+                    "/api/order/getStoreOrder/{storeId}"
+            ).hasAnyRole("OWNER", "MANAGER", "MASTER");
 
-            /**
-             * order
-             */
+            // 단일 주문 조회 및 사용자 정보 조회: MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.GET,
+                    "/api/order/{orderId}",
+                    "/api/user/{id}",
+                    "api/user"
+            ).hasAnyRole("MANAGER", "MASTER");
 
-            // 특정 가게 주문 조회
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.GET, "/api/order/getStoreOrder/**")
-                    .hasAnyRole("OWNER", "MANAGER", "MASTER");
+            // 리뷰 관련 (수정 및 삭제): CUSTOMER, MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.PATCH,
+                    "/api/review/deleteReview/{reviewId}",
+                    "/api/review/updateReview/{reviewId}"
+            ).hasAnyRole("CUSTOMER", "MANAGER", "MASTER");
 
-            // 단일 주문 조회
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.GET,"/api/order/**")
-                    .hasAnyRole("MANAGER", "MASTER");
+            // 가게 관련
+            // 가게 등록: MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.POST,
+                    "/api/store"
+            ).hasAnyRole("MANAGER", "MASTER");
 
+            // 가게 삭제: MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.PATCH,
+                    "/api/store/{storeId}/delete"
+            ).hasAnyRole("MANAGER", "MASTER");
 
-            // 가게 등록은 "/api/store" 경로에 대해 POST 요청일 때 MANAGER와 MASTER 권한만 허용
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.POST, "/api/store")
-                    .hasAnyRole("MANAGER", "MASTER");
+            // 가게 수정: OWNER, MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.PATCH,
+                    "/api/store/{storeId}"
+            ).hasAnyRole("OWNER", "MANAGER", "MASTER");
 
+            // 결제 내역 및 사용자 권한 변경: MASTER
+            authorization.requestMatchers(
+                    HttpMethod.PATCH,
+                    "/api/payment/{payment_id}",
+                    "/api/user/{id}/role"
+            ).hasRole("MASTER");
 
-            /**
-             * 결제 내역
-             */
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.PATCH, "/api/payment/**")
-                    .hasRole("MASTER");
+            // 기타 POST 요청 (주문 상태 업데이트, 제품, AI, 지역 등록): OWNER, MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.POST,
+                    "/api/products/stores/{storeId}",
+                    "/api/ai",
+                    "/api/region"
+            ).hasAnyRole("OWNER", "MANAGER", "MASTER");
 
-            // POST, PUT, PATCH 요청에 대해 OWNER, MANAGER, MASTER 권한만 허용 (여러 엔드포인트 그룹화)
-            authorizationHttpRequest
-                    .requestMatchers(HttpMethod.POST,  "/api/order/updateOrderStatus/**","/api/store/**", "/api/products/**", "/api/ai", "/api/region/**")
-                    .hasAnyRole("OWNER", "MANAGER", "MASTER")
-                    .requestMatchers(HttpMethod.PATCH, "/api/products/**")
-                    .hasAnyRole("OWNER", "MANAGER", "MASTER");
+            // 기타 PATCH 요청 (제품, 주문 상태 업데이트, 지역 수정): OWNER, MANAGER, MASTER
+            authorization.requestMatchers(
+                    HttpMethod.PATCH,
+                    "/api/products/{productId}",
+                    "/api/products/{productId}/delete",
+                    "/api/order/updateOrderStatus/{orderId}",
+                    "/api/region/{regionId}",
+                    "/api/region/{regionId}/delete"
+            ).hasAnyRole("OWNER", "MANAGER", "MASTER");
 
-            // 그 외 요청은 인증된 사용자만 접근
-            authorizationHttpRequest.anyRequest().authenticated();
-                });
+            // 그 외 모든 요청은 인증된 사용자만 접근
+            authorization.anyRequest().authenticated();
+        });
 
         return http.build();
     }
