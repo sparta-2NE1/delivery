@@ -22,10 +22,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderRequestDto {
     private UUID deliveryAddressId;
-    @NotBlank(message = "가게Id를 입력해주세요")
+    @NotNull(message = "가게Id를 입력해주세요")
     private UUID storeId;
     private List<UUID> productId;
-    @NotBlank(message = "주문 유형을 입력해주세요")
+    @NotNull(message = "주문 유형을 입력해주세요")
     private OrderType orderType;
     private String requirements;
 

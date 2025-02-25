@@ -5,10 +5,7 @@ import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.*;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.repository.DeliveryAddressRepository;
-import com.sparta.delivery.domain.order.dto.OrderListResponseDto;
-import com.sparta.delivery.domain.order.dto.OrderRequestDto;
-import com.sparta.delivery.domain.order.dto.OrderResponseDto;
-import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
+import com.sparta.delivery.domain.order.dto.*;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
@@ -384,7 +381,7 @@ public class OrderServiceTest {
         List<UUID> storeIdList = Collections.emptyList();
         List<UUID> deliveryAddressIdList = Collections.emptyList();
 
-        Page<OrderListResponseDto> resultList = orderService.getUserOrderList(principalDetails.getUsername(), pageRequest, storeIdList, deliveryAddressIdList);
+        Page<OrderListResponseWithReviewDto> resultList = orderService.getUserOrderList(principalDetails.getUsername(), pageRequest, storeIdList, deliveryAddressIdList);
 
         assertNotNull(resultList);
         assertEquals(14 , resultList.getTotalElements());

@@ -3,11 +3,14 @@ package com.sparta.delivery.domain.order.entity;
 import com.sparta.delivery.domain.common.Timestamped;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.order.dto.OrderListResponseDto;
+import com.sparta.delivery.domain.order.dto.OrderListResponseWithReviewDto;
 import com.sparta.delivery.domain.order.dto.OrderResponseDto;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
 import com.sparta.delivery.domain.order.enums.OrderType;
 import com.sparta.delivery.domain.orderProduct.entity.OrderProduct;
 import com.sparta.delivery.domain.product.entity.Product;
+import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.entity.Review;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -74,6 +77,20 @@ public class Order extends Timestamped {
         return productIdList;
     }
 
+    public OrderListResponseWithReviewDto toResponseListDto(ReviewResponseDto review) {
+        return new OrderListResponseWithReviewDto(
+                this.orderId,
+                this.orderTime,
+                this.orderType,
+                this.orderStatus,
+                this.requirements,
+                this.stores.getStoreId(),
+                this.user.getUserId(),
+                this.deliveryAddress != null ? this.deliveryAddress.getDeliveryAddressId() : null,
+                review
+        );
+    }
+
     public OrderListResponseDto toResponseListDto() {
         return new OrderListResponseDto(
                 this.orderId,
@@ -83,8 +100,7 @@ public class Order extends Timestamped {
                 this.requirements,
                 this.stores.getStoreId(),
                 this.user.getUserId(),
-                this.deliveryAddress != null ? this.deliveryAddress.getDeliveryAddressId() : null
-        );
+                this.deliveryAddress != null ? this.deliveryAddress.getDeliveryAddressId() : null);
     }
 
     public OrderResponseDto toResponseDto() {

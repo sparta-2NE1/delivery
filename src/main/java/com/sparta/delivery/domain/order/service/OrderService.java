@@ -5,10 +5,7 @@ import com.sparta.delivery.config.global.exception.custom.OrderNotFoundException
 import com.sparta.delivery.config.global.exception.custom.*;
 import com.sparta.delivery.domain.delivery_address.entity.DeliveryAddress;
 import com.sparta.delivery.domain.delivery_address.repository.DeliveryAddressRepository;
-import com.sparta.delivery.domain.order.dto.OrderListResponseDto;
-import com.sparta.delivery.domain.order.dto.OrderRequestDto;
-import com.sparta.delivery.domain.order.dto.OrderResponseDto;
-import com.sparta.delivery.domain.order.dto.OrderStatusRequestDto;
+import com.sparta.delivery.domain.order.dto.*;
 import com.sparta.delivery.domain.order.entity.Order;
 import com.sparta.delivery.domain.order.entity.QOrder;
 import com.sparta.delivery.domain.order.enums.OrderStatus;
@@ -18,6 +15,9 @@ import com.sparta.delivery.domain.orderProduct.entity.OrderProduct;
 import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.product.repository.ProductRepository;
 import com.sparta.delivery.domain.product.service.ProductService;
+import com.sparta.delivery.domain.review.dto.ReviewResponseDto;
+import com.sparta.delivery.domain.review.entity.Review;
+import com.sparta.delivery.domain.review.repository.ReviewRepository;
 import com.sparta.delivery.domain.store.entity.Stores;
 import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.user.entity.User;
@@ -44,6 +44,7 @@ public class OrderService {
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final ProductRepository productRepository;
     private final StoreRepository storeRepository;
+    private final ReviewRepository reviewRepository;
 
     private final ProductService productService;
 
@@ -82,7 +83,7 @@ public class OrderService {
         return order.toResponseDto();
     }
 
-    public Page<OrderListResponseDto> getUserOrderList(String username, PageRequest pageable, List<UUID> storeIdList, List<UUID> deliveryAddressIdList) {
+    public Page<OrderListResponseWithReviewDto> getUserOrderList(String username, PageRequest pageable, List<UUID> storeIdList, List<UUID> deliveryAddressIdList) {
         try {
             User user = getUser(username);
 
@@ -116,7 +117,13 @@ public class OrderService {
                 throw new OrderNotFoundException("조건에 해당하는 주문이 없습니다.");
             }
 
-            return userOrderList.map(Order::toResponseListDto);
+            //가게 고유값으로 호출하면 리뷰까지 같이.
+            return userOrderList.map(order -> {
+                Review review = reviewRepository.findByOrder(order).orElse(null);
+                ReviewResponseDto reviewDto = (review != null) ? review.toResponseDto() : null;
+
+                return order.toResponseListDto(reviewDto);
+            });
         } catch (Exception e) {
             throw e;
         }
