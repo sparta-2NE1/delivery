@@ -3,6 +3,7 @@ package com.sparta.delivery.productTest.unit;
 import com.sparta.delivery.config.auth.PrincipalDetails;
 import com.sparta.delivery.config.global.exception.custom.DuplicateProductException;
 import com.sparta.delivery.config.global.exception.custom.ProductNotFoundException;
+import com.sparta.delivery.config.global.exception.custom.StoreNotFoundException;
 import com.sparta.delivery.domain.product.dto.ProductRequestDto;
 import com.sparta.delivery.domain.product.dto.ProductResponseDto;
 import com.sparta.delivery.domain.product.dto.ProductUpdateRequestDto;
@@ -10,6 +11,7 @@ import com.sparta.delivery.domain.product.entity.Product;
 import com.sparta.delivery.domain.product.repository.ProductRepository;
 import com.sparta.delivery.domain.product.service.ProductService;
 import com.sparta.delivery.domain.store.entity.Stores;
+import com.sparta.delivery.domain.store.repository.StoreRepository;
 import com.sparta.delivery.domain.user.enums.UserRoles;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
@@ -33,6 +37,8 @@ public class ProductServiceTest {
     private ProductService productService;
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private StoreRepository storeRepository;
     @Mock
     private PrincipalDetails principalDetails;
     private UUID productId;
@@ -191,6 +197,52 @@ public class ProductServiceTest {
                 ProductNotFoundException exception = assertThrows(ProductNotFoundException.class, () -> productService.getProduct(productId, principalDetails));
                 assertEquals("해당 상품을 찾을 수 없습니다.", exception.getMessage());
                 verify(productRepository, times(1)).findById(any(UUID.class));
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("스토어 상품 리스트 조회")
+    class GetStoreProductsTest {
+
+        @Nested
+        @DisplayName("성공")
+        class Success {
+            @Test
+            @DisplayName("마스터 또는 매니저는 숨김 및 삭제 상품을 포함한 모든 상품을 조회할 수 있다.")
+            void getStoreProductsSuccessForMasterOrManager() {
+                when(storeRepository.existsByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(true);
+                when(productRepository.findAllByStore_StoreId(any(UUID.class), any(Pageable.class))).thenReturn(Page.empty());
+                when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_MASTER);
+
+                productService.getStoreProducts(storeId, 0, 10, "createdAt", "desc", principalDetails);
+
+                verify(productRepository, times(1)).findAllByStore_StoreId(any(UUID.class), any(Pageable.class));
+            }
+
+            @Test
+            @DisplayName("고객은 삭제되지 않은 상품 중 숨김 처리되지 않은 상품을 조회할 수 있다.")
+            void getStoreProductsSuccessForCustomer() {
+                when(storeRepository.existsByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(true);
+                when(productRepository.findAllByStore_StoreIdAndDeletedAtIsNullAndHiddenFalse(any(UUID.class), any(Pageable.class))).thenReturn(Page.empty());
+                when(principalDetails.getRole()).thenReturn(UserRoles.ROLE_CUSTOMER);
+
+                productService.getStoreProducts(storeId, 0, 10, "createdAt", "desc", principalDetails);
+
+                verify(productRepository, times(1)).findAllByStore_StoreIdAndDeletedAtIsNullAndHiddenFalse(any(UUID.class), any(Pageable.class));
+            }
+        }
+
+        @Nested
+        @DisplayName("실패")
+        class Fail {
+            @Test
+            @DisplayName("해당 스토어가 존재하지 않으면 StoreNotFoundException을 발생시킨다.")
+            void getStoreProductsFailStoreNotFound() {
+                when(storeRepository.existsByStoreIdAndDeletedAtIsNull(any(UUID.class))).thenReturn(false);
+
+                assertThrows(StoreNotFoundException.class, () -> productService.getStoreProducts(storeId, 0, 10, "createdAt", "desc", principalDetails));
+                verify(storeRepository, times(1)).existsByStoreIdAndDeletedAtIsNull(any(UUID.class));
             }
         }
     }
