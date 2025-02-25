@@ -53,6 +53,19 @@ public @interface ProductSwaggerDocs {
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "스토어 상품 조회", description = "특정 스토어의 상품 리스트를 조회합니다.")
+    @Parameters({
+            @Parameter(name = "storeId", description = "조회할 스토어의 UUID", example = "af2a560c-1512-4912-97ce-02f9afce72aa")
+    })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 스토어의 상품이 존재하지 않음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @interface GetStoreProducts {}
+
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "상품 정보 수정", description = "상품의 정보를 수정합니다.")
     @Parameters({
             @Parameter(name = "productId", description = "수정할 상품의 UUID", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")

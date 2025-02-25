@@ -7,6 +7,7 @@ import com.sparta.delivery.domain.review.dto.ReviewUpdateRequestDto;
 import com.sparta.delivery.domain.review.service.ReviewService;
 import com.sparta.delivery.domain.review.swagger.ReviewSwaggerDocs;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name ="Review API", description = "리뷰 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/review")
@@ -69,7 +71,7 @@ public class ReviewController {
 
     @ReviewSwaggerDocs.deleteReview
     @Operation(summary = "리뷰 삭제")
-    @DeleteMapping("/{reviewId}")
+    @PatchMapping("/deleteReview/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable("reviewId") UUID reviewId, @AuthenticationPrincipal PrincipalDetails userDetails) {
         reviewService.deleteReview(reviewId, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -77,7 +79,7 @@ public class ReviewController {
 
     @ReviewSwaggerDocs.updateReview
     @Operation(summary = "리뷰 수정")
-    @PutMapping("/{reviewId}")
+    @PatchMapping("/updateReview/{reviewId}")
     public ResponseEntity<?> updateReview(@PathVariable("reviewId") UUID reviewId, @RequestBody ReviewUpdateRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails userDetails) {
         reviewService.updateReview(reviewId, requestDto, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.OK).build();
