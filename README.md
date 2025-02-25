@@ -18,6 +18,11 @@
 ```bash
 git clone https://github.com/사용자명/레포명.git
 cd 레포명
+ 1. git에서 push
+ 2. CI 진행
+ 3. 도커 이미지를 도커 허브에 올린 후 EC2 진입
+ 4. 도커 허브에서 도커 이미지를 다운 후 도커 컴포즈로 환경변수 주입
+ 5. 엔진엑스로 2개의 포트 중 현재 사용중이지 않은 포트로 배포
 ```
 
 
@@ -121,6 +126,11 @@ cd 레포명
 - **Token-Based Authentication**: JWT (JSON Web Token)
   <!-- 토큰 기반 인증 방식으로 JWT 사용 -->
 
+## Devops
+- **배포 빌드**: Docker, Docker-Compose
+- **확장성 및 보안**: nginx
+- **CI**: github action
+     
 ## Etc
 - **외부 API 연동**
     - - **‎Gemini API** : 상품 설명 문구 추천을 위한 외부 AI API 연동.
