@@ -1,25 +1,19 @@
 spring:
-  application:
-    name: delivery
-
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgresql:5432/delivery
-    username: twenty1
-    password: ${DB_PASSWORD}
+    driver-class-name: org.h2.Driver
+    hikari.jdbc-url: jdbc:h2:mem:test_db;
+    username: testdb
+    password:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
   jwt:
     secret: ${JWT_SECRET}
     accessTokenValidityInMilliseconds: 3600000  # 1시간 (3600000 밀리초)
     refreshTokenValidityInMilliseconds: 86400000  # 24시간 (1일 = 86400000 밀리초)
-
-ai:
-  apikey: ${AI_API_KEY}
 
 server:
   port: 8080
