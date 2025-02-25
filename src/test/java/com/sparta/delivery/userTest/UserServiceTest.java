@@ -65,7 +65,8 @@ public class UserServiceTest {
         registry.add("spring.datasource.password", () -> "twenty1");
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create");
         registry.add("spring.jwt.secret", () -> "test_secret_key");
-        registry.add("ai.apikey", () -> "test_api_key");
+        registry.add("spring.jwt.accessTokenValidityInMilliseconds", () -> 3600000);
+        registry.add("spring.jwt.refreshTokenValidityInMilliseconds", () -> "86400000");
     }
 
     @BeforeEach
