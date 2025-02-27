@@ -107,8 +107,6 @@ cd 레포명
   <!-- 인증과 인가를 위한 보안 모듈 -->
 - **API Documentation**: Swagger (Springdoc OpenAPI)
   <!-- API 문서를 자동 생성해주는 Swagger 도구 -->
-- **WebSocket**: 실시간 데이터 통신 적용
-  <!-- 실시간 통신을 위해 WebSocket을 사용 -->
 - **REST API**: RESTful API 설계
   <!-- REST 아키텍처 스타일에 따른 API 설계 -->
 
