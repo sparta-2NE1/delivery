@@ -16,13 +16,25 @@
 ## 🏗 서비스 구성 및 실행 방법
 ### 💾 환경 설정
 ```bash
-git clone https://github.com/사용자명/레포명.git
-cd 레포명
- 1. git에서 push
- 2. CI 진행
- 3. 도커 이미지를 도커 허브에 올린 후 EC2 진입
- 4. 도커 허브에서 도커 이미지를 다운 후 도커 컴포즈로 환경변수 주입
- 5. 엔진엑스로 2개의 포트 중 현재 사용중이지 않은 포트로 배포
+# 1. 레포지토리 클론
+git clone https://github.com/jjsh0208/delivery.git
+cd delivery
+
+# 2. 변경사항 커밋 및 푸시
+git add .
+git commit -m "커밋 메시지"
+git push origin 브랜치명
+
+# 3. CI/CD 파이프라인 실행 (예: GitHub Actions로 Docker 이미지 빌드 및 푸시)
+
+# 4. 빌드된 Docker 이미지를 Docker Hub에 푸시
+# 예: docker push [dockerhub-username]/delivery:latest
+
+# 5. EC2 서버에 접속 후 Docker Hub에서 이미지 pull
+docker pull [dockerhub-username]/delivery:latest
+
+# 6. docker-compose를 사용해 환경변수 주입 및 컨테이너 실행
+docker-compose up -d
 ```
 
 
